@@ -50,6 +50,12 @@ TRACKING_PREFIXES = ("utm_", "mc_")
 LINKEDIN_JOB = re.compile(r"/jobs/view/(?:[^/]*-)?(\d{6,})")
 GREENHOUSE_JOB = re.compile(r"^/([^/]+)/jobs/(\d+)")
 LEVER_JOB = re.compile(r"^/([^/]+)/([0-9a-f-]{36})")
+ASHBY_JOB = re.compile(r"^/([^/]+)/([0-9a-f-]{36})")
+# Workday: optional locale, the site name, then job/<location>/<slug>_<req id> or
+# details/<slug>_<req id>. Anything after the posting (/apply, /login) is dropped.
+WORKDAY_JOB = re.compile(r"^/(?:[a-z]{2}-[A-Z]{2}/)?([^/]+)/((?:job/[^/]+|details)/[^/]+)")
+ICIMS_JOB = re.compile(r"^/jobs/(\d+)")
+SMARTRECRUITERS_JOB = re.compile(r"^/([^/]+)/(\d{6,}[^/]*)")
 
 
 def _is_tracking(key: str) -> bool:
@@ -78,10 +84,35 @@ def canonical(url: str) -> str:
         if match:
             return f"https://job-boards.greenhouse.io/{match.group(1)}/jobs/{match.group(2)}"
 
+    if host in ("boards.greenhouse.io", "job-boards.greenhouse.io") and parts.path.startswith("/embed/"):
+        params = dict(query)
+        if params.get("for") and params.get("token", "").isdigit():
+            return f"https://job-boards.greenhouse.io/{params['for']}/jobs/{params['token']}"
+
     if host == "jobs.lever.co":
         match = LEVER_JOB.match(parts.path)
         if match:
             return f"https://jobs.lever.co/{match.group(1)}/{match.group(2)}"
+
+    if host == "jobs.ashbyhq.com":
+        match = ASHBY_JOB.match(parts.path)
+        if match:
+            return f"https://jobs.ashbyhq.com/{match.group(1)}/{match.group(2)}"
+
+    if host.endswith(".myworkdayjobs.com"):
+        match = WORKDAY_JOB.match(parts.path)
+        if match:
+            return f"https://{host}/{match.group(1)}/{match.group(2)}"
+
+    if host.endswith(".icims.com"):
+        match = ICIMS_JOB.match(parts.path)
+        if match:
+            return f"https://{host}/jobs/{match.group(1)}/job"
+
+    if host == "jobs.smartrecruiters.com":
+        match = SMARTRECRUITERS_JOB.match(parts.path)
+        if match:
+            return f"https://jobs.smartrecruiters.com/{match.group(1)}/{match.group(2)}"
 
     kept = sorted((k, v) for k, v in query if not _is_tracking(k))
     path = parts.path.rstrip("/") or "/"

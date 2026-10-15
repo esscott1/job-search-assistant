@@ -2,17 +2,18 @@
 
 A step-by-step walkthrough of the `job-search-assistant` plugin, from installing it to sending a tailored resume. Plan on about 20 minutes for setup; after that, the daily routine takes a few minutes.
 
-**How it works in one paragraph.** Each day the plugin reads your job-alert emails and logs promising leads to a Google Sheet with a quick fit score. You tick the ones worth a closer look; it finds each real job description, scores it against your full resume, and shows every gap. If a gap is something you've done but left off your resume, you add it and rescore. When you're happy, you tick another box and it builds a two-page tailored resume. You decide what gets the expensive work; the plugin does the reading, scoring and bookkeeping.
+**How it works in one paragraph.** Each day the plugin reads your job-alert emails and the career sites of companies you choose, and logs promising leads to a Google Sheet with a quick fit score. You tick the ones worth a closer look; it finds each real job description, scores it against your full resume, and shows every gap. If a gap is something you've done but left off your resume, you add it and rescore. When you're happy, you tick another box and it builds a two-page tailored resume. You decide what gets the expensive work; the plugin does the reading, scoring and bookkeeping.
 
 ## 1. What you need
 
 - **Claude with plugins, connectors and scheduled tasks** (the Claude desktop app or claude.ai).
 - **Code execution turned on** in Claude's settings (code execution / file creation). The scoring, dedup and resume-building steps are small Python scripts.
-- **Three connectors:** **Gmail** (to read job-alert email), **Google Drive** (for your profile, resume and the files the plugin saves), and **Google Sheets** (for the tracker).
+- **Connectors:** **Google Drive** (for your profile, resume and the files the plugin saves) and **Google Sheets** (for the tracker), plus **Gmail** if you want job-alert email scanned. Setup checks for Gmail and tells you how to add it.
+- **Web search** turned on, if you want company career sites watched.
 - **Optional:** **Claude in Chrome**, signed in to LinkedIn, or the desktop app's built-in browser. It's used only for job descriptions that web search can't reach, usually LinkedIn-only postings.
 - **Your full resume as one Markdown file**, for example `Full-Resume.md`. It covers your **whole** career, not a two-page version: every role, project, tool, certification and accomplishment. Every score and every tailored resume comes only from this file, so anything missing from it shows up as a gap.
 - **Optional, for tailored resumes:** a copy of the **Job-Seeker-6** Word resume template. It's the only layout the resume builder supports today.
-- **Job-alert emails arriving in Gmail.** For example, set up LinkedIn job alerts for your target titles and location; recruiter emails and job-board alerts work too.
+- **At least one job source:** job-alert emails arriving in Gmail (for example LinkedIn job alerts for your target titles and location; recruiter emails and job-board alerts work too), or a list of companies whose career sites you want watched, or both.
 
 ## 2. Install the plugin
 
@@ -49,8 +50,10 @@ claude plugin install job-search-assistant@esscott
      - your **maximum one-way commute in miles**;
      - whether remote is fine;
      - whether you'd relocate (no / yes / only to certain places).
-   - **Email sources:** which job-alert emails you get. It finds a recent example in Gmail, confirms the sender address with you, and notes how to read it.
-   - **Housekeeping:** how long before untouched rows are archived (30 days) and how many rows to score per run (10). The defaults are fine.
+   - **Job sources:** where you want to find openings: job-alert email, specific companies' career sites, or both.
+     - **Email:** it checks that the Gmail connector is connected (and explains how to add it if not), then finds a recent example of each alert email, confirms the sender address with you, and notes how to read it.
+     - **Career sites:** name a company ("Acme") or paste its careers URL. It finds the official careers page, asks you to confirm it, and tests how it can be read from the cloud. If a site can't be read, it suggests that company's job-alert email instead.
+   - **Housekeeping:** how long before untouched rows are archived (30 days), how many rows to score per run (10), and how many new leads to log per career site per run (15). The defaults are fine.
 3. **Review the profile** it shows you and confirm. It saves **`job-search-profile.md`** to your folder.
 
 Your settings live only in that file, in your own Drive. Change them any time in plain language ("add Indeed alerts", "I'd relocate to Austin now") and the skill shows each change before → after. You can also edit the file by hand.
@@ -87,6 +90,8 @@ The first intake run looks back 7 days. If runs were missed, it catches up as fa
 |---|---|
 | "set up my job search" | First-time interview; writes your profile and creates the tracker if needed |
 | "update my job search profile" / "show my job search profile" | Change or review your settings |
+| "search for openings at Acme" / "watch https://careers.example.com/jobs" | Add a company career site to watch |
+| "stop watching Acme" | Stop watching that career site |
 | "run Tier 2 now" | Score every row ticked in Run Tier 2 right away |
 | "rescore JS-123" | Score one row against your current resume, ticked or not |
 | "run manual JD lookup" | Read unreachable job descriptions in your own browser |
@@ -119,4 +124,6 @@ The first intake run looks back 7 days. If runs were missed, it catches up as fa
 | Too many leads you don't want | Tighten Target roles and "Never interested" in your profile, or remove a noisy email source |
 | Nearby offices marked "Location unclear" | Add your ZIP code, or list nearby cities under "Commutable to" |
 | The resume build fails | Run "build ticked resumes" from the desktop app on your computer; the builder needs python-docx and LibreOffice |
+| "Careers: … could not be read" in the intake summary | The site changed or blocked reading. Say "update my job search profile" and ask to re-test that site, or switch to its job-alert email |
+| "email was skipped" in the intake summary | The Gmail connector isn't connected. Add it under Customize → Connectors |
 | Ticking a box does nothing | Ticking only queues the row. The scheduled task picks it up, or say "run Tier 2 now" / "build ticked resumes" |

@@ -16,7 +16,7 @@ Everything specific to a user (their name, files, tracker, target roles, locatio
 - **Find it** with `search_files`: `title = 'job-search-profile.md'`, then read it as **Reading Markdown files** below describes.
   - **None found:** stop and say "No job-search profile found. Say 'set up my job search' to create one."
   - **More than one:** stop and list them; ask the user to keep one (`job-search-profile` resolves this).
-- **Read it as written:** each setting is a `- Key: value` line under a section heading; Email sources is a table. A blank value a skill needs is a stop, not a guess. Name the setting in the summary: `Profile setting "Location → Home area" is blank; say "update my job search profile"`.
+- **Read it as written:** each setting is a `- Key: value` line under a section heading; Email sources and Career sites are tables. A section that isn't there (an older profile may have no Career sites) counts as empty. A blank value a skill needs is a stop, not a guess. Name the setting in the summary: `Profile setting "Location → Home area" is blank; say "update my job search profile"`.
 - The settings each skill relies on:
 
 | Setting | Used by |
@@ -27,7 +27,7 @@ Everything specific to a user (their name, files, tracker, target roles, locatio
 | Tracker → Time zone | every skill that writes a date |
 | Target roles | intake screening, and `title_seniority` in `job-fit-rubric` |
 | Location | `work_arrangement` in `job-fit-rubric` |
-| Email sources, Never scan | job-lead-intake-scan |
+| Email sources, Career sites, Never scan, Housekeeping → Career site leads per run | job-lead-intake-scan |
 | Housekeeping → Archive after days | job-tracker-cleanup |
 | Housekeeping → Tier 2 rows per run | job-lead-tier2-scoring |
 
@@ -46,7 +46,7 @@ Find every column by its header text on each run, never by letter: the user may 
 |---|---|---|
 | ID | intake | `JS-` and a number, at least three digits: one more than the highest number already used (see **Adding rows**) |
 | Date Found | intake | Date the row was logged (today), `YYYY-MM-DD` |
-| Source | intake | The **Source** label of the email source the lead came from, from the profile |
+| Source | intake | The **Source** label, from the profile's Email sources or Career sites, of where the lead came from |
 | Company, Job Title | intake | From the email; a truncated title (ending in `...`) stays as the email shows it |
 | Job Description | intake; Tier 2 skills | `=HYPERLINK("<url>","View posting")`. The canonical URL when there is one, otherwise the Gmail message. A Tier 2 skill may replace a Gmail-message link with the JD URL it found, and never replaces a posting link |
 | Type / Location | intake; Tier 2 skills fill it if blank | As stated (e.g. `Remote`, `Austin, TX (hybrid)`) |
@@ -63,9 +63,9 @@ Find every column by its header text on each run, never by letter: the user may 
 | Tailored Resume, Resume Created | tailored-resume-builder | `=HYPERLINK("<Drive URL of the PDF>","<file name>")`; date built |
 | Date Submitted, Submission Email | The user | |
 | Last Updated | every skill that writes the row | Today, `YYYY-MM-DD` |
-| Source Email | intake | `=HYPERLINK("https://mail.google.com/mail/u/0/#all/<Gmail message id>","Email")` |
-| Gmail Message ID | intake | The Gmail message id the lead came from |
-| Email Received | intake | Date the email arrived (its Gmail date, in the profile's time zone), `YYYY-MM-DD` |
+| Source Email | intake | `=HYPERLINK("https://mail.google.com/mail/u/0/#all/<Gmail message id>","Email")`. Blank for a lead from a career site |
+| Gmail Message ID | intake | The Gmail message id the lead came from. Blank for a lead from a career site |
+| Email Received | intake | Date the email arrived (its Gmail date, in the profile's time zone), `YYYY-MM-DD`. Blank for a lead from a career site |
 | Score Breakdown | intake, Tier 2 skills | How the score was reached: `<source> \| <breakdown string from score.py>` (formats below) |
 | Tier 2 Date | Tier 2 skills; intake when it reads a full JD | Date of the last Tier 2 attempt, whatever the outcome |
 | Canonical URL | intake | Plain text output of `canonical_url.py`, blank if it returned `""`. The dedup key |
@@ -84,7 +84,7 @@ Never write anything a row's owner column doesn't list for your skill. In partic
 | `T2-closed` | The posting is closed or filled. The user decides whether to set Status to Closed | either Tier 2 skill |
 
 ### Score Breakdown formats
-- T1: `Alert email | <breakdown>`
+- T1: `Alert email | <breakdown>`, or `Career site listing | <breakdown>` for a lead from a career site
 - T2: `JD: <full JD URL> (web search) | <breakdown>` (intake writes `(intake fetch)`)
 - T2-manual: `JD: <full JD URL, or "LinkedIn direct"> (browser) | <breakdown>`
 - A rescore adds the run and the previous score inside the brackets: `JD: <full JD URL> (web search, rescore r3, was 6) | <breakdown>`.
@@ -171,7 +171,7 @@ If the Job Log has no data rows yet, insert under the header the same way and se
 ## Dedup
 Before adding a lead, check it against the Job Log, the Archive tab (if there is one), and the leads already accepted in this run. A job that was archived stays archived; it isn't logged again.
 1. Run `canonical_url.py` on the lead's posting link. If the result isn't `""` and matches an existing **Canonical URL**, it's a duplicate.
-2. Otherwise, the same company and substantially the same title is a duplicate. A truncated title such as `Senior Projec...` matches any title it's the start of. Rows logged before the Canonical URL column existed are caught this way.
+2. Otherwise, the same company and substantially the same title is a duplicate. A truncated title such as `Senior Projec...` matches any title it's the start of. Rows logged before the Canonical URL column existed are caught this way, and so is the same job reached two ways (an alert email's link and the company's career site).
 
 ## The Archive tab
 Rows the user never acted on are moved here by job-tracker-cleanup after the profile's **Archive after days** (30 by default), so the Job Log stays reviewable.

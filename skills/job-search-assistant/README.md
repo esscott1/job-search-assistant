@@ -5,7 +5,7 @@ The `job-search-assistant` plugin: skills that find job leads in your email, log
 | Skill | Trigger | Depends on |
 |---|---|---|
 | [`job-search-profile`](job-search-profile/SKILL.md) | On demand: "set up my job search" the first time, then whenever something changes ("add a job alert sender", "search for openings at Acme", "my tracker moved") | Google Drive and Google Sheets connectors; Gmail to confirm email senders; web search and web fetch to find and test career sites |
-| [`job-lead-intake-scan`](job-lead-intake-scan/SKILL.md) | A daily schedule | Gmail, Google Drive and Google Sheets connectors only. Runs in the cloud; no computer needed |
+| [`job-lead-intake-scan`](job-lead-intake-scan/SKILL.md) | A daily schedule | Gmail, Google Drive and Google Sheets connectors, plus web search and web fetch for career sites. Runs in the cloud; no computer needed |
 | [`job-lead-tier2-scoring`](job-lead-tier2-scoring/SKILL.md) | A schedule every 2-4 hours, scoring only rows ticked in **Run Tier 2**; or on demand for named rows | Web search and fetch, Google Drive and Google Sheets connectors. Cloud only, never LinkedIn |
 | [`job-lead-manual-jd-lookup`](job-lead-manual-jd-lookup/SKILL.md) | On demand, at your computer, for rows Tier 2 marked `T2-pending-manual` | Your signed-in Chrome (for LinkedIn) or the desktop app's built-in browser, plus the Sheets connector |
 | [`job-fit-rubric`](job-fit-rubric/SKILL.md) | Never on its own; loaded whenever a skill sets a Fit Score | Python 3 for `score.py` |
@@ -17,7 +17,7 @@ The `job-search-assistant` plugin: skills that find job leads in your email, log
 
 The full walkthrough, from requirements and install to the daily routine and troubleshooting, is in [docs/getting-started.md](../../docs/getting-started.md).
 
-Say **"set up my job search"**. The `job-search-profile` skill interviews you and writes **`job-search-profile.md`** to your Google Drive. It records your name, your full-resume file, where your tracker sheet is, the roles you're targeting, your home ZIP code and how far you'd commute, and which job-alert emails to scan. It's plain Markdown, like a CLAUDE.md: the skill keeps it up to date when you tell Claude something changed, and you can edit it by hand. If your tracker sheet doesn't exist yet, the skill offers to create it.
+Say **"set up my job search"**. The `job-search-profile` skill interviews you and writes **`job-search-profile.md`** to your Google Drive. It records your name, your full-resume file, where your tracker sheet is, the roles you're targeting, your home ZIP code and how far you'd commute, and where to look for openings: which job-alert emails to scan, and which companies' career sites to watch. It's plain Markdown, like a CLAUDE.md: the skill keeps it up to date when you tell Claude something changed, and you can edit it by hand. If your tracker sheet doesn't exist yet, the skill offers to create it.
 
 ## How to use it
 
@@ -27,6 +27,13 @@ Say **"set up my job search"**. The `job-search-profile` skill interviews you an
 4. **Build the resume.** When the gaps that remain are real, tick **Build Resume** and say "build ticked resumes". A 2-page .docx and PDF are saved in the job's folder, and the row links to the PDF.
 
 Once a week, cleanup moves rows you never acted on (still "Need to review" more than 30 days after they were found, or the age set in your profile) to the **Archive** tab, so the Job Log stays short. Anything you've ticked, noted, moved to another status, or built a resume for stays put.
+
+### Where openings come from
+Intake reads two kinds of job source from your profile:
+- **Job-alert email** in Gmail: LinkedIn alerts, recruiter mail, job boards, a company's own alerts. It needs the Gmail connector. Setup checks for it and tells you how to add it if it's missing.
+- **Company career sites.** Say "search for openings at Acme" or "watch https://careers.example.com/jobs". Setup finds the official careers page and confirms it with you. It then tests how the site can be read from the cloud: through a public job feed, from the listing page itself, or, for sites built entirely in JavaScript, with a web search scoped to that site. If none of these works, it suggests signing up for that company's job-alert email instead.
+
+Each run logs at most 15 new rows per career site (a setting in your profile), so the first scan of a large employer doesn't flood the tracker. A job found both in an alert email and on the company's site is logged once.
 
 If Tier 2 can't reach a job description (Score Tier `T2-pending-manual`, usually a LinkedIn-only posting), run the manual lookup from your computer. Once it has saved the description, rescores work from the cloud again.
 
@@ -38,6 +45,8 @@ If Tier 2 can't reach a job description (Score Tier `T2-pending-manual`, usually
 | "rescore JS-123" (or "run Tier 2 on JS-123") | Scores that row against your current resume, ticked or not. Uses the saved job description if there is one |
 | "run manual JD lookup" | Reads the job description in your own browser for every `T2-pending-manual` row. Needs your computer on |
 | "update my job search profile" (or just say what changed) | Changes the profile, showing each line before → after |
+| "search for openings at Acme" / "watch https://careers.example.com/jobs" | Adds a career site to your profile, after you confirm the page and the skill has tested it |
+| "stop watching Acme" | Removes that career site from your profile |
 | "build ticked resumes" | Builds a tailored resume for every row ticked in Build Resume, then unticks it |
 | "clean up the tracker now" | Archives stale rows without waiting for the weekly run |
 | "restore JS-123" | Moves an archived row back to the top of the Job Log |
@@ -57,7 +66,7 @@ Everything lives in one Google Drive folder, the one you named for your tracker 
 
 **Only setup creates a tracker.** If the sheet in your profile isn't found, every skill stops and says so rather than starting a blank one. `job-search-profile` offers to create the folder and sheet during setup, and only with your yes.
 
-Nothing about you is written into the skills: every skill reads your name, files, tracker, target roles, location rules and email sources from `job-search-profile.md`, and stops with a clear message if a setting it needs is blank.
+Nothing about you is written into the skills: every skill reads your name, files, tracker, target roles, location rules and job sources from `job-search-profile.md`, and stops with a clear message if a setting it needs is blank.
 
 ## How it's built
 
