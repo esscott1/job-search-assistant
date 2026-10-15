@@ -58,6 +58,13 @@
       "mimeType": "text/markdown",
       "parentId": "FOLDER_Fabrikam_Robotics",
       "modifiedTime": "2026-10-13T12:00:00Z"
+    },
+    {
+      "id": "FILE_TEMPLATE_0001",
+      "title": "Job-Seeker-6-Resume-Template.docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "parentId": "FOLDER_EVAL_0001",
+      "modifiedTime": "2026-10-13T12:00:00Z"
     }
   ]
 }

@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: sally-audit-full-audit
+context:
+  add_dirs: ["world"]

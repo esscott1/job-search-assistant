@@ -2,6 +2,13 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.1.4, ai-governance 0.1.2
+
+- Every eval suite now uses the native `claude plugin eval` format, inside its plugin. The old skill-creator suites under the repo-root `evals/` are gone.
+- `ai-governance` gains `evals/` with the eight sally-audit cases. Each case's frozen repo-and-install world lives in the case, and is read through `add_dirs`.
+- `job-search-assistant` gains four tailored-resume-builder cases: a resume built for a pasted JD, no invented skills, a missing full resume, and a ticked row with no saved JD. A synthetic resume template (same structure as the real one, placeholder text only) lets these cases build a real .docx, and lets `build_resume.py`'s unit tests run in CI instead of being skipped.
+- `sally-audit`: `"skills": ["./"]` is not a marketplace mismatch; only a category that lists its skill folders one by one can miss one. The eval run caught the earlier wording flagging it.
+
 ## job-search-assistant 0.1.3, ai-governance 0.1.1
 
 - `job-search-assistant` now ships an eval suite in `evals/`, in the format `claude plugin eval` runs. It has two cases to start: the resume builder asks for a job description instead of guessing, and Tier 2 with nothing ticked reads the profile and tracker and stops. A small stub plugin stands in for the Google Drive and Sheets connectors, so cases can check exactly what a skill reads and writes.

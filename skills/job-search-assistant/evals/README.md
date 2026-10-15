@@ -22,7 +22,8 @@ claude plugin eval skills/job-search-assistant --trust-plugin --no-publish --out
 - `--trust-plugin` skips the first-run prompt. Pass it only for this repo's own plugin.
 - `--keep-temp` keeps each run's sandbox and `trace.jsonl` for debugging. On Windows the CLI prints the folder to delete afterwards.
 - Rough cost per run, measured on the first cases: $0.10-0.21 with the plugin and about $0.06 without, plus a few cents for LLM graders. A scoring case reads more and runs `score.py`, so expect more per run.
-- **Scoring cases need a shell, which means Linux or macOS.** They run the rubric's `score.py`, so they need `--allow-tools Bash Write`. The eval runner grants a shell only inside an OS sandbox. On Windows it refuses the run, so use WSL: [`scripts/setup-wsl-evals.sh`](../../../scripts/setup-wsl-evals.sh) sets up Ubuntu (bubblewrap, socat, Node and Claude Code), and you sign in once. Cases that need no shell run anywhere.
+- **The resume template** isn't in the repo. `make_synthetic_template.py` makes a stand-in with the same structure that `build_resume.py` relies on and placeholder text only. Drive serves it under the template's file name, so the resume cases build a real .docx. The same file lets `build_resume.py`'s unit tests run in CI.
+- **Scoring and resume-building cases need a shell, which means Linux or macOS.** They run the rubric's `score.py`, so they need `--allow-tools Bash Write`. The eval runner grants a shell only inside an OS sandbox. On Windows it refuses the run, so use WSL: [`scripts/setup-wsl-evals.sh`](../../../scripts/setup-wsl-evals.sh) sets up Ubuntu (bubblewrap, socat, Node, Claude Code, and python-docx, LibreOffice and pdfinfo for the resume cases), and you sign in once. Cases that need no shell run anywhere.
 
   ```bash
   # the scoring baseline: every case, 3 runs, with the plugin only
@@ -40,6 +41,7 @@ evals/
   mocks/<server>/<tool>.md canned responses for the stubbed connectors
   fixtures/                the synthetic files the mocks are built from
     gold/                  the expected evidence table for each scoring case
+    Synthetic-Resume-Template.docx  stand-in for the resume template (made by make_synthetic_template.py)
   build_mocks.py           builds mocks/ and each case's mocks/ and gstub/ from fixtures/
   test_eval_fixtures.py    checks the mocks are current and the gold answers match the graders (CI, no model calls)
 ```
@@ -81,6 +83,10 @@ A scoring eval only means something if the right answer is fixed in advance. Eac
 | Case | Skill | What it proves |
 |---|---|---|
 | `resume-no-jd-asks-first` | tailored-resume-builder | Without a job description it asks for one and builds nothing |
+| `resume-tailors-pasted-jd` | tailored-resume-builder | Needs a shell. Builds a resume for a pasted JD with build_resume.py, leading with the JD's supported requirements, employer and dates unchanged, saved as `<prefix>_<Company>_<Role>.docx`, and ends with the gaps |
+| `resume-does-not-invent` | tailored-resume-builder | Needs a shell. The JD asks for a Kubernetes certification and Rust, which the resume doesn't show: neither appears in the competencies or highlights, and both are reported as gaps |
+| `resume-full-resume-missing` | tailored-resume-builder | The profile's full resume isn't in Drive: it stops and says so, and never falls back to the older Word resume that is there |
+| `resume-ticked-row-needs-jd` | tailored-resume-builder | "build ticked resumes" on a row with no saved JD: skips it, leaves Build Resume ticked, says to run Tier 2 first, and doesn't search for the JD |
 | `tier2-nothing-ticked` | job-lead-tier2-scoring | Reads the profile and tracker through the connectors, reports that nothing is ticked, and stops: no resume download, no web search, no writes |
 | `tier2-gold-strong-fit` | job-lead-tier2-scoring, job-fit-rubric | Remote senior cloud program role the resume covers almost fully. Gold 10 (accept 9-10); PMP is the one gap |
 | `tier2-gold-partial-fit` | job-lead-tier2-scoring, job-fit-rubric | Hybrid role in the home city with real gaps (Kubernetes, healthcare) and an AWS-vs-Azure partial. Gold 7 (accept 6-8) |

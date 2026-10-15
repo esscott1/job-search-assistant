@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: sally-audit-duplicate-install
+context:
+  add_dirs: ["world"]

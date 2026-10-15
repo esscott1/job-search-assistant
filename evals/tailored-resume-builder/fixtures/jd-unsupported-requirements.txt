@@ -1,2 +1,0 @@
-Globex (fictional) - Platform Program Director
-Required: Kubernetes certification (CKA); 10+ years of Rust; vendor management.

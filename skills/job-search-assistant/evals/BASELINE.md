@@ -20,6 +20,15 @@ claude plugin eval skills/job-search-assistant --runs 3 --ablation none --allow-
 
 Total: 18 runs, $9.51, about 10 minutes at `-j 3`.
 
+**Added 2026-10-15 (plugin 0.1.4), resume cases that need no shell, run on Windows:**
+
+| Case | Score (3 runs) | Cost per run | What the runs did |
+|---|---|---|---|
+| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | $0.23 | Said Full-Resume.md wasn't found; never read the older Word resume; built nothing |
+| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | $0.26 | Skipped JS-002 for lack of a saved JD, left Build Resume ticked, said to run Tier 2 first |
+
+`resume-tailors-pasted-jd` and `resume-does-not-invent` build a real resume and need a shell with python-docx and LibreOffice; their baseline is pending.
+
 **Note on the rescore case.** In the 3-run baseline it scored 0.95 every time. The only failure was the `same-requirements` grader, whose pattern couldn't cross from one requirement entry to the next, so it could never match. The grader was fixed and the case rerun once: 1.00, with the r2 evidence table identical to gold. Every other grader passed in all runs.
 
 ## What a change should look like

@@ -38,7 +38,7 @@
     },
     {
       "name": "create_file",
-      "description": "Create a Drive file or folder.",
+      "description": "Create or upload a file to Google Drive. Prefer textContent for text; for non-UTF8 content set base64Content. contentMimeType is required with content. Folders: mimeType application/vnd.google-apps.folder. Set disableConversionToGoogleType to keep the content's type.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -57,10 +57,16 @@
           "textContent": {
             "type": "string"
           },
+          "base64Content": {
+            "type": "string"
+          },
           "disableConversionToGoogleType": {
             "type": "boolean"
           }
-        }
+        },
+        "required": [
+          "title"
+        ]
       }
     }
   ]

@@ -52,7 +52,7 @@ Quote the specific difference that decided it — a line, a phrase from the desc
 - **not-installed**: in the repo, not installed in this account.
 - **duplicate**: the same skill installed both standalone and through its plugin.
 - **registry-mismatch**: a registry row that contradicts the repo (for example its Version or Files don't match the skill folder), a skill folder with no row, or a row with no folder.
-- **marketplace-mismatch**: a category with skills but no marketplace entry or `plugin.json`, an entry for a category with no skills, or a marketplace `name` that differs from its `plugin.json` `name`. Also a skill folder missing from its category's explicit `skills` list (it won't install), or a listed folder that doesn't exist.
+- **marketplace-mismatch**: a category with skills but no marketplace entry or `plugin.json`, an entry for a category with no skills, or a marketplace `name` that differs from its `plugin.json` `name`. Also, when a category's `plugin.json` names its skill folders one by one, a skill folder missing from that list (it won't install) or a listed folder that doesn't exist. `"skills": ["./"]` loads every skill folder in the category and is not a mismatch.
 - **broken-reference**: a SKILL.md on `main` that names a supporting file (`scripts/…`, `references/…`, `assets/…`) that isn't in its folder.
 - **stale**: a PR open more than 7 days, or a queue doc older than 7 days.
 
