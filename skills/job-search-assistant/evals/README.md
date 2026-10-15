@@ -22,7 +22,12 @@ claude plugin eval skills/job-search-assistant --trust-plugin --no-publish --out
 - `--trust-plugin` skips the first-run prompt. Pass it only for this repo's own plugin.
 - `--keep-temp` keeps each run's sandbox and `trace.jsonl` for debugging. On Windows the CLI prints the folder to delete afterwards.
 - Rough cost per run, measured on the first cases: $0.10-0.21 with the plugin and about $0.06 without, plus a few cents for LLM graders. A scoring case reads more and runs `score.py`, so expect more per run.
-- **Scoring cases need a shell, which means Linux or macOS.** They run the rubric's `score.py`, so they need `--allow-tools Bash Write`. The eval runner grants a shell only inside an OS sandbox. On Windows it refuses the run, so use WSL or a Linux machine (with `bubblewrap` and `socat` installed). Cases that need no shell run anywhere.
+- **Scoring cases need a shell, which means Linux or macOS.** They run the rubric's `score.py`, so they need `--allow-tools Bash Write`. The eval runner grants a shell only inside an OS sandbox. On Windows it refuses the run, so use WSL: [`scripts/setup-wsl-evals.sh`](../../../scripts/setup-wsl-evals.sh) sets up Ubuntu (bubblewrap, socat, Node and Claude Code), and you sign in once. Cases that need no shell run anywhere.
+
+  ```bash
+  # the scoring baseline: every case, 3 runs, with the plugin only
+  claude plugin eval skills/job-search-assistant --runs 3 --ablation none --allow-tools Bash Write -j 3     --trust-plugin --no-publish --output-dir ~/eval-runs/$(date +%Y%m%d-%H%M)
+  ```
 
 ## How a case is put together
 
@@ -58,7 +63,8 @@ plugins: ["gstub", "../.."]
 - **A case's `plugins` list replaces the plugin under test**, so it must name both the stub and the plugin itself (`../..`).
 - **The stub must sit in the case's own folder.** The CLI refuses a plugin path that covers the case, its graders or its mocks, so each such case carries its own copy. `test_eval_fixtures.py` checks that all copies are identical.
 - **Mock tool names in graders** look like `mcp__plugin_gstub_gsheets__update_values`.
-- **Mocks are fixed responses**, built by `build_mocks.py`; never edit them by hand. Drive downloads are served per file id (`{{file:fixtures/{input.fileId}.json}}`, resolved next to the mock), so each fixture file is one Drive file. A case with its own Job Log or Drive gets `<case>/mocks/...`, which overrides the shared mock. Edit the fixtures or the tables at the top of `build_mocks.py`, then run `python build_mocks.py`. The test fails if a mock is stale.
+- **Mocks are fixed responses**, built by `build_mocks.py`; never edit them by hand. Drive downloads are served per file id (`{{file:fixtures/{input.fileId}.json}}`, resolved next to the mock), so each fixture file is one Drive file. A case with its own Job Log or Drive gets `<case>/mocks/...`, which overrides the shared mock.
+- **A case that writes to the sheet gets a Sheets mock played by a small model** (`type: agent`), seeded with that case's Job Log. Skills re-find a row before writing and sometimes read it back afterwards, and a fixed mock would return the old row and make a correct run look like a failed write. The model costs a fraction of a cent per run. Don't adopt its recordings into `.replay/`: each run should start from the seeded sheet. Edit the fixtures or the tables at the top of `build_mocks.py`, then run `python build_mocks.py`. The test fails if a mock is stale.
 
 ## Scoring cases: a known right answer
 
@@ -68,7 +74,7 @@ A scoring eval only means something if the right answer is fixed in advance. Eac
 - **Graders** check that the score lands within ±1 of gold, and that the clear-cut requirements are judged as gold has them (for example, Kubernetes is `none`, vendor management is `strong`). They also check that `score.py` ran, that no web search happened, and that a fit report was written and the row updated. The ±1 allows for honest judgement calls, such as `partial` vs `none` on Azure when the resume shows AWS.
 - **The JDs are written to be unambiguous.** Each has explicit Required and Preferred sections and requirements the resume either clearly meets or clearly lacks, so a disagreement with gold points to a real change in behaviour.
 - **When the rubric changes,** the gold scores move. `test_eval_fixtures.py` reruns `score.py` on every gold table and fails if a score falls outside its case's band, which tells you which graders to update in the same PR.
-- **The baseline** is the with-plugin score of each case over 3 runs. Run the scoring cases before and after a change to a scoring skill or the rubric, and put both in the PR.
+- **The baseline** is in [`BASELINE.md`](BASELINE.md): every case over 3 runs, with the plugin. Run the scoring cases before and after a change to a scoring skill or the rubric, and put both in the PR.
 
 ## Cases
 

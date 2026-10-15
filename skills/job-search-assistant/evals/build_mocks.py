@@ -11,7 +11,9 @@ Sources (edit these, then rebuild):
 Outputs:
 - mocks/gdrive/...: shared Drive mocks; download_file_content serves fixtures by file id.
 - mocks/gsheets/get_values.md: the shared Job Log (nothing ticked).
-- <case>/mocks/...: per-case overrides, and <case>/gstub/: the connector stub plugin.
+- <case>/mocks/...: per-case overrides, and <case>/gstub/: the connector stub plugin. A case with
+  its own Job Log gets a Sheets mock played by a small model (type: agent) that keeps the
+  sheet's state, so read-after-write checks in the skills see their own writes.
 """
 
 from __future__ import annotations
@@ -126,6 +128,33 @@ def job_log(rows: list[str], ticked: list[str], tiers: dict) -> str:
     return dumps({"range": f"Job Log!A1:AB{end_row}", "majorDimension": "ROWS", "values": values})
 
 
+SHEET_AGENT = """---
+type: agent
+---
+
+You play the Google Sheets API for one spreadsheet, {sheet}, which has tabs "Job Log" (sheetId 0), "Status Guide" (1) and "Archive" (2).
+
+The Job Log starts as this grid (row 1 is the header; columns A to AB):
+{grid}
+
+Behave like the real API, and keep state for the whole conversation:
+- get_values: return {{"range": ..., "majorDimension": "ROWS", "values": [...]}} for the requested A1 range, reflecting every update_values call made so far.
+- update_values: apply the values to the range and return {{"updatedRange": ..., "updatedRows": n, "updatedColumns": n, "updatedCells": n}}.
+- get_spreadsheet: return the spreadsheet id, title Job_Search_Tracker and the three tabs.
+Reply with JSON only.
+"""
+
+
+def sheet_agent(rows: list[str], ticked: list[str], tiers: dict) -> str:
+    """A Sheets mock played by a small model, so a read after a write sees the write.
+
+    Skills re-find a row before writing and may read it back afterwards; a fixed mock would
+    return the old row and make a correct run look like a failed write.
+    """
+    grid = [HEADERS] + [row(r, r in ticked, tiers.get(r)) for r in rows]
+    return SHEET_AGENT.format(sheet=SHEET, grid=json.dumps(grid, ensure_ascii=False))
+
+
 def drive_files(files: dict) -> dict[str, str]:
     """The Drive mocks for one set of files: search lists everything, download serves by id."""
     listing = [
@@ -154,7 +183,9 @@ def build() -> dict[Path, str]:
     for case, spec in CASES.items():
         out[HERE / case / "gstub/.claude-plugin/plugin.json"] = dumps(STUB)
         if "rows" in spec:
-            out[HERE / case / "mocks/gsheets/get_values.md"] = job_log(spec["rows"], spec["ticked"], spec.get("tier", {}))
+            agent = sheet_agent(spec["rows"], spec["ticked"], spec.get("tier", {}))
+            for tool in ("get_values", "update_values", "get_spreadsheet"):
+                out[HERE / case / f"mocks/gsheets/{tool}.md"] = agent
         if "drive" in spec:
             for name, text in drive_files({**DRIVE, **spec["drive"]}).items():
                 out[HERE / case / "mocks/gdrive" / name] = text
