@@ -2,6 +2,10 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.1.6
+
+- `tailored-resume-builder` gains `render_resume.py`, which builds a resume .docx (and PDF) from scratch, using a small text **style file** for the user's look. The style file sets page size, margins, fonts, colours, section order and titles, the competencies grid or list, bullets and date alignment. No Word template is needed. `default-style.md` is a clean single-column default, and `resume-style-format.md` documents the format. The skill doesn't use it yet; the next releases add converting a user's Word template to a style file, and switch the skill over.
+
 ## job-search-assistant 0.1.5
 
 - `tailored-resume-builder`: a tailored resume is at most 2 pages, not exactly 2. When the full resume doesn't hold two pages of relevant, true content, a shorter resume is the right result; it's never padded. When LibreOffice isn't available to count pages, the .docx is still saved and the page count is reported as unverified. `build_resume.py` warns only when a resume runs over 2 pages.
