@@ -34,7 +34,19 @@ def test_rejects_too_many_competencies(tmp_path):
     c = fixture(); c["competencies"] = [f"s{i}" for i in range(13)]
     r, _ = run(c, tmp_path); assert r.returncode == 2
 
-def test_short_resume_warns_not_two_pages(tmp_path):
+def test_short_resume_is_acceptable(tmp_path):
+    """Under 2 pages is fine; only an over-length resume, or an unverifiable page count, warns."""
     r, _ = run(fixture(), tmp_path); res = json.loads(r.stdout)
-    # "resume is N pages" with LibreOffice installed, "page count unverified" without it
-    assert any("page" in w for w in res["warnings"])
+    if res["pages"] is None:
+        assert res["warnings"] == ["could not render to PDF; page count unverified"]
+    else:
+        assert res["pages"] <= 2 and res["warnings"] == []
+
+
+def test_over_two_pages_warns(tmp_path):
+    c = fixture()
+    c["experience"][0]["roles"][0]["bullets"] *= 40
+    r, _ = run(c, tmp_path); res = json.loads(r.stdout)
+    if res["pages"] is None:
+        pytest.skip("LibreOffice not installed; page count can't be checked")
+    assert res["pages"] > 2 and any("limit is 2" in w for w in res["warnings"])

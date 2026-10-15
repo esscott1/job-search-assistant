@@ -24,7 +24,7 @@ Say **"set up my job search"**. The `job-search-profile` skill interviews you an
 1. **Review the new rows each day.** Intake runs on its schedule and logs each new lead with a Tier 1 score from the alert email alone. Sort the Job Log by Fit Score and tick **Run Tier 2** on the leads worth a real look.
 2. **Tier 2 scores them.** The scheduled run finds each ticked job's real description, saves it, scores it against your full resume, and unticks the box. The **Gaps** cell shows the top three; the **Fit Report** link opens the full list: every requirement with the evidence for it, gaps first.
 3. **Close the gaps that aren't real.** If a gap is something you have done but left out of your full resume, add it there and tick **Run Tier 2** again. A rescore reuses the saved job description and the same requirement list, so a changed score comes from your edit, and the new fit report lists what changed since the last run. Repeat as often as you like.
-4. **Build the resume.** When the gaps that remain are real, tick **Build Resume** and say "build ticked resumes". A 2-page .docx and PDF are saved in the job's folder, and the row links to the PDF.
+4. **Build the resume.** When the gaps that remain are real, tick **Build Resume** and say "build ticked resumes". A .docx and PDF of at most 2 pages are saved in the job's folder (one page is fine when that's all the relevant experience there is), and the row links to the PDF.
 
 Once a week, cleanup moves rows you never acted on (still "Need to review" more than 30 days after they were found, or the age set in your profile) to the **Archive** tab, so the Job Log stays short. Anything you've ticked, noted, moved to another status, or built a resume for stays put.
 
