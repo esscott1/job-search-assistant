@@ -27,7 +27,16 @@ Total: 18 runs, $9.51, about 10 minutes at `-j 3`.
 | `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | $0.23 | Said Full-Resume.md wasn't found; never read the older Word resume; built nothing |
 | `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | $0.26 | Skipped JS-002 for lack of a saved JD, left Build Resume ticked, said to run Tier 2 first |
 
-`resume-tailors-pasted-jd` and `resume-does-not-invent` build a real resume and need a shell with python-docx and LibreOffice; their baseline is pending.
+**Added 2026-10-15 (plugin 0.1.5), resume cases that build a real resume, run in WSL:**
+
+| Case | Score (3 runs) | Usage per run (API-equivalent) | What the runs did |
+|---|---|---|---|
+| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $1.34-1.64 | Built the resume with vendor management featured; no Kubernetes, CKA or Rust anywhere; listed both as gaps |
+| `resume-tailors-pasted-jd` | 1.00 · 0.78 · 0.56 | $1.17-1.58 | Content was right in every run. The two partial runs failed on moving files, not on judgement (see below) |
+
+**Known limit: binary files pass through the model.** The Drive connector hands a file to the skill as base64 text, and takes an upload the same way, so the model has to copy the template's base64 into a file and the finished .docx's base64 into the upload. In one run a copied template was corrupt and the skill rightly stopped before building. In another, it repaired the template and built the resume, but declined to upload it rather than risk a corrupt copy. Until the skill stops depending on that round trip, this case isn't expected to pass every run.
+
+**Eval environment limit:** LibreOffice won't start inside the eval sandbox, so these runs can't make a PDF or count pages. The skill saves the .docx and reports the page count as unverified, as its rules say. The page-count logic itself is covered by `build_resume.py`'s unit tests, which run where LibreOffice is installed.
 
 **Note on the rescore case.** In the 3-run baseline it scored 0.95 every time. The only failure was the `same-requirements` grader, whose pattern couldn't cross from one requirement entry to the next, so it could never match. The grader was fixed and the case rerun once: 1.00, with the r2 evidence table identical to gold. Every other grader passed in all runs.
 
