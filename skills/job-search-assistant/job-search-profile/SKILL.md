@@ -1,6 +1,6 @@
 ---
 name: "job-search-profile"
-description: "On demand: sets up or updates the user's job-search profile, job-search-profile.md in their Google Drive. It holds their name, full-resume file, tracker sheet and folder, target roles, location and relocation rules, email sources and housekeeping settings. Use it the first time someone sets up the job-search plugin ('set up my job search'), and whenever they change something in chat ('add a job alert sender', 'I'd relocate to Austin now', 'my tracker moved'). Interviews the user for anything missing. The other job-search skills read the profile; they never write it."
+description: "On demand: sets up or updates the user's job-search profile, job-search-profile.md in their Google Drive. It holds their name, full-resume file, tracker sheet and folder, target roles, location and relocation rules, job sources (job-alert email senders and company career sites) and housekeeping settings. Use it the first time someone sets up the job-search plugin ('set up my job search'), and whenever they change something in chat ('add a job alert sender', 'search for openings at Acme', 'watch https://careers.example.com/jobs', 'I'd relocate to Austin now', 'my tracker moved'). Interviews the user for anything missing, checks the Gmail connector, and finds and tests career sites. The other job-search skills read the profile; they never write it."
 ---
 
 # Job Search Profile
@@ -11,7 +11,7 @@ This skill creates the profile by interviewing the user, and updates it whenever
 
 ## Key files and systems
 - **The profile:** a plain-text Markdown file named exactly `job-search-profile.md`, stored in the user's job-search folder. It's found by name (`search_files` with `title = 'job-search-profile.md'`), so its location never has to be configured. Drive search can't filter out trashed files, so this skill never leaves a trashed file with that name (see step 4).
-- **Google Drive connector** to find, read, create, rename and trash files. Read the profile with `download_file_content` and base64-decode it: `read_file_content` can return an empty result for a Markdown file created in the last few minutes. **Google Sheets connector** to check the tracker.
+- **Google Drive connector** to find, read, create, rename and trash files. Read the profile with `download_file_content` and base64-decode it: `read_file_content` can return an empty result for a Markdown file created in the last few minutes. **Google Sheets connector** to check the tracker. **Gmail connector** to confirm email senders. **Web search and web fetch** to find and test career sites.
 - **`job-tracker` skill:** load it for the tracker's tab and column layout when checking or creating a tracker.
 
 ## The profile format
@@ -57,13 +57,21 @@ Last updated: <YYYY-MM-DD>
 |---|---|---|
 | <label written to the Source column> | <sender address> | <how to read these emails: one job or a digest, how reliable, link quirks> |
 
+## Career sites
+| Source | Company | URL | Method | Notes |
+|---|---|---|---|---|
+| <label written to the Source column, e.g. Careers: Acme> | <company name> | <listing page, feed or site: scope> | <page / feed / search> | <the ATS if known, the human careers page for a feed, filters in the URL, quirks> |
+
 ## Never scan
 - <sender addresses that look like job mail but aren't postings>
 
 ## Housekeeping
 - Archive after days: <30>
 - Tier 2 rows per run: <10>
+- Career site leads per run: <15>
 ~~~
+
+Email sources and Career sites are both optional, but intake needs at least one source to scan. A profile written before Career sites existed simply has no such section; skills treat a missing section as empty.
 
 ## 1. Find the profile
 Search Drive for `title = 'job-search-profile.md'`.
@@ -76,13 +84,15 @@ Ask one section at a time, in the order of the format above, and confirm each se
 - **Candidate:** the name, then the full-resume file. If they don't have a Markdown full resume yet, explain it's one file with their whole career history (every role, project, certification and tool, not a two-page selection), that every score is judged against it, and that the more complete it is the fewer false gaps they'll see. Suggest a name such as `Full-Resume.md`. Derive the tailored resume prefix from the name (`Jane_Example_Resume`) and show it.
 - **Tracker:** ask for the Google Sheet's name and the Drive folder it's in (or should go in). For now the tracker is always a Google Sheet. Then follow step 5.
 - **Target roles and Location:** ask in plain language ("What kinds of roles are you looking for, and at what level?", "Where do you live?", "What's your ZIP code?", "How many miles, one way, would you commute to an office?", "Would you relocate? If so, where?") and turn the answers into the profile's lines. Read them back.
-- **Email sources:** ask which job-alert emails they get (LinkedIn job alerts, recruiter mail, job boards). For each, find a recent example in Gmail if the Gmail connector is available, confirm the sender address with the user, and write a one-line note on how to read it (one job per email or a digest of several, any link quirks). Suggest adding LinkedIn's non-posting senders (`messages-noreply@`, `notifications-noreply@`, `groups-noreply@`, `updates-noreply@`, `editors-noreply@linkedin.com`) to **Never scan** if they use LinkedIn alerts.
-- **Housekeeping:** offer the defaults (archive after 30 days, 10 Tier 2 rows per run) and change them only if asked.
+- **Job sources:** follow step 6. It covers Email sources, Career sites and Never scan.
+- **Housekeeping:** offer the defaults (archive after 30 days, 10 Tier 2 rows per run, 15 career-site leads per site per run) and change them only if asked.
 
 Then show the whole profile and ask the user to confirm before writing it (step 4).
 
 ## 3. Update an existing profile
 When the user tells you something changed (in this conversation or in a request that loaded this skill), change only the lines it affects, and keep everything else exactly as it is, including the user's own wording and comments. If a request is ambiguous ("add Indeed"), ask the one question needed ("Which sender address do Indeed alerts come from?"). Show the changed lines as before → after and confirm, then write the file (step 4).
+
+A request that adds a job source ("add Indeed alerts", "search for openings at Acme", "watch https://careers.example.com/jobs") follows step 6 for that one source. "Stop watching Acme" removes its Career sites row; show it before → after like any other change.
 
 Also use this step for a review: if asked "show my job search profile", read it back section by section and point out anything blank or inconsistent (for example Relocation "only to" with no places).
 
@@ -101,15 +111,43 @@ If step 2 or 3 fails, rename the previous copy back to `job-search-profile.md` a
 3. If it exists, open it with the Sheets connector and check it has a **Job Log** tab with the headers `job-tracker` lists. Report any missing headers. Don't add them without asking.
 4. If the folder or sheet doesn't exist, tell the user and ask whether to create it. Create only with an explicit yes. Then create the folder if needed (`create_file`, `mimeType` folder), and create the sheet in it (`create_file`, `mimeType` `application/vnd.google-apps.spreadsheet`, `parentId` the folder). Rename its first tab to **Job Log**, and write the headers in the order `job-tracker` lists them. Add the Status dropdown and the two checkbox columns' validation, freeze row 1, and add a **Status Guide** tab with each status, what it means and a `COUNTIF` count of rows in that status.
 
-## 6. End-of-run summary
+## 6. Job sources
+Ask first: "Where do you want to find openings: job-alert emails, specific companies' career sites, or both?" Set up each kind the user picks. They can add more any time later.
+
+### Email
+1. **Check for a mail connector.** Email is read through the Gmail connector: see whether its tools (`search_threads`, `get_thread`) are available in this session.
+   - **Gmail is available:** go on to 2.
+   - **Another mail connector but not Gmail** (for example Outlook): say that email scanning supports Gmail only for now. Offer career sites instead, or adding the Gmail connector if the alerts also reach a Gmail account.
+   - **No mail connector:** explain that intake reads job-alert email through the Gmail connector, and how to add it: in Claude, **Customize → Connectors → Gmail**, then connect the Google account the alerts arrive in. Offer to carry on with the rest of setup and come back later with "add my email sources". Leave Email sources empty until a sender can be confirmed; never write a sender you couldn't check.
+2. **Ask which job-alert emails they get** (LinkedIn job alerts, recruiter mail, job boards, a company's own alerts). For each, find a recent example in Gmail, confirm the sender address with the user, and write a one-line note on how to read it (one job per email or a digest of several, any link quirks). If no example turns up, say so and ask whether to add the sender anyway.
+3. **Never scan:** if they use LinkedIn alerts, suggest adding LinkedIn's non-posting senders (`messages-noreply@`, `notifications-noreply@`, `groups-noreply@`, `updates-noreply@`, `editors-noreply@linkedin.com`).
+
+### Career sites
+For each company the user names, or careers URL they give ("search for openings on https://careers.example.com/jobs", "search for openings at Acme"):
+1. **Find the listing page.**
+   - **A URL:** use it as given.
+   - **A company name:** search the web for its official careers page (`<company> careers jobs`). Prefer the company's own domain or the applicant-tracking board its careers page links to (Greenhouse, Lever, Workday, iCIMS, Ashby, SmartRecruiters and the like). Never use a job aggregator or a LinkedIn page. Company names collide, so show the URL you found and ask the user to confirm it's the right company. If results disagree, show the candidates and let the user choose.
+2. **Test how it can be read from the cloud.** Intake runs on a schedule with no browser, so try these in order and record the first that works as **Method**:
+   - **`feed`:** the board is on an applicant-tracking system with a public job feed that a plain GET returns: Greenhouse `https://boards-api.greenhouse.io/v1/boards/<board>/jobs`, Lever `https://api.lever.co/v0/postings/<company>?mode=json`, Ashby `https://api.ashbyhq.com/posting-api/job-board/<board>`, SmartRecruiters `https://api.smartrecruiters.com/v1/companies/<company>/postings`. Fetch it and check it lists postings. Put the feed URL in **URL** and the human careers page in **Notes**.
+   - **`page`:** fetch the listing page and check that it shows real job titles with links to postings, not just a search box or an empty shell built by JavaScript. If the site puts its search in the URL (for example `?q=architect&location=Denver`), build that URL from Target roles and Location, test it again, and record it.
+   - **`search`:** neither works, which is common on JavaScript-only boards such as many Workday sites. Run a web search `site:<careers host and path> <a role keyword>` and check that some results are posting pages on that host. Record the scope as **URL** (`site:acme.example-ats.com/careers`); intake adds role keywords from Target roles. Note in **Notes** that results depend on the search index and can lag the site by days.
+   - **None works:** say that this site can't be read without a browser. Suggest the company's own job-alert email sign-up, which many career sites offer; once alerts arrive, add the sender as an email source. Don't add the row.
+3. **Write the row:** Source `Careers: <Company>`, Company, URL, Method and Notes. Show it before → after, confirm, and write it (step 4).
+
+Then ask whether there are more companies to watch.
+
+## 7. End-of-run summary
 - Whether the profile was created, updated or only reviewed, and where it is.
 - The lines that changed, before → after.
-- Anything still blank that other skills will need. For example, intake can't scan email without at least one email source, and scoring needs Target roles and Location.
+- For each career site added, the Method found and what the test returned (for example "page: 12 postings listed").
+- Anything still blank that other skills will need. For example, intake has nothing to scan without at least one email source or career site, and scoring needs Target roles and Location.
+- If email was skipped because the Gmail connector isn't connected, how to add it.
 - For a new setup, what to do next: put the full resume in the folder, then schedule the daily intake task (and Tier 2 and weekly cleanup) in the Claude app.
 
 ## Known constraints
 - The only file this skill writes is `job-search-profile.md`, plus a tracker or folder the user explicitly asked it to create.
-- Never invents profile values. If the user hasn't said it, it stays blank and is listed in the summary.
+- Never invents profile values. If the user hasn't said it, it stays blank and is listed in the summary. A career site's URL is written only after the user confirms it.
+- Testing a career site only reads it. Never sign in, apply, create an account, or sign up for job alerts on the user's behalf.
 - Never deletes a profile outright; an update trashes the previous copy only after the new one is written and checked.
 - Never changes the user's other files: not the full resume, not the tracker's rows, not job files.
 - The profile holds personal details. It stays in the user's Drive and is never copied into a repository, an issue or a public page.

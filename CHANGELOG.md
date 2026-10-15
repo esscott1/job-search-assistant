@@ -2,6 +2,10 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.1.1
+
+- `job-search-profile`: the interview now has a guided **Job sources** step. It checks for the Gmail connector and explains how to add it when it's missing. It also adds an optional **Career sites** section: name a company or give a careers URL, and the skill finds the official page, confirms it with you, and tests how it can be read from the cloud (a public job feed, the listing page, or a site-scoped web search). Adds the optional Housekeeping setting **Career site leads per run** (default 15). Existing profiles keep working unchanged.
+
 ## 0.1.0 — first public pre-release
 
 **`job-search-assistant` plugin 0.1.0**

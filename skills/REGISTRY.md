@@ -7,7 +7,7 @@ One row per agent in this repo. [Sally](ai-governance/sally/SKILL.md) updates th
 
 | Agent | Category | Version | Stage | Runs on | Schedule | Files | Last change |
 |---|---|---|---|---|---|---|---|
-| [`job-search-profile`](job-search-assistant/job-search-profile/SKILL.md) | job-search-assistant | 0.1.0 | released | Any surface; Google Drive and Google Sheets connectors | On demand | SKILL.md only | 2026-10-15: first public pre-release |
+| [`job-search-profile`](job-search-assistant/job-search-profile/SKILL.md) | job-search-assistant | 0.1.1 | released | Any surface; Google Drive and Google Sheets connectors; Gmail, web search and web fetch for job sources | On demand | SKILL.md only | 2026-10-15: guided job-sources step (Gmail connector check, Career sites found and tested) |
 | [`job-lead-intake-scan`](job-search-assistant/job-lead-intake-scan/SKILL.md) | job-search-assistant | 0.1.0 | released | Cloud (Gmail, Google Drive, Google Sheets) | Daily | SKILL.md only | 2026-10-15: first public pre-release |
 | [`job-lead-tier2-scoring`](job-search-assistant/job-lead-tier2-scoring/SKILL.md) | job-search-assistant | 0.1.0 | released | Cloud (web search and fetch, Google Drive, Google Sheets); no browser | Every 2-4 hours (ticked rows only), or on demand | SKILL.md only | 2026-10-15: first public pre-release |
 | [`job-lead-manual-jd-lookup`](job-search-assistant/job-lead-manual-jd-lookup/SKILL.md) | job-search-assistant | 0.1.0 | released | The user's computer (signed-in browser) and Google Sheets | On demand | SKILL.md only | 2026-10-15: first public pre-release |
