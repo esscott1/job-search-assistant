@@ -12,10 +12,14 @@ placeholder text only. Needs python-docx.
 from __future__ import annotations
 
 import datetime
+import io
+import re
 import sys
+import zipfile
 from pathlib import Path
 
 import docx
+from lxml import etree
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
@@ -97,9 +101,62 @@ def main() -> int:
     d.core_properties.author = "job-search-assistant evals"
     d.core_properties.title = "Synthetic resume template"
     d.core_properties.created = d.core_properties.modified = fixed
-    d.save(OUT)
-    print(f"wrote {OUT.relative_to(HERE)} ({len(body) - 1} body elements)")
+    buffer = io.BytesIO()
+    d.save(buffer)
+    OUT.write_bytes(slim(buffer.getvalue()))
+    print(f"wrote {OUT.relative_to(HERE)} ({len(body) - 1} body elements, {OUT.stat().st_size} bytes)")
     return 0
+
+
+# Parts of python-docx's default document that a resume never uses. Dropping them keeps the
+# file small, which matters: from the cloud the template reaches the skill as base64 text.
+DROP_PARTS = ("word/stylesWithEffects.xml", "docProps/thumbnail.jpeg", "word/webSettings.xml", "customXml/")
+W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+
+
+def slim(docx_bytes: bytes) -> bytes:
+    """Drop unused parts and every style the document doesn't use (or inherit from)."""
+    src = zipfile.ZipFile(io.BytesIO(docx_bytes))
+    parts = {i.filename: src.read(i.filename) for i in src.infolist()}
+    parts = {n: b for n, b in parts.items() if not n.startswith(DROP_PARTS)}
+
+    styles = etree.fromstring(parts["word/styles.xml"])
+    used = set(re.findall(rb'w:(?:pStyle|rStyle|tblStyle) w:val="([^"]+)"', parts["word/document.xml"]))
+    used = {u.decode() for u in used} | {"Normal", "DefaultParagraphFont", "TableNormal", "NoList"}
+    by_id = {s.get(f"{{{W_NS}}}styleId"): s for s in styles.iter(f"{{{W_NS}}}style")}
+    pending = list(used)
+    while pending:  # keep the styles the used ones are based on or linked to
+        style = by_id.get(pending.pop())
+        for ref in ("basedOn", "link", "next"):
+            el = style.find(f"{{{W_NS}}}{ref}") if style is not None else None
+            val = el.get(f"{{{W_NS}}}val") if el is not None else None
+            if val and val not in used:
+                used.add(val)
+                pending.append(val)
+    for style_id, style in by_id.items():
+        if style_id not in used:
+            styles.remove(style)
+    latent = styles.find(f"{{{W_NS}}}latentStyles")
+    if latent is not None:
+        styles.remove(latent)
+    parts["word/styles.xml"] = etree.tostring(styles, xml_declaration=True, encoding="UTF-8", standalone=True)
+
+    def keep_rel(xml: bytes) -> bytes:
+        return re.sub(rb"<Relationship [^>]*Target=\"[^\"]*(?:stylesWithEffects|thumbnail|webSettings|customXml)[^\"]*\"[^>]*/>", b"", xml)
+
+    for name in ("_rels/.rels", "word/_rels/document.xml.rels"):
+        parts[name] = keep_rel(parts[name])
+    parts["[Content_Types].xml"] = re.sub(
+        rb"<Override [^>]*PartName=\"/(?:word/stylesWithEffects|word/webSettings|docProps/thumbnail|customXml)[^\"]*\"[^>]*/>",
+        b"", parts["[Content_Types].xml"])
+
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        for name, data in parts.items():
+            info = zipfile.ZipInfo(name, date_time=(2026, 1, 1, 0, 0, 0))  # fixed time: same bytes every run
+            info.compress_type = zipfile.ZIP_DEFLATED
+            z.writestr(info, data)
+    return out.getvalue()
 
 
 if __name__ == "__main__":

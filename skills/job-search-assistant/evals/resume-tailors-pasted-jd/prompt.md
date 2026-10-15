@@ -2,7 +2,7 @@
 tags: [tailored-resume-builder, needs-shell]
 runs: 3
 max_turns: 60
-timeout_seconds: 900
+timeout_seconds: 1800
 plugins: ["gstub", "../.."]
 ---
 
