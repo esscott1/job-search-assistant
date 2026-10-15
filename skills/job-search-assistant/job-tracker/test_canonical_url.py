@@ -64,6 +64,47 @@ def test_lever_apply_page_matches_posting():
     )
 
 
+def test_greenhouse_embed_link_matches_board_posting():
+    assert canonical("https://boards.greenhouse.io/embed/job_app?for=acme&token=1234567") == (
+        "https://job-boards.greenhouse.io/acme/jobs/1234567"
+    )
+
+
+def test_ashby_application_page_matches_posting():
+    uuid = "0a0b0c0d-0e0f-1011-1213-141516171819"
+    assert canonical(f"https://jobs.ashbyhq.com/acme/{uuid}/application?utm_source=x") == (
+        f"https://jobs.ashbyhq.com/acme/{uuid}"
+    )
+
+
+def test_workday_locale_apply_and_query_are_dropped():
+    base = "https://acme.wd1.myworkdayjobs.com"
+    posting = f"{base}/External/job/Denver-CO/Senior-Architect_R0001234"
+    assert canonical(f"{base}/en-US/External/job/Denver-CO/Senior-Architect_R0001234?source=Email") == posting
+    assert canonical(f"{posting}/apply/applyManually") == posting
+    assert canonical(f"{base}/External/details/Senior-Architect_R0001234") == (
+        f"{base}/External/details/Senior-Architect_R0001234"
+    )
+
+
+def test_workday_listing_page_is_not_reduced_to_a_posting():
+    assert canonical("https://acme.wd1.myworkdayjobs.com/External?q=architect") == (
+        "https://acme.wd1.myworkdayjobs.com/External?q=architect"
+    )
+
+
+def test_icims_slug_and_iframe_params_are_dropped():
+    assert canonical(
+        "https://careers-acme.icims.com/jobs/12345/senior-architect/job?mobile=false&in_iframe=1"
+    ) == "https://careers-acme.icims.com/jobs/12345/job"
+
+
+def test_smartrecruiters_tracking_dropped():
+    assert canonical(
+        "https://jobs.smartrecruiters.com/Acme/743999000000001-senior-architect?trid=abc"
+    ) == "https://jobs.smartrecruiters.com/Acme/743999000000001-senior-architect"
+
+
 def test_generic_page_drops_tracking_but_keeps_meaningful_params():
     url = "http://Careers.Example.com/jobs/123/?utm_source=x&utm_medium=y&gh_jid=987&ref=mail#apply"
     assert canonical(url) == "https://careers.example.com/jobs/123?gh_jid=987"

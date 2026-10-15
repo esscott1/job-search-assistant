@@ -2,6 +2,12 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.1.2
+
+- `job-lead-intake-scan`: also scans the **Career sites** in the profile, reading each one by the method setup recorded (public job feed, listing page, or site-scoped web search). Each site logs at most **Career site leads per run** new rows (default 15). A site that can't be read is reported, not retried in a browser. Intake now stops only when the profile has no email sources and no career sites, and still scans career sites when the Gmail connector isn't connected.
+- `job-tracker`: Source covers career sites, and the email-only columns stay blank on career-site rows. Dedup by company and title also catches the same job from an alert email and a career site.
+- `canonical_url.py`: canonical forms for Workday, iCIMS, Ashby and SmartRecruiters posting links, and Greenhouse embed links.
+
 ## job-search-assistant 0.1.1
 
 - `job-search-profile`: the interview now has a guided **Job sources** step. It checks for the Gmail connector and explains how to add it when it's missing. It also adds an optional **Career sites** section: name a company or give a careers URL, and the skill finds the official page, confirms it with you, and tests how it can be read from the cloud (a public job feed, the listing page, or a site-scoped web search). Adds the optional Housekeeping setting **Career site leads per run** (default 15). Existing profiles keep working unchanged.
