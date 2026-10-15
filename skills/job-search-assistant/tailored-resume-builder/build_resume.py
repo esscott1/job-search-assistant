@@ -203,7 +203,7 @@ def main():
     pages, pdf = count_pages(a.out)
     warnings = []
     if pages is None: warnings.append("could not render to PDF; page count unverified")
-    elif pages != 2: warnings.append(f"resume is {pages} pages; target is exactly 2")
+    elif pages > 2: warnings.append(f"resume is {pages} pages; the limit is 2")
     if a.pdf and pdf: open(os.path.splitext(a.out)[0] + ".pdf", "wb").write(pdf)
     print(json.dumps({"out": a.out, "pages": pages, "warnings": warnings}))
 
