@@ -27,6 +27,7 @@ HERE = Path(__file__).parent
 FIXTURES = HERE / "fixtures"
 
 FOLDER = "FOLDER_EVAL_0001"
+DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 SHEET = "SHEET_EVAL_0001"
 
 # Drive file id -> (title, source fixture, parent folder id, mimeType)
@@ -36,6 +37,7 @@ DRIVE = {
     "FILE_JD_JS101": ("JS-101_JD.md", "JS-101_JD.md", "FOLDER_Northwind_Logistics", "text/markdown"),
     "FILE_JD_JS102": ("JS-102_JD.md", "JS-102_JD.md", "FOLDER_Contoso_Health", "text/markdown"),
     "FILE_JD_JS103": ("JS-103_JD.md", "JS-103_JD.md", "FOLDER_Fabrikam_Robotics", "text/markdown"),
+    "FILE_TEMPLATE_0001": ("Job-Seeker-6-Resume-Template.docx", "Synthetic-Resume-Template.docx", FOLDER, DOCX),
 }
 FOLDERS = {
     FOLDER: ("Job Search", "root"),
@@ -66,13 +68,23 @@ TRACKER_ROWS = {
                "https://www.linkedin.com/jobs/view/4000000001/"),
 }
 
-# Cases with their own Job Log or Drive. "ticked": rows with Run Tier 2 TRUE.
-# "drive": extra or replacement Drive files {file id: (title, fixture, parent, mimeType)}.
+# Cases with their own Job Log or Drive. "ticked": rows with Run Tier 2 TRUE; "build": rows
+# with Build Resume TRUE. "drive": extra or replacement Drive files
+# {file id: (title, fixture, parent, mimeType)}, or {file id: None} to remove one.
 CASES = {
     "tier2-nothing-ticked": {},
     "tier2-gold-strong-fit": {"rows": ["JS-101", "JS-002"], "ticked": ["JS-101"]},
     "tier2-gold-partial-fit": {"rows": ["JS-102", "JS-002"], "ticked": ["JS-102"]},
     "tier2-gold-relocation-mismatch": {"rows": ["JS-103", "JS-002"], "ticked": ["JS-103"]},
+    "resume-tailors-pasted-jd": {},
+    "resume-does-not-invent": {},
+    "resume-full-resume-missing": {
+        "drive": {
+            "FILE_RESUME_0001": None,
+            "FILE_OLD_RESUME_0001": ("Old-Resume.docx", "Synthetic-Resume-Template.docx", FOLDER, DOCX),
+        },
+    },
+    "resume-ticked-row-needs-jd": {"rows": ["JS-002", "JS-001"], "ticked": [], "build": ["JS-002"]},
     "tier2-rescore-closes-gap": {
         "rows": ["JS-102", "JS-002"],
         "ticked": ["JS-102"],
@@ -107,7 +119,7 @@ def dumps(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, indent=2) + "\n"
 
 
-def row(job_id: str, ticked: bool, tier: tuple | None) -> list:
+def row(job_id: str, ticked: bool, tier: tuple | None, build: bool = False) -> list:
     company, title, location, t1, url = TRACKER_ROWS[job_id]
     cells = dict.fromkeys(HEADERS, "")
     score_tier, score, breakdown = tier or ("T1", t1, "Alert email | Rubric v1.1 | Tier 1")
@@ -115,7 +127,7 @@ def row(job_id: str, ticked: bool, tier: tuple | None) -> list:
         "ID": job_id, "Date Found": "2026-10-12", "Source": "LinkedIn alerts", "Company": company,
         "Job Title": title, "Job Description": "View posting", "Type / Location": location,
         "Fit Score (1-10)": score, "Score Tier": score_tier, "Gaps": "• JD not read yet",
-        "Run Tier 2": ticked, "Build Resume": False, "Status": "Need to review",
+        "Run Tier 2": ticked, "Build Resume": build, "Status": "Need to review",
         "Last Updated": "2026-10-12", "Email Received": "2026-10-12", "Score Breakdown": breakdown,
         "Canonical URL": url,
     })
@@ -145,13 +157,13 @@ Reply with JSON only.
 """
 
 
-def sheet_agent(rows: list[str], ticked: list[str], tiers: dict) -> str:
+def sheet_agent(rows: list[str], ticked: list[str], tiers: dict, build: list[str] = ()) -> str:
     """A Sheets mock played by a small model, so a read after a write sees the write.
 
     Skills re-find a row before writing and may read it back afterwards; a fixed mock would
     return the old row and make a correct run look like a failed write.
     """
-    grid = [HEADERS] + [row(r, r in ticked, tiers.get(r)) for r in rows]
+    grid = [HEADERS] + [row(r, r in ticked, tiers.get(r), r in build) for r in rows]
     return SHEET_AGENT.format(sheet=SHEET, grid=json.dumps(grid, ensure_ascii=False))
 
 
@@ -170,8 +182,10 @@ def drive_files(files: dict) -> dict[str, str]:
         "create_file.md": dumps(CREATE_FILE),
     }
     for fid, (_, source, _, mime) in files.items():
-        text = (FIXTURES / source).read_text(encoding="utf-8")
-        out[f"fixtures/{fid}.json"] = dumps({"content": base64.b64encode(text.encode()).decode(), "mimeType": mime})
+        path = FIXTURES / source
+        # Text is read with universal newlines so a Windows checkout builds the same mocks.
+        data = path.read_text(encoding="utf-8").encode() if mime.startswith("text/") else path.read_bytes()
+        out[f"fixtures/{fid}.json"] = dumps({"content": base64.b64encode(data).decode(), "mimeType": mime})
     return out
 
 
@@ -183,11 +197,12 @@ def build() -> dict[Path, str]:
     for case, spec in CASES.items():
         out[HERE / case / "gstub/.claude-plugin/plugin.json"] = dumps(STUB)
         if "rows" in spec:
-            agent = sheet_agent(spec["rows"], spec["ticked"], spec.get("tier", {}))
+            agent = sheet_agent(spec["rows"], spec["ticked"], spec.get("tier", {}), spec.get("build", []))
             for tool in ("get_values", "update_values", "get_spreadsheet"):
                 out[HERE / case / f"mocks/gsheets/{tool}.md"] = agent
         if "drive" in spec:
-            for name, text in drive_files({**DRIVE, **spec["drive"]}).items():
+            files = {k: v for k, v in {**DRIVE, **spec["drive"]}.items() if v is not None}
+            for name, text in drive_files(files).items():
                 out[HERE / case / "mocks/gdrive" / name] = text
     return out
 

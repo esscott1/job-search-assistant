@@ -9,6 +9,8 @@ echo "== 1/4 System packages (asks for your Ubuntu password)"
 sudo apt-get update -y
 # bubblewrap + socat: the sandbox Claude Code needs before it will grant a shell to an eval run.
 sudo apt-get install -y bubblewrap socat python3 curl ca-certificates git
+# python-docx, LibreOffice and pdfinfo: the resume builder's evals build a real .docx and count its pages.
+sudo apt-get install -y python3-docx libreoffice-writer-nogui poppler-utils
 
 echo "== 2/4 Node.js 22 via nvm (no sudo)"
 export NVM_DIR="$HOME/.nvm"
@@ -24,9 +26,12 @@ echo "== 3/4 Claude Code (same version CI pins)"
 npm install -g @anthropic-ai/claude-code@2.1.289
 claude --version
 
-echo "== 4/4 Check the sandbox backend"
+echo "== 4/4 Check the sandbox backend and resume tools"
 bwrap --version
 python3 --version
+python3 -c "import docx; print('python-docx ok')"
+soffice --version
+pdfinfo -v 2>&1 | head -1
 
 cat <<'MSG'
 

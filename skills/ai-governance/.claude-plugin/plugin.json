@@ -1,11 +1,12 @@
 {
   "name": "ai-governance",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Gatekeeper-style skills: lifecycle management, guardrail and policy checks for AI agent activity.",
   "author": {
     "name": "Eric Scott"
   },
   "skills": [
-    "./"
+    "./sally",
+    "./sally-audit"
   ]
 }

@@ -12,7 +12,7 @@ Turns one job description into one 2-page resume in the Job-Seeker-6 layout. It'
 - Content source (the only source of facts): the full resume named in the profile, found as `job-tracker` describes. Read-only here; the user edits it. If it isn't found, stop and say so.
 - Layout source (format only, no content): the Word file named in the profile's **Resume template**, in the same folder. It must be a copy of the Job-Seeker-6 resume template, the only layout `build_resume.py` supports today; if it isn't, stop and say so rather than producing a broken layout. The template's sample text (a different person's career) must never reach the output; the script replaces all of it.
 - `build_resume.py` (this directory): `python3 build_resume.py --template <template.docx> --content content.json --out <file.docx> --pdf`. Needs `python-docx`; page counting needs LibreOffice (`soffice`) and `pdfinfo`. It prints JSON with `pages` and `warnings`, and exits 2 with a reason if `content.json` is invalid.
-- Evals live in the repo-level `evals/tailored-resume-builder/` (cases and a synthetic fixture).
+- Evals are the `resume-*` cases in this plugin's `evals/` folder. `build_resume.py`'s unit tests run against a synthetic template there (`evals/fixtures/Synthetic-Resume-Template.docx`), which has the real template's structure and placeholder text only.
 
 ## Procedure
 1. **Pick the jobs and get each job description.**
