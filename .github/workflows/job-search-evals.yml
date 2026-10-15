@@ -1,8 +1,8 @@
 name: job-search evals
 
 # Runs the real-model fit-scoring evals when prompts, steps or eval cases change.
-# Needs a repository secret ANTHROPIC_API_KEY; skipped (not failed) when it is absent,
-# e.g. on pull requests from forks.
+# Needs a repository secret ANTHROPIC_API_KEY. Without it the evals job shows as skipped
+# (not passed), e.g. on pull requests from forks or before the secret is added.
 on:
   workflow_dispatch:
   pull_request:
@@ -10,13 +10,37 @@ on:
       - "orchestration/job-search/core/src/job_search_core/prompts/**"
       - "orchestration/job-search/core/src/job_search_core/steps.py"
       - "orchestration/job-search/evals/**"
+      - ".github/workflows/job-search-evals.yml"
+
+permissions:
+  contents: read
 
 defaults:
   run:
     working-directory: orchestration/job-search
 
 jobs:
+  # A job-level `if` can't read secrets, so this job reports whether the key exists.
+  check-key:
+    runs-on: ubuntu-latest
+    outputs:
+      has_key: ${{ steps.check.outputs.has_key }}
+    steps:
+      - id: check
+        working-directory: .
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ANTHROPIC_API_KEY secret not set; real-model evals skipped."
+          fi
+
   evals:
+    needs: check-key
+    if: needs.check-key.outputs.has_key == 'true'
     runs-on: ubuntu-latest
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -27,13 +51,9 @@ jobs:
           python-version: "3.11"
       - run: uv sync --all-packages --locked
       - name: Run fit-scoring evals
-        if: env.ANTHROPIC_API_KEY != ''
         run: uv run python evals/job-fit/run_evals.py
-      - name: Skip notice
-        if: env.ANTHROPIC_API_KEY == ''
-        run: echo "ANTHROPIC_API_KEY secret not set — evals skipped."
       - uses: actions/upload-artifact@v4
-        if: env.ANTHROPIC_API_KEY != ''
+        if: always()
         with:
           name: eval-results
           path: orchestration/job-search/evals/job-fit/results/latest.json

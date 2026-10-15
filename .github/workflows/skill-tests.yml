@@ -1,0 +1,29 @@
+name: skill-tests
+
+# Unit tests for the Python scripts that ship inside skills (score.py, canonical_url.py,
+# build_resume.py). No keys, no network. build_resume's tests skip themselves unless the
+# TEMPLATE env var points at the resume template, which isn't in the repo.
+on:
+  pull_request:
+    paths:
+      - "skills/**"
+      - ".github/workflows/skill-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "skills/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pytest python-docx
+      - name: Skill script tests
+        run: python -m pytest -q -rs skills/

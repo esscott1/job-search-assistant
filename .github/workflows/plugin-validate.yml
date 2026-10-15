@@ -12,6 +12,9 @@ on:
       - ".claude-plugin/**"
       - "skills/**"
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -21,7 +24,8 @@ jobs:
         with:
           node-version: "22"
       - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
+        # Pinned so validation only changes when this line does. Bump it on purpose.
+        run: npm install -g @anthropic-ai/claude-code@2.1.289
       - name: Validate marketplace
         run: claude plugin validate .
       - name: Validate each plugin
