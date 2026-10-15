@@ -1,6 +1,6 @@
 {
   "name": "ai-governance",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Gatekeeper-style skills: lifecycle management, guardrail and policy checks for AI agent activity.",
   "author": {
     "name": "Eric Scott"

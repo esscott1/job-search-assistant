@@ -1,3 +1,6 @@
 # Python caches from running skill script tests
 __pycache__/
 .pytest_cache/
+
+# claude plugin eval output; keep runs outside the plugin with --output-dir, commit summaries only
+skills/*/evals/results/

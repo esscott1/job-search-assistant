@@ -2,6 +2,12 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.1.3, ai-governance 0.1.1
+
+- `job-search-assistant` now ships an eval suite in `evals/`, in the format `claude plugin eval` runs. It has two cases to start: the resume builder asks for a job description instead of guessing, and Tier 2 with nothing ticked reads the profile and tracker and stops. A small stub plugin stands in for the Google Drive and Sheets connectors, so cases can check exactly what a skill reads and writes.
+- The plugin's manifest lists each skill folder instead of `"./"`, so `evals/` isn't loaded as part of the plugin. A test fails if a skill folder is missing from the list.
+- `sally` adds new skills to that list, and `sally-audit` reports a skill folder missing from it.
+
 ## job-search-assistant 0.1.2
 
 - `job-lead-intake-scan`: also scans the **Career sites** in the profile, reading each one by the method setup recorded (public job feed, listing page, or site-scoped web search). Each site logs at most **Career site leads per run** new rows (default 15). A site that can't be read is reported, not retried in a browser. Intake now stops only when the profile has no email sources and no career sites, and still scans career sites when the Gmail connector isn't connected.
