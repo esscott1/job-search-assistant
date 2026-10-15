@@ -1,0 +1,28 @@
+name: job-search CI
+
+on:
+  pull_request:
+    paths: ["orchestration/job-search/**", ".github/workflows/job-search-*.yml"]
+  push:
+    branches: [main]
+    paths: ["orchestration/job-search/**"]
+
+defaults:
+  run:
+    working-directory: orchestration/job-search
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+      - run: uv sync --all-packages --locked
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Unit + graph tests (fakes only — no keys, no network)
+        run: uv run pytest -q
+      - name: Eval harness smoke test
+        run: uv run python evals/job-fit/run_evals.py --fake

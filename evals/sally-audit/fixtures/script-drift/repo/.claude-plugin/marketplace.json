@@ -1,0 +1,24 @@
+{
+  "name": "esscott-claudecowork",
+  "description": "Alex Example's agentic skills, grouped by category. Each category is one installable plugin.",
+  "owner": {
+    "name": "Alex Example"
+  },
+  "plugins": [
+    {
+      "name": "personal-productivity",
+      "source": "./skills/personal-productivity",
+      "description": "Job-search lead intake and scoring pipeline."
+    },
+    {
+      "name": "ai-governance",
+      "source": "./skills/ai-governance",
+      "description": "Sally, the lifecycle manager for every skill in this repo."
+    },
+    {
+      "name": "developer-tools",
+      "source": "./skills/developer-tools",
+      "description": "Engineering workflow skills."
+    }
+  ]
+}

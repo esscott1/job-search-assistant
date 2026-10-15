@@ -1,0 +1,11 @@
+{
+  "name": "developer-tools",
+  "version": "1.1.0",
+  "description": "Engineering workflow skills.",
+  "author": {
+    "name": "Alex Example"
+  },
+  "skills": [
+    "./"
+  ]
+}

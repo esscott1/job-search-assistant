@@ -1,0 +1,39 @@
+name: job-search evals
+
+# Runs the real-model fit-scoring evals when prompts, steps or eval cases change.
+# Needs a repository secret ANTHROPIC_API_KEY; skipped (not failed) when it is absent,
+# e.g. on pull requests from forks.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "orchestration/job-search/core/src/job_search_core/prompts/**"
+      - "orchestration/job-search/core/src/job_search_core/steps.py"
+      - "orchestration/job-search/evals/**"
+
+defaults:
+  run:
+    working-directory: orchestration/job-search
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+      - run: uv sync --all-packages --locked
+      - name: Run fit-scoring evals
+        if: env.ANTHROPIC_API_KEY != ''
+        run: uv run python evals/job-fit/run_evals.py
+      - name: Skip notice
+        if: env.ANTHROPIC_API_KEY == ''
+        run: echo "ANTHROPIC_API_KEY secret not set — evals skipped."
+      - uses: actions/upload-artifact@v4
+        if: env.ANTHROPIC_API_KEY != ''
+        with:
+          name: eval-results
+          path: orchestration/job-search/evals/job-fit/results/latest.json

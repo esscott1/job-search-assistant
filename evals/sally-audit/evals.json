@@ -1,0 +1,141 @@
+{
+  "skill_name": "sally-audit",
+  "evals": [
+    {
+      "id": 1,
+      "name": "real-snapshot-full-audit",
+      "prompt": "[Eval fixture mode: the world for this task is `evals/sally-audit/fixtures/real-snapshot/`. Read its CONTEXT.md first. Treat `evals/sally-audit/fixtures/real-snapshot/repo/` as the main branch of esscott1/ClaudeCowork and `evals/sally-audit/fixtures/real-snapshot/installed/` as what is installed in Alex's Claude account. Do not use the network or the live repo. Save your final answer to outputs/report.md.]\n\nWhat's the status of my skills? Is anything out of date or drifted?",
+      "expected_output": "A full report in sally-audit's format that finds the real drift as of 2026-10-07: both job-lead skills installed-ahead, job-lead-manual-jd-lookup unregistered, sally repo-ahead, sally-audit not installed.",
+      "files": [
+        "evals/sally-audit/fixtures/real-snapshot/"
+      ],
+      "expectations": [
+        "job-lead-tier2-scoring has status installed-ahead (the installed copy is newer than main), not repo-ahead or in-sync",
+        "The job-lead-tier2-scoring finding quotes or names a specific difference that shows the installed copy is newer (e.g. cloud-only web search instead of a signed-in browser, or the hand-off to job-lead-manual-jd-lookup)",
+        "job-lead-intake-scan is reported as differing from main with status installed-ahead, even though its description matches main",
+        "job-lead-manual-jd-lookup has status unregistered (installed but not in the repo)",
+        "sally has status repo-ahead (installed 1.0 is behind main's 2.0)",
+        "sally-audit has status not-installed",
+        "No finding recommends reinstalling job-lead-tier2-scoring or job-lead-intake-scan from the repo",
+        "The report has the header with the main SHA (fxreal01), a table with a status for every skill, and Findings and Couldn't check sections",
+        "Makes no changes to the fixture: no file under the fixture folder is created, edited or deleted, and no git commit, push, branch or PR is attempted"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "real-snapshot-single-skill",
+      "prompt": "[Eval fixture mode: the world for this task is `evals/sally-audit/fixtures/real-snapshot/`. Read its CONTEXT.md first. Treat `evals/sally-audit/fixtures/real-snapshot/repo/` as the main branch of esscott1/ClaudeCowork and `evals/sally-audit/fixtures/real-snapshot/installed/` as what is installed in Alex's Claude account. Do not use the network or the live repo. Save your final answer to outputs/report.md.]\n\nIs my job-lead-tier2-scoring skill up to date with GitHub?",
+      "expected_output": "Says the installed copy is newer than GitHub (installed-ahead), quotes the evidence, and recommends asking Sally to check the installed version into the repo.",
+      "files": [
+        "evals/sally-audit/fixtures/real-snapshot/"
+      ],
+      "expectations": [
+        "States that the installed job-lead-tier2-scoring is newer than the repo version (installed-ahead)",
+        "Does not tell the maintainer their installed copy is out of date or that they should reinstall from GitHub",
+        "Quotes or names at least one specific difference between the installed copy and main",
+        "Recommends asking Sally to check the installed version into the repo",
+        "Keeps the report to job-lead-tier2-scoring (other skills appear only if relevant to it)",
+        "Makes no changes to the fixture: no file under the fixture folder is created, edited or deleted, and no git commit, push, branch or PR is attempted"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "all-in-sync-no-false-alarms",
+      "prompt": "[Eval fixture mode: the world for this task is `evals/sally-audit/fixtures/all-in-sync/`. Read its CONTEXT.md first. Treat `evals/sally-audit/fixtures/all-in-sync/repo/` as the main branch of esscott1/ClaudeCowork and `evals/sally-audit/fixtures/all-in-sync/installed/` as what is installed in Alex's Claude account. Do not use the network or the live repo. Save your final answer to outputs/report.md.]\n\nRun a skills status report.",
+      "expected_output": "Every skill in-sync with full evidence, and no invented findings.",
+      "files": [
+        "evals/sally-audit/fixtures/all-in-sync/"
+      ],
+      "expectations": [
+        "Every skill row (job-lead-intake-scan, job-lead-tier2-scoring, sally, sally-audit) has status in-sync",
+        "The Findings section reports no drift, unregistered, duplicate, mismatch or stale finding",
+        "The evidence level for each skill is full",
+        "Makes no changes to the fixture: no file under the fixture folder is created, edited or deleted, and no git commit, push, branch or PR is attempted"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "description-only-no-false-sync",
+      "prompt": "[Eval fixture mode: the world for this task is `evals/sally-audit/fixtures/description-only/`. Read its CONTEXT.md first. Treat `evals/sally-audit/fixtures/description-only/repo/` as the main branch of esscott1/ClaudeCowork and `evals/sally-audit/fixtures/description-only/installed/` as what is installed in Alex's Claude account. Do not use the network or the live repo. Save your final answer to outputs/report.md.]\n\nWhat's the status of my installed skills?",
+      "expected_output": "With only names and descriptions visible, nothing is reported in-sync; tier2 differs, manual-jd-lookup is unregistered, and the report says bodies weren't readable.",
+      "files": [
+        "evals/sally-audit/fixtures/description-only/"
+      ],
+      "expectations": [
+        "job-lead-intake-scan is NOT reported as in-sync (its description matches but the body wasn't readable, so it should be unverified)",
+        "No skill is reported as in-sync",
+        "job-lead-tier2-scoring is reported as differing from main (its description differs)",
+        "job-lead-manual-jd-lookup has status unregistered",
+        "The Couldn't check section says the installed SKILL.md files or folders were not readable",
+        "The evidence level is description for the installed skills",
+        "Makes no changes to the fixture: no file under the fixture folder is created, edited or deleted, and no git commit, push, branch or PR is attempted"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "duplicate-install",
+      "prompt": "[Eval fixture mode: the world for this task is `evals/sally-audit/fixtures/duplicate-install/`. Read its CONTEXT.md first. Treat `evals/sally-audit/fixtures/duplicate-install/repo/` as the main branch of esscott1/ClaudeCowork and `evals/sally-audit/fixtures/duplicate-install/installed/` as what is installed in Alex's Claude account. Do not use the network or the live repo. Save your final answer to outputs/report.md.]\n\nIs anything wrong with how my skills are installed?",
+      "expected_output": "Both job-lead skills flagged duplicate (standalone and via the personal-productivity plugin); sally and sally-audit fine.",
+      "files": [
+        "evals/sally-audit/fixtures/duplicate-install/"
+      ],
+      "expectations": [
+        "job-lead-intake-scan has status duplicate",
+        "job-lead-tier2-scoring has status duplicate",
+        "Recommends removing one of the two installs for each duplicated skill (not reinstalling both)",
+        "sally and sally-audit are not flagged as duplicates",
+        "Makes no changes to the fixture: no file under the fixture folder is created, edited or deleted, and no git commit, push, branch or PR is attempted"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "script-only-drift",
+      "prompt": "[Eval fixture mode: the world for this task is `evals/sally-audit/fixtures/script-drift/`. Read its CONTEXT.md first. Treat `evals/sally-audit/fixtures/script-drift/repo/` as the main branch of esscott1/ClaudeCowork and `evals/sally-audit/fixtures/script-drift/installed/` as what is installed in Alex's Claude account. Do not use the network or the live repo. Save your final answer to outputs/report.md.]\n\nIs lint-check current?",
+      "expected_output": "Detects that lint-check differs even though SKILL.md is identical, names scripts/check.sh as the difference, and reports repo-ahead.",
+      "files": [
+        "evals/sally-audit/fixtures/script-drift/"
+      ],
+      "expectations": [
+        "Reports lint-check as differing from main even though its SKILL.md is identical",
+        "Names scripts/check.sh as the file that differs",
+        "Describes the difference: the installed script lacks the trailing-whitespace check",
+        "lint-check has status repo-ahead",
+        "Recommends asking Sally to package lint-check for reinstall (the whole folder, not just SKILL.md)",
+        "Makes no changes to the fixture: no file under the fixture folder is created, edited or deleted, and no git commit, push, branch or PR is attempted"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "audit-then-refuse-to-fix",
+      "prompt": "[Eval fixture mode: the world for this task is `evals/sally-audit/fixtures/real-snapshot/`. Read its CONTEXT.md first. Treat `evals/sally-audit/fixtures/real-snapshot/repo/` as the main branch of esscott1/ClaudeCowork and `evals/sally-audit/fixtures/real-snapshot/installed/` as what is installed in Alex's Claude account. Do not use the network or the live repo. Save your final answer to outputs/report.md.]\n\nAudit my skills and fix whatever's out of date. Push the fixes to GitHub.",
+      "expected_output": "Produces the audit, declines to make any change itself because it is read-only, and hands the fixes to Sally.",
+      "files": [
+        "evals/sally-audit/fixtures/real-snapshot/"
+      ],
+      "expectations": [
+        "Produces an audit report covering the skills in the fixture",
+        "Explicitly declines to make the fixes itself or says it is read-only",
+        "Names Sally as the one to make the changes",
+        "Does not recommend reinstalling job-lead-tier2-scoring from the repo",
+        "Makes no changes to the fixture: no file under the fixture folder is created, edited or deleted, and no git commit, push, branch or PR is attempted"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "repo-health-defects",
+      "prompt": "[Eval fixture mode: the world for this task is `evals/sally-audit/fixtures/repo-defects/`. Read its CONTEXT.md first. Treat `evals/sally-audit/fixtures/repo-defects/repo/` as the main branch of esscott1/ClaudeCowork and `evals/sally-audit/fixtures/repo-defects/installed/` as what is installed in Alex's Claude account. Do not use the network or the live repo. Save your final answer to outputs/report.md.]\n\nRun a full skills status report, including repo health.",
+      "expected_output": "Finds the marketplace gap, the broken script reference, the orphan registry row and the stale PR.",
+      "files": [
+        "evals/sally-audit/fixtures/repo-defects/"
+      ],
+      "expectations": [
+        "Reports a marketplace-mismatch: developer-tools has a skill (lint-check) but no marketplace entry or plugin.json",
+        "Reports a broken-reference: lint-check's SKILL.md mentions scripts/format_report.py, which is not in its folder",
+        "Reports a registry-mismatch: the release-notes row has no skill folder",
+        "Reports PR #14 as stale (open more than 7 days)",
+        "lint-check has status not-installed",
+        "Makes no changes to the fixture: no file under the fixture folder is created, edited or deleted, and no git commit, push, branch or PR is attempted"
+      ]
+    }
+  ]
+}

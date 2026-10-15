@@ -1,0 +1,58 @@
+[
+  {
+    "id": "ai-enablement-architect",
+    "note": "Near-perfect match: should clear the tailoring threshold.",
+    "expected_score": [7, 10],
+    "gap_keywords_any": [],
+    "jd": "AI Enablement Architect, Fortune 500 insurer. Lead the enterprise roadmap for generative AI adoption: establish an intake and prioritization process for AI use cases, define reference architectures for RAG and agentic workflows on AWS, and stand up an AI governance board with risk and compliance. Advise executives on build-vs-buy and model selection, including open-weight versus hosted models. Requirements: 10+ years in enterprise or solutions architecture; experience leading AI or ML programs into production; AWS certification preferred; strong executive communication. Nice to have: experience with LangGraph or similar agent frameworks, and a background in regulated industries."
+  },
+  {
+    "id": "enterprise-architect-utilities",
+    "note": "Strong domain and level match.",
+    "expected_score": [7, 10],
+    "gap_keywords_any": [],
+    "jd": "Senior Enterprise Architect, regional utility. Own the target-state architecture for customer, billing and grid-operations domains. Chair the architecture review board, maintain the capability map and application portfolio, and produce cloud migration roadmaps. Requirements: 12+ years in IT with 7+ in enterprise architecture; TOGAF or equivalent; ArchiMate modeling; experience with Azure or AWS migrations of large application portfolios; utilities or energy industry experience a plus."
+  },
+  {
+    "id": "pmo-director",
+    "note": "Good fit on PMO history but the PMO role is 6+ years back.",
+    "expected_score": [6, 9],
+    "gap_keywords_any": ["recent", "director", "budget", "PMP", "people"],
+    "jd": "Director, Enterprise PMO. Lead a team of 12 project and program managers delivering a $60M annual IT portfolio. Own portfolio governance, intake, capacity planning, executive status reporting and benefits realization. Requirements: 10+ years of program or portfolio management with 5+ years leading a PMO; PMP or PgMP required; direct people-management experience including hiring and performance reviews; experience with Jira Align or Planview."
+  },
+  {
+    "id": "forward-deployed-engineer",
+    "note": "Customer-facing AI fit, but the role is coding-heavy and the candidate is scripting-level.",
+    "expected_score": [4, 7],
+    "gap_keywords_any": ["Python", "coding", "software engineering", "production code", "TypeScript"],
+    "jd": "Forward Deployed Engineer. Embed with enterprise customers to build and ship LLM-powered applications into production. You will write production Python and TypeScript daily, build retrieval pipelines and evaluation harnesses, and debug customer integrations. Requirements: 5+ years as a software engineer shipping production code; strong Python; experience building with LLM APIs; comfortable presenting to customer executives. Bonus: prior consulting experience."
+  },
+  {
+    "id": "salesforce-architect",
+    "note": "Architecture level matches; the platform requirement is a hard gap.",
+    "expected_score": [3, 6],
+    "gap_keywords_any": ["Salesforce", "CTA", "Apex"],
+    "jd": "Salesforce Technical Architect. Design multi-cloud Salesforce solutions (Sales, Service, Experience Cloud) for enterprise clients. Requirements: 8+ years of Salesforce implementation experience; Salesforce Application Architect and System Architect certifications required, CTA preferred; deep knowledge of Apex, Lightning Web Components and Salesforce data modeling; experience with MuleSoft integration."
+  },
+  {
+    "id": "ml-research-engineer",
+    "note": "AI-adjacent title but a different discipline.",
+    "expected_score": [1, 4],
+    "gap_keywords_any": ["PyTorch", "training", "PhD", "research", "machine learning"],
+    "jd": "Senior Machine Learning Engineer, Research. Train and fine-tune large language models; design pre-training data pipelines; run distributed training on GPU clusters. Requirements: MS or PhD in machine learning or related field; 5+ years with PyTorch or JAX; publications at NeurIPS, ICML or ICLR preferred; experience with CUDA and distributed training frameworks."
+  },
+  {
+    "id": "junior-data-analyst",
+    "note": "Seniority mismatch in the other direction.",
+    "expected_score": [1, 4],
+    "gap_keywords_any": ["Tableau", "Power BI", "entry", "analyst", "dashboard", "statistics"],
+    "jd": "Data Analyst I (entry level). Build dashboards in Tableau and Power BI, write SQL queries against the data warehouse, and support the marketing team with weekly reporting. Requirements: 0-2 years of experience; bachelor's degree in statistics, mathematics or related field; proficiency in Excel, SQL and one BI tool."
+  },
+  {
+    "id": "retail-store-manager",
+    "note": "Wrong field — the kind of alert-email noise intake should screen out.",
+    "expected_score": [1, 2],
+    "gap_keywords_any": ["retail", "store", "merchandising", "sales"],
+    "jd": "Store Manager, specialty retail. Lead a team of 20 associates, manage inventory and merchandising, hit monthly sales targets, schedule staff and handle customer escalations. Requirements: 3+ years of retail store management; open availability including weekends and holidays; ability to lift 50 lbs."
+  }
+]

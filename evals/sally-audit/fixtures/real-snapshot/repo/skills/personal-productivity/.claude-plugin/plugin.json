@@ -1,0 +1,7 @@
+{
+  "name": "personal-productivity",
+  "version": "1.0.0",
+  "description": "Alex's day-to-day workflow automation: a job-search lead intake and scoring pipeline.",
+  "author": { "name": "Alex Example" },
+  "skills": ["./"]
+}

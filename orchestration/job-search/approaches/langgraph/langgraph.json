@@ -1,0 +1,8 @@
+{
+  "$comment": "Open in LangGraph Studio with `uv run langgraph dev` from this folder (needs langgraph-cli[inmem]).",
+  "dependencies": ["."],
+  "graphs": {
+    "evaluate": "./src/job_search_langgraph/studio.py:graph"
+  },
+  "env": "../../.env"
+}

@@ -1,0 +1,3 @@
+# Python caches from running skill script tests
+__pycache__/
+.pytest_cache/

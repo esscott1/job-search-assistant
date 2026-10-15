@@ -1,0 +1,14 @@
+# Real personal data never leaves your machine: resume, tracker DB, OAuth tokens.
+# Matches data/ at any depth (e.g. if Studio runs from approaches/langgraph/).
+**/data/*
+!data/README.md
+
+.env
+.venv/
+__pycache__/
+*.pyc
+*.db
+*.sqlite
+.pytest_cache/
+.ruff_cache/
+evals/job-fit/results/*.local.json

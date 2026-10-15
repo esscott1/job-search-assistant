@@ -1,0 +1,19 @@
+{
+  "name": "esscott",
+  "description": "Agentic Claude skills for job search and AI agent governance, grouped by category. Each category is one installable plugin.",
+  "owner": {
+    "name": "Eric Scott"
+  },
+  "plugins": [
+    {
+      "name": "job-search-assistant",
+      "source": "./skills/job-search-assistant",
+      "description": "Job-search lead intake, fit scoring and tailored resumes."
+    },
+    {
+      "name": "ai-governance",
+      "source": "./skills/ai-governance",
+      "description": "Sally, the lifecycle manager for every skill in this repo."
+    }
+  ]
+}
