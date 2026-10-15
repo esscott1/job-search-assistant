@@ -1,0 +1,1 @@
+{"spreadsheetId": "SHEET_EVAL_0001", "properties": {"title": "Job_Search_Tracker"}, "sheets": [{"properties": {"sheetId": 0, "title": "Job Log"}}, {"properties": {"sheetId": 1, "title": "Status Guide"}}, {"properties": {"sheetId": 2, "title": "Archive"}}]}

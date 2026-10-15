@@ -1,0 +1,21 @@
+{
+  "name": "gstub",
+  "version": "0.0.0",
+  "description": "Eval-only stand-ins for the Google Drive and Google Sheets connectors. Every tool is mocked; the servers are never started.",
+  "mcpServers": {
+    "gdrive": {
+      "command": "python",
+      "args": [
+        "-c",
+        "raise SystemExit('eval stub: mocked only')"
+      ]
+    },
+    "gsheets": {
+      "command": "python",
+      "args": [
+        "-c",
+        "raise SystemExit('eval stub: mocked only')"
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "mode": "tier2",
+  "title_seniority": "weak",
+  "work_arrangement": "relocation_required",
+  "requirements": [
+    {"text": "5+ years writing production Rust", "type": "required", "evidence": "none", "resume_evidence": ""},
+    {"text": "Built distributed systems at scale", "type": "required", "evidence": "none", "resume_evidence": ""},
+    {"text": "Deep Linux kernel and systems programming experience", "type": "required", "evidence": "none", "resume_evidence": ""},
+    {"text": "B.S. in Computer Science or equivalent", "type": "required", "evidence": "partial", "resume_evidence": "B.S. Information Systems"},
+    {"text": "Embedded or robotics experience", "type": "preferred", "evidence": "none", "resume_evidence": ""},
+    {"text": "Contributions to open-source Rust projects", "type": "preferred", "evidence": "none", "resume_evidence": ""}
+  ]
+}

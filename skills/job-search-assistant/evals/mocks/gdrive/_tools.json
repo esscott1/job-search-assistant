@@ -1,0 +1,67 @@
+{
+  "tools": [
+    {
+      "name": "search_files",
+      "description": "Search for Drive files using a structured query, e.g. title = 'x' and parentId = 'y'.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "pageSize": {
+            "type": "integer"
+          },
+          "excludeContentSnippets": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "name": "download_file_content",
+      "description": "Download the content of a Drive file as a base64 encoded string.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string"
+          },
+          "exportMimeType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fileId"
+        ]
+      }
+    },
+    {
+      "name": "create_file",
+      "description": "Create a Drive file or folder.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "contentMimeType": {
+            "type": "string"
+          },
+          "textContent": {
+            "type": "string"
+          },
+          "disableConversionToGoogleType": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  ]
+}

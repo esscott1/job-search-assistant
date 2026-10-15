@@ -1,0 +1,16 @@
+{
+  "mode": "tier2",
+  "title_seniority": "strong",
+  "work_arrangement": "commutable_hybrid",
+  "requirements": [
+    {"text": "8+ years of IT program management", "type": "required", "evidence": "strong", "resume_evidence": "Program and project management since 2014"},
+    {"text": "Experience leading migrations to Microsoft Azure", "type": "required", "evidence": "partial", "resume_evidence": "Cloud migration to AWS, not Azure"},
+    {"text": "Delivered Kubernetes-based platforms", "type": "required", "evidence": "none", "resume_evidence": ""},
+    {"text": "Vendor management", "type": "required", "evidence": "strong", "resume_evidence": "Manage 6 strategic vendors"},
+    {"text": "Experience in the healthcare industry", "type": "required", "evidence": "none", "resume_evidence": ""},
+    {"text": "Managed budgets over $2m", "type": "required", "evidence": "strong", "resume_evidence": "$8m annual program budget"},
+    {"text": "PMP certification", "type": "preferred", "evidence": "none", "resume_evidence": ""},
+    {"text": "Agile delivery", "type": "preferred", "evidence": "strong", "resume_evidence": "Introduced Scrum across 5 teams"},
+    {"text": "Power BI", "type": "preferred", "evidence": "none", "resume_evidence": ""}
+  ]
+}

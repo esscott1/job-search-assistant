@@ -1,0 +1,110 @@
+{
+  "tools": [
+    {
+      "name": "get_spreadsheet",
+      "description": "Returns titles, sheet names and metadata for a spreadsheet.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "includeGridData": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ranges": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "spreadsheetId"
+        ]
+      }
+    },
+    {
+      "name": "get_values",
+      "description": "Returns a range of values from a spreadsheet.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "range": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "spreadsheetId",
+          "range"
+        ]
+      }
+    },
+    {
+      "name": "update_values",
+      "description": "Sets values in a range of a spreadsheet.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "range": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {}
+            }
+          }
+        },
+        "required": [
+          "spreadsheetId",
+          "range",
+          "values"
+        ]
+      }
+    },
+    {
+      "name": "insert_dimension",
+      "description": "Inserts rows or columns.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "sheetId": {
+            "type": "integer"
+          },
+          "dimension": {
+            "type": "string"
+          },
+          "startIndex": {
+            "type": "integer"
+          },
+          "endIndex": {
+            "type": "integer"
+          },
+          "inheritFromBefore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "spreadsheetId"
+        ]
+      }
+    }
+  ]
+}
