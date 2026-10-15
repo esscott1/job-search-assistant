@@ -2,7 +2,7 @@
 
 Claude plugins for a human-in-the-loop job search, plus the same workflow built as an owned LangGraph pipeline with evals and CI. The skills do the repetitive work (reading job-alert email, screening, scoring against your full resume, building tailored resumes), and checkboxes in a Google Sheet decide where the costly work goes.
 
-> **JobSearchAssistant: a Claude plugin.** The job-search skills install together as one plugin that scans your email for job leads, screens them against your target roles and location, logs them to a tracker sheet, scores the ones you pick against your full resume, and builds tailored resumes on request. Start with "set up my job search". See [Install as a plugin](#install-as-a-plugin).
+> **JobSearchAssistant: a Claude plugin.** The job-search skills install together as one plugin that scans your email for job leads, screens them against your target roles and location, logs them to a tracker sheet, scores the ones you pick against your full resume, and builds tailored resumes on request. **New here? Follow [Getting started](docs/getting-started.md)**: install, a 20-minute setup, and the daily routine.
 
 ## Categories
 

@@ -15,6 +15,8 @@ The `job-search-assistant` plugin: skills that find job leads in your email, log
 
 ## Getting started
 
+The full walkthrough, from requirements and install to the daily routine and troubleshooting, is in [docs/getting-started.md](../../docs/getting-started.md).
+
 Say **"set up my job search"**. The `job-search-profile` skill interviews you and writes **`job-search-profile.md`** to your Google Drive. It records your name, your full-resume file, where your tracker sheet is, the roles you're targeting, your home ZIP code and how far you'd commute, and which job-alert emails to scan. It's plain Markdown, like a CLAUDE.md: the skill keeps it up to date when you tell Claude something changed, and you can edit it by hand. If your tracker sheet doesn't exist yet, the skill offers to create it.
 
 ## How to use it
