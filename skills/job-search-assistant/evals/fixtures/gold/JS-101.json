@@ -1,0 +1,15 @@
+{
+  "mode": "tier2",
+  "title_seniority": "strong",
+  "work_arrangement": "remote",
+  "requirements": [
+    {"text": "10+ years of experience delivering IT programs", "type": "required", "evidence": "strong", "resume_evidence": "14 years in IT; program delivery since 2014"},
+    {"text": "Led migrations of applications to AWS", "type": "required", "evidence": "strong", "resume_evidence": "Migration of 40 applications to AWS"},
+    {"text": "Vendor management, including contract negotiation", "type": "required", "evidence": "strong", "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts"},
+    {"text": "Managed program budgets of $5m or more", "type": "required", "evidence": "strong", "resume_evidence": "Own an $8m annual program budget"},
+    {"text": "Agile delivery experience", "type": "required", "evidence": "strong", "resume_evidence": "Introduced Scrum across 5 teams; CSM"},
+    {"text": "ITIL certification", "type": "preferred", "evidence": "strong", "resume_evidence": "ITIL 4 Foundation"},
+    {"text": "ServiceNow experience", "type": "preferred", "evidence": "strong", "resume_evidence": "ServiceNow ITSM rollout"},
+    {"text": "PMP certification", "type": "preferred", "evidence": "none", "resume_evidence": ""}
+  ]
+}

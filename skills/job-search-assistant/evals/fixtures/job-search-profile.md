@@ -19,7 +19,7 @@ Last updated: 2026-10-01
 - Time zone: America/New_York
 
 ## Target roles
-- Role families: cloud program management, IT vendor management
+- Role families: IT program management, cloud program management, IT vendor management
 - Seniority: senior, lead, manager
 - Adjacent roles: technical project manager
 - Never interested: sales, retail
