@@ -1,6 +1,6 @@
 {
   "name": "job-search-assistant",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JobSearchAssistant: scans email for job leads, logs them to a Google Sheet tracker with a quick Tier 1 fit score, scores the leads you tick in the tracker against the full resume with a deterministic rubric and a full gap report, rescores as you update the resume, and builds tailored resumes on request.",
   "author": { "name": "Eric Scott" },
   "skills": ["./"]

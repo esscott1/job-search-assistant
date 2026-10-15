@@ -4,7 +4,7 @@ The `job-search-assistant` plugin: skills that find job leads in your email, log
 
 | Skill | Trigger | Depends on |
 |---|---|---|
-| [`job-search-profile`](job-search-profile/SKILL.md) | On demand: "set up my job search" the first time, then whenever something changes ("add a job alert sender", "my tracker moved") | Google Drive and Google Sheets connectors; Gmail to confirm email senders |
+| [`job-search-profile`](job-search-profile/SKILL.md) | On demand: "set up my job search" the first time, then whenever something changes ("add a job alert sender", "search for openings at Acme", "my tracker moved") | Google Drive and Google Sheets connectors; Gmail to confirm email senders; web search and web fetch to find and test career sites |
 | [`job-lead-intake-scan`](job-lead-intake-scan/SKILL.md) | A daily schedule | Gmail, Google Drive and Google Sheets connectors only. Runs in the cloud; no computer needed |
 | [`job-lead-tier2-scoring`](job-lead-tier2-scoring/SKILL.md) | A schedule every 2-4 hours, scoring only rows ticked in **Run Tier 2**; or on demand for named rows | Web search and fetch, Google Drive and Google Sheets connectors. Cloud only, never LinkedIn |
 | [`job-lead-manual-jd-lookup`](job-lead-manual-jd-lookup/SKILL.md) | On demand, at your computer, for rows Tier 2 marked `T2-pending-manual` | Your signed-in Chrome (for LinkedIn) or the desktop app's built-in browser, plus the Sheets connector |
