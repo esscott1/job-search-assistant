@@ -102,11 +102,10 @@ CASES = {
     },
 }
 
+# The connector stub is a plugin with no manifest: just .mcp.json, so its name comes from its
+# folder ("gstub"). Keeping .claude-plugin/ folders out of the plugin tree means nothing inside
+# evals/ can be mistaken for a real plugin by tools that scan the repository.
 STUB = {
-    "name": "gstub",
-    "version": "0.0.0",
-    "description": "Eval-only stand-ins for the Google Drive and Google Sheets connectors. "
-    "Every tool is mocked; the servers are never started.",
     "mcpServers": {
         "gdrive": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
         "gsheets": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
@@ -200,7 +199,7 @@ def build() -> dict[Path, str]:
         out[HERE / "mocks/gdrive" / name] = text
     out[HERE / "mocks/gsheets/get_values.md"] = job_log(["JS-002", "JS-001"], [], {})
     for case, spec in CASES.items():
-        out[HERE / case / "gstub/.claude-plugin/plugin.json"] = dumps(STUB)
+        out[HERE / case / "gstub/.mcp.json"] = dumps(STUB)
         if "rows" in spec:
             agent = sheet_agent(spec["rows"], spec["ticked"], spec.get("tier", {}), spec.get("build", []))
             for tool in ("get_values", "update_values", "get_spreadsheet"):

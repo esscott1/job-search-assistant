@@ -12,7 +12,7 @@ These cases need no shell, so they run on Windows too.
 
 sally-audit reads two things: the repository's `main` branch and what's installed in the maintainer's Claude account. Each case freezes both in its own `world/` folder:
 
-- `world/repo/`: the repository as `main` looks in that scenario.
+- `world/repo/`: the repository as `main` looks in that scenario. Its manifest folders are named `_claude-plugin`, not `.claude-plugin`, so nothing inside the plugin looks like a real plugin to tools that scan the repository. The case prompts tell the skill to read them as `.claude-plugin`.
 - `world/installed/`: the installed skills, with `INSTALLED.md` saying what the session can see and how each skill is installed.
 - `world/CONTEXT.md`: open PRs, Sally's queue and today's date.
 
