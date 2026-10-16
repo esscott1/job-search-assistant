@@ -22,6 +22,14 @@ def files(root: Path) -> dict[str, str]:
     }
 
 
+def test_no_plugin_manifest_folders_inside_any_plugin():
+    """A .claude-plugin folder below a plugin's root could be mistaken for a real plugin by tools
+    that scan the repository, so eval fixtures use _claude-plugin and stubs ship only .mcp.json."""
+    skills = EVALS.parent.parent
+    nested = [p for p in skills.glob("*/evals/**/.claude-plugin")]
+    assert not nested, nested
+
+
 @pytest.mark.parametrize("case", CASES, ids=lambda p: p.name)
 def test_case_reads_its_own_world(case):
     assert (case / "world" / "CONTEXT.md").is_file()

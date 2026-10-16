@@ -53,7 +53,7 @@ evals/
 
 ### Standing in for the Google connectors
 
-The skills use the claude.ai Gmail, Google Drive and Google Sheets connectors, which don't exist in an eval sandbox. A case that needs them ships a tiny stub plugin, `gstub`, which declares MCP servers `gdrive` and `gsheets`. Every tool on those servers is answered from `mocks/`, so the servers never start. The skills name connector tools generically (`get_values`, `search_files`), so they use the stub's tools in their place.
+The skills use the claude.ai Gmail, Google Drive and Google Sheets connectors, which don't exist in an eval sandbox. A case that needs them ships a tiny stub plugin, `gstub`: just a `.mcp.json` declaring MCP servers `gdrive` and `gsheets`, with no `.claude-plugin` manifest, so nothing inside the plugin looks like a second plugin. Every tool on those servers is answered from `mocks/`, so the servers never start. The skills name connector tools generically (`get_values`, `search_files`), so they use the stub's tools in their place.
 
 In the case's `prompt.md`:
 

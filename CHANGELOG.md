@@ -2,6 +2,10 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.2.1, ai-governance 0.1.3
+
+- No `.claude-plugin` folder sits below either plugin's root any more. The eval stub plugins declare their mock servers in a bare `.mcp.json` (no manifest), and sally-audit's frozen test worlds name their manifest folders `_claude-plugin`, which the case prompts explain. A test keeps it that way. Nested manifest folders are suspected of breaking the Claude app's marketplace sync, though that isn't confirmed. Skills are unchanged.
+
 ## job-search-assistant 0.2.0
 
 **Breaking:** tailored resumes take their look from a text style file instead of a Word template. Say "set up my resume style" once, and attach the Word template you were using.
