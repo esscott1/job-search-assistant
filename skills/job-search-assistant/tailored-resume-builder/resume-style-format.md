@@ -43,6 +43,8 @@ Anything not given is taken from **Body**: its font, size and colour. Bold, ital
 | Key | Value |
 |---|---|
 | Header alignment | `left` or `center`: name, headline and contact line |
+| Header order | `name, headline, contact` in any order |
+| Section heading alignment | `left` or `center` |
 | Contact separator | Text between contact items. Quote it to keep spaces: `" · "` |
 | Section order | Comma-separated, from: `summary, competencies, highlights, experience, education, certifications, additional`. Sections left out aren't shown |
 | Section titles | `section = Title` pairs separated by `;`. An empty title (`summary = `) shows the section without a heading. Sections not listed use a plain default title |

@@ -24,6 +24,8 @@ resume-style-format.md in this skill's folder.
 
 ## Layout
 - Header alignment: left
+- Header order: name, headline, contact
+- Section heading alignment: left
 - Contact separator: " · "
 - Section order: summary, competencies, highlights, experience, education, certifications, additional
 - Section titles: summary = ; competencies = Core Competencies; highlights = Career Highlights; experience = Professional Experience; education = Education; certifications = Certifications; additional = Additional Information

@@ -71,6 +71,8 @@ class Style:
     margins: dict = field(default_factory=lambda: dict(top=0.5, bottom=0.5, left=0.6, right=0.6))
     text: dict = field(default_factory=dict)
     align: str = "left"
+    header_order: list = field(default_factory=lambda: ["name", "headline", "contact"])
+    heading_align: str = "left"
     contact_sep: str = " · "
     order: list = field(default_factory=lambda: list(SECTIONS))
     titles: dict = field(default_factory=lambda: dict(DEFAULT_TITLES))
@@ -184,10 +186,15 @@ def parse_margins(value: str, where: str) -> dict:
 
 
 def parse_layout(st: Style, key: str, value: str, where: str) -> None:
-    if key == "Header alignment":
+    if key in ("Header alignment", "Section heading alignment"):
         if value.lower() not in ("left", "center"):
             raise StyleError(f"{where}: left or center")
-        st.align = value.lower()
+        setattr(st, "align" if key.startswith("Header") else "heading_align", value.lower())
+    elif key == "Header order":
+        order = [s.strip().lower() for s in value.split(",") if s.strip()]
+        if sorted(order) != ["contact", "headline", "name"]:
+            raise StyleError(f"{where}: name, headline and contact, in any order")
+        st.header_order = order
     elif key == "Contact separator":
         st.contact_sep = unquote(value)
     elif key == "Section order":
@@ -347,7 +354,7 @@ class Renderer:
         title = self.st.titles.get(section, DEFAULT_TITLES[section])
         if not title:
             return
-        p = self.para(after=self.st.space_heading)
+        p = self.para(after=self.st.space_heading, align=self.st.heading_align)
         p.paragraph_format.space_before = Pt(8)
         p.paragraph_format.keep_with_next = True
         self.run(p, title, "Section headings")
@@ -378,12 +385,13 @@ class Renderer:
     # -- sections
     def header(self, c: dict):
         a = self.st.align
-        self.run(self.para(align=a), c["name"], "Name")
-        if c.get("headline"):
-            self.run(self.para(after=1, align=a), c["headline"], "Headline")
-        contact = [x for x in c.get("contact", []) if x]
-        if contact:
-            self.run(self.para(after=2, align=a), self.st.contact_sep.join(contact), "Contact")
+        contact = self.st.contact_sep.join(x for x in c.get("contact", []) if x)
+        lines = {"name": (c["name"], "Name", 0), "headline": (c.get("headline"), "Headline", 1),
+                 "contact": (contact, "Contact", 1)}
+        for i, part in enumerate(self.st.header_order):
+            text, role, after = lines[part]
+            if text:
+                self.run(self.para(after=2 if i == 2 else after, align=a), text, role)
 
     def summary(self, c):
         if c.get("summary"):
