@@ -123,7 +123,7 @@ CASES = {
     "cleanup-restores-a-row": {"rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"]},
     "intake-logs-new-leads": {"rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"], "inbox": "inbox.json"},
     "intake-scans-career-site": {
-        "rows": ["JS-101", "JS-002"], "ticked": [], "archive": ["JS-005"],
+        "rows": ["JS-101", "JS-002"], "ticked": [], "archive": ["JS-005"], "web": "web/northwind-feed.json",
         "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-careers.md", FOLDER, "text/markdown")},
     },
     "intake-nothing-to-scan": {
@@ -150,8 +150,18 @@ STUB = {
         "gdrive": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
         "gsheets": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
         "gmail": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
+        # Stands in for web fetching in cases that disallow the built-in WebFetch, so they read
+        # their pages from fixtures/ instead of the network.
+        "web": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
     },
 }
+
+WEB_TOOLS = {"tools": [{
+    "name": "fetch",
+    "description": "Fetches a URL and returns its content as text (pages, JSON feeds).",
+    "inputSchema": {"type": "object", "properties": {"url": {"type": "string"}, "prompt": {"type": "string"}},
+                    "required": ["url"]},
+}]}
 
 CREATE_FILE = {
     "id": "FILE_NEW_0001",
@@ -282,6 +292,9 @@ def build() -> dict[Path, str]:
             for tool in ("get_values", "update_values", "get_spreadsheet", "update_formulas", "insert_dimension",
                          "update_spreadsheet"):
                 out[HERE / case / f"mocks/gsheets/{tool}.md"] = agent
+        if "web" in spec:
+            out[HERE / case / "mocks/web/_tools.json"] = dumps(WEB_TOOLS)
+            out[HERE / case / "mocks/web/fetch.md"] = (FIXTURES / spec["web"]).read_text(encoding="utf-8")
         if "inbox" in spec:
             agent = gmail_agent(spec["inbox"])
             for tool in ("search_threads", "get_thread"):

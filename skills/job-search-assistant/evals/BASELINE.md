@@ -34,7 +34,7 @@ Total: 18 runs, $9.51, about 10 minutes at `-j 3`.
 | `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $1.34-1.64 | Built the resume with vendor management featured; no Kubernetes, CKA or Rust anywhere; listed both as gaps |
 | `resume-tailors-pasted-jd` | 1.00 · 0.78 · 0.56 | $1.17-1.58 | Content was right in every run. The two partial runs failed on moving files, not on judgement (see below) |
 
-**Intake and cleanup cases**, 3 runs each, 2026-10-16. Intake runs needing a shell were in WSL (with `--allow-tools Bash Write WebFetch`); cleanup and nothing-to-scan ran on Windows:
+**Intake and cleanup cases**, 3 runs each, 2026-10-16. Intake runs needing a shell were in WSL (with `--allow-tools Bash Write`); cleanup and nothing-to-scan ran on Windows. `intake-scans-career-site` was rerun 3 times after its feed moved from a GitHub URL to the stub `web` server (1.00 each):
 
 | Case | Score (3 runs) | Usage per run (API-equivalent) |
 |---|---|---|

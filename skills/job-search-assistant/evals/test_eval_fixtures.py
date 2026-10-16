@@ -58,10 +58,11 @@ def test_rescore_keeps_the_r1_requirement_list():
     assert strip(r1) == strip(r2)
 
 
-def test_career_feed_url_points_at_the_feed_fixture():
-    """The careers profile fetches the feed from GitHub at a pinned commit; the path must match the file."""
-    profile = (EVALS / "fixtures/job-search-profile-careers.md").read_text(encoding="utf-8")
-    url = re.search(r"https://raw\.githubusercontent\.com/esscott1/job-search-assistant/([0-9a-f]{40})/(\S+?) \|", profile)
-    assert url, "the career site URL must be pinned to a full commit SHA"
-    repo_root = EVALS.parents[2]
-    assert (repo_root / url.group(2)).is_file(), url.group(2)
+def test_evals_are_self_contained():
+    """Eval data lives in the eval folder: nothing may be fetched from this repository on GitHub
+    (raw links, commits, branches), so cases don't depend on git history or the network."""
+    for path in EVALS.rglob("*"):
+        if path.is_file() and path.suffix in (".md", ".json", ".yaml", ".py") and path.name != "test_eval_fixtures.py":
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            assert "raw.githubusercontent.com" not in text, path
+            assert "github.com/esscott1/job-search-assistant" not in text, path

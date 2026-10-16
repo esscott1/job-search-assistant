@@ -20,6 +20,13 @@
         "-c",
         "raise SystemExit('eval stub: mocked only')"
       ]
+    },
+    "web": {
+      "command": "python",
+      "args": [
+        "-c",
+        "raise SystemExit('eval stub: mocked only')"
+      ]
     }
   }
 }

@@ -7,7 +7,7 @@ Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a c
 - Evals for `job-lead-intake-scan` and `job-tracker-cleanup`.
   - **Intake:** new leads from email logged at the top with the right IDs, canonical links and T1 scores; Never-interested jobs, duplicates under other tracking parameters, archived jobs and sign-in tokens never written; a career site read from its feed; nothing to scan.
   - **Cleanup:** only untouched rows past the archive age are archived, in one revision-checked batch; the Archive tab is created when missing; the archive age is honoured; a row is restored.
-- The eval stubs gain a Gmail stand-in and Sheets batch operations. Skills are unchanged.
+- The eval stubs gain Gmail and web-fetch stand-ins and Sheets batch operations. Every eval is self-contained: test data lives in the eval folder, and nothing is fetched from the network or this repository. Skills are unchanged.
 
 ## job-search-assistant 0.2.1, ai-governance 0.1.3
 

@@ -39,7 +39,7 @@ Last updated: 2026-10-01
 ## Career sites
 | Source | Company | URL | Method | Notes |
 |---|---|---|---|---|
-| Careers: Northwind | Northwind Logistics | https://raw.githubusercontent.com/esscott1/job-search-assistant/f05603191c61f6e86c938eec701d3cc5da511f39/skills/job-search-assistant/evals/fixtures/web/northwind-feed.json | feed | Greenhouse job board feed (a test copy); human page https://job-boards.greenhouse.io/northwindexample |
+| Careers: Northwind | Northwind Logistics | https://boards-api.greenhouse.io/v1/boards/northwindexample/jobs | feed | Greenhouse job board feed (a test copy); human page https://job-boards.greenhouse.io/northwindexample |
 
 ## Never scan
 - messages-noreply@linkedin.com
