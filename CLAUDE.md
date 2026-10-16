@@ -33,7 +33,7 @@ Treat everything here as public. Code quality, commit messages and PR descriptio
 - **A category with no skills stays out of `marketplace.json`.** When its first skill lands, add its `plugin.json` and its marketplace entry in the same PR.
 - **Bump the plugin's `version`** in its `plugin.json` whenever a skill in it changes. Installed copies stay on the old version until it changes.
 - **Versions stay below 1.0.0 during active development.** A change that breaks existing users (a changed trigger, a changed input or output another skill depends on, a new required setting) bumps the **minor** version; anything else bumps the **patch**. Never bump the major version; 1.0.0 is reserved for the first release meant for general use. New skills and new category plugins start at `0.1.0`. Sally's SKILL.md has the full rule.
-- **Evals** live in `skills/<category>/evals/`, in the format `claude plugin eval` runs; see `skills/job-search-assistant/evals/README.md` (and `skills/ai-governance/evals/README.md` for sally-audit's frozen worlds). When a change alters what a skill does, run its cases locally (they use your own Claude login, no API key) with `--output-dir` outside the plugin, and quote the result in the PR. Cases that run scripts (the Tier 2 scoring and resume-building cases) need a shell, which the eval runner allows only on Linux or macOS; on Windows, use WSL (`scripts/setup-wsl-evals.sh`). A change to a scoring skill or the rubric reruns the scoring cases and compares with `evals/BASELINE.md`. CI doesn't run them yet.
+- **Evals** live in `skills/<category>/evals/`, in the format `claude plugin eval` runs; see `skills/job-search-assistant/evals/README.md` (and `skills/ai-governance/evals/README.md` for sally-audit's frozen worlds). When a change alters what a skill does, run its cases locally (they use your own Claude login, no API key) with `--output-dir` outside the plugin, and quote the result in the PR. Cases that run scripts (the Tier 2 scoring and resume-building cases) need a shell, which the eval runner allows only on Linux or macOS; on Windows, use WSL (see **Running evals on Windows** below). A change to a scoring skill or the rubric reruns the scoring cases and compares with `evals/BASELINE.md`. CI doesn't run them yet.
 - Run `claude plugin validate .` and `claude plugin validate ./skills/<category>` before opening a PR that touches `skills/` or `.claude-plugin/`. If a skill's Python scripts changed, also run `python -m pytest -q skills/`. CI runs the same checks.
 - **Editing a SKILL.md here does not update an installed skill** in anyone's Claude account. Installing is a separate step in the Claude app. Say so in the PR when a change needs reinstalling. The repo and the installed skills can drift, so check before assuming they match.
 
@@ -69,3 +69,13 @@ A user's job-search profile, real resume, tracker contents, the tracker database
 - **Claude app:** the currently scheduled skills and their Gmail/Drive connectors, and installing the plugins into an account.
 
 The setup guide is `docs/setup/job-search-langgraph.md`.
+
+## Running evals on Windows
+
+Shell-using eval cases (Tier 2 scoring, resume building) run in WSL Ubuntu; setup is in `docs/setup/windows-wsl-evals.md`. From a Windows session, Claude runs them itself, with no user step, once that setup is done:
+
+- Run `wsl -d Ubuntu -- bash /mnt/c/<repo path>/scripts/run-evals-wsl.sh '<case glob>' [options]`. Name the distro, because the default WSL distro may be `docker-desktop`.
+- Always go through a script file. An inline `bash -c '…'` is mangled by Git Bash, and PowerShell expands its `$VARS` on the Windows side.
+- `claude` comes from nvm, so a non-interactive shell can't find it until `nvm.sh` is loaded; `run-evals-wsl.sh` does that. A failing `which claude` doesn't mean Claude Code is missing: check `~/.nvm/versions/node/*/bin/claude` before telling the user to install anything.
+- Unit tests: `wsl -d Ubuntu -- bash -c "cd /mnt/c/<repo path> && python3 -m pytest -q skills/"`, which needs `python3-pytest` from the setup script.
+- Installing system packages needs the user's `sudo` password; ask them to run `scripts/setup-wsl-evals.sh` themselves.
