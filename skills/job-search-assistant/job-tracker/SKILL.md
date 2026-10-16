@@ -22,7 +22,7 @@ Everything specific to a user (their name, files, tracker, target roles, locatio
 | Setting | Used by |
 |---|---|
 | Candidate → Full resume | every skill that scores, and the resume builder |
-| Candidate → Resume template, Tailored resume prefix | tailored-resume-builder |
+| Candidate → Resume style, Tailored resume prefix; Tracker → Local Drive folder | tailored-resume-builder |
 | Tracker → Sheet ID, Sheet name, Folder ID | every skill (finding the tracker and the job folders) |
 | Tracker → Time zone | every skill that writes a date |
 | Target roles | intake screening, and `title_seniority` in `job-fit-rubric` |
