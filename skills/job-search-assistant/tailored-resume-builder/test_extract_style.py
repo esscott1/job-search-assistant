@@ -142,7 +142,7 @@ def test_features_not_carried_over_are_reported(tmp_path):
 def test_every_extracted_style_is_valid_for_the_renderer(tmp_path):
     templates = [rendered_template(tmp_path), direct_formatting_template(tmp_path),
                  direct_formatting_template(tmp_path, extras=True),
-                 HERE.parent / "evals" / "fixtures" / "Synthetic-Resume-Template.docx"]
+                 HERE.parent / "evals" / "fixtures" / "Old-Resume.docx"]
     for t in templates:
         parse_style(extract(str(t))[0])  # raises StyleError if invalid
 

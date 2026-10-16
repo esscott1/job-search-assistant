@@ -60,7 +60,7 @@ Find every column by its header text on each run, never by letter: the user may 
 | Status | **The user**; intake writes `Need to review` on new rows only | Dropdown. No skill ever changes it after that |
 | Next Action / Notes | **The user only** | No skill writes here |
 | Contact / Referrer | The user; intake when the source's profile notes say it's a recruiter | The recruiter's name, written as on earlier rows from that source |
-| Tailored Resume, Resume Created | tailored-resume-builder | `=HYPERLINK("<Drive URL of the PDF>","<file name>")`; date built |
+| Tailored Resume, Resume Created | tailored-resume-builder | `=HYPERLINK("<Drive URL of the PDF>","<file name>")`, or the file name followed by `(syncing to Drive)` or `(download; add to <Company_Folder>/)` when the link isn't available yet; date built |
 | Date Submitted, Submission Email | The user | |
 | Last Updated | every skill that writes the row | Today, `YYYY-MM-DD` |
 | Source Email | intake | `=HYPERLINK("https://mail.google.com/mail/u/0/#all/<Gmail message id>","Email")`. Blank for a lead from a career site |

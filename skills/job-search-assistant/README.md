@@ -11,7 +11,7 @@ The `job-search-assistant` plugin: skills that find job leads in your email, log
 | [`job-fit-rubric`](job-fit-rubric/SKILL.md) | Never on its own; loaded whenever a skill sets a Fit Score | Python 3 for `score.py` |
 | [`job-tracker`](job-tracker/SKILL.md) | Never on its own; loaded by every skill that reads or writes the tracker | Python 3 for `canonical_url.py` |
 | [`job-tracker-cleanup`](job-tracker-cleanup/SKILL.md) | A weekly schedule; or on demand to clean up now or restore a row | Google Sheets connector only. Runs in the cloud |
-| [`tailored-resume-builder`](tailored-resume-builder/SKILL.md) | On demand only: "build ticked resumes" for rows ticked in **Build Resume**, a named row, or a pasted job description | Your full resume and a Word resume template in Drive, plus Python (`python-docx`, LibreOffice) |
+| [`tailored-resume-builder`](tailored-resume-builder/SKILL.md) | On demand only: "build ticked resumes" for rows ticked in **Build Resume**, a named row, or a pasted job description | Your full resume and your resume style (`resume-style.md`, or the default) in Drive, plus Python (`python-docx`; LibreOffice for the PDF and page count) |
 
 ## Getting started
 
@@ -24,7 +24,7 @@ Say **"set up my job search"**. The `job-search-profile` skill interviews you an
 1. **Review the new rows each day.** Intake runs on its schedule and logs each new lead with a Tier 1 score from the alert email alone. Sort the Job Log by Fit Score and tick **Run Tier 2** on the leads worth a real look.
 2. **Tier 2 scores them.** The scheduled run finds each ticked job's real description, saves it, scores it against your full resume, and unticks the box. The **Gaps** cell shows the top three; the **Fit Report** link opens the full list: every requirement with the evidence for it, gaps first.
 3. **Close the gaps that aren't real.** If a gap is something you have done but left out of your full resume, add it there and tick **Run Tier 2** again. A rescore reuses the saved job description and the same requirement list, so a changed score comes from your edit, and the new fit report lists what changed since the last run. Repeat as often as you like.
-4. **Build the resume.** When the gaps that remain are real, tick **Build Resume** and say "build ticked resumes". A .docx and PDF of at most 2 pages are saved in the job's folder (one page is fine when that's all the relevant experience there is), and the row links to the PDF.
+4. **Build the resume.** When the gaps that remain are real, tick **Build Resume** and say "build ticked resumes". You get a .docx and PDF of at most 2 pages (one page is fine when that's all the relevant experience there is), in your own resume style. On your computer with Google Drive for desktop, they're written straight into the job's folder and the row links to the PDF. From the cloud, they're handed to you as downloads to drop into that folder.
 
 Once a week, cleanup moves rows you never acted on (still "Need to review" more than 30 days after they were found, or the age set in your profile) to the **Archive** tab, so the Job Log stays short. Anything you've ticked, noted, moved to another status, or built a resume for stays put.
 
@@ -61,7 +61,7 @@ Everything lives in one Google Drive folder, the one you named for your tracker 
 - **`job-search-profile.md`**: your settings (see Getting started).
 - **The tracker**: a Google Sheet (named in your profile, `Job_Search_Tracker` by default). **Job Log** and **Status Guide** come with it; **Archive** is added by the first cleanup run. **Job Log** has one row per job, with new leads added at the top, newest first; **Status Guide** explains the statuses and the scoring and counts rows by status. **Archive** holds rows moved out of the Job Log by cleanup, with the date they were archived; it still counts for dedup, so an archived job isn't logged again. The full column list, and which skill writes each column, is in [`job-tracker`](job-tracker/SKILL.md#columns). Columns that only you change: **Status**, **Next Action / Notes**, and the two checkboxes, **Run Tier 2** and **Build Resume**.
 - **Your full resume**: a Markdown file holding your whole career history, not a two-page selection. It's the only evidence the skills score against or build resumes from, and only you edit it.
-- **A Word resume template**: the layout every tailored resume uses. Today that has to be a copy of the Job-Seeker-6 template, the only layout the resume builder supports.
+- **`resume-style.md`**: the look of your tailored resumes, as a short text file (fonts, sizes, colours, margins, layout). Setup makes it once from a Word template you attach, or you use the plugin's default. Change it in plain language ("make my resume headings navy") or by hand.
 - **One folder per company** (for example `Acme_Corp/`), created the first time a job there gets a full read. It holds `<ID>_JD.md` (the saved job description), one `<ID>_fit_r<n>_<date>.md` per scoring run, and any tailored resumes as .pdf and .docx, versioned `_v2`, `_v3` rather than overwritten.
 
 **Only setup creates a tracker.** If the sheet in your profile isn't found, every skill stops and says so rather than starting a blank one. `job-search-profile` offers to create the folder and sheet during setup, and only with your yes.

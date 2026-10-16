@@ -22,7 +22,7 @@ claude plugin eval skills/job-search-assistant --trust-plugin --no-publish --out
 - `--trust-plugin` skips the first-run prompt. Pass it only for this repo's own plugin.
 - `--keep-temp` keeps each run's sandbox and `trace.jsonl` for debugging. On Windows the CLI prints the folder to delete afterwards.
 - Rough cost per run, measured on the first cases: $0.10-0.21 with the plugin and about $0.06 without, plus a few cents for LLM graders. A scoring case reads more and runs `score.py`, so expect more per run.
-- **The resume template** isn't in the repo. `make_synthetic_template.py` makes a stand-in with the same structure that `build_resume.py` relies on and placeholder text only. Drive serves it under the template's file name, so the resume cases build a real .docx. The same file lets `build_resume.py`'s unit tests run in CI.
+- **The resume style** is `fixtures/resume-style.md`, which the stub Drive serves as the user's `resume-style.md`. Resume cases render a real .docx with `render_resume.py`. `fixtures/Old-Resume.docx` is only there as an older Word resume the skill must never use.
 - **Scoring and resume-building cases need a shell, which means Linux or macOS.** They run the rubric's `score.py`, so they need `--allow-tools Bash Write`. The eval runner grants a shell only inside an OS sandbox. On Windows it refuses the run, so use WSL: [`scripts/setup-wsl-evals.sh`](../../../scripts/setup-wsl-evals.sh) sets up Ubuntu (bubblewrap, socat, Node, Claude Code, and python-docx, LibreOffice and pdfinfo for the resume cases), and you sign in once. Cases that need no shell run anywhere.
 
   ```bash
@@ -41,7 +41,6 @@ evals/
   mocks/<server>/<tool>.md canned responses for the stubbed connectors
   fixtures/                the synthetic files the mocks are built from
     gold/                  the expected evidence table for each scoring case
-    Synthetic-Resume-Template.docx  stand-in for the resume template (made by make_synthetic_template.py)
   build_mocks.py           builds mocks/ and each case's mocks/ and gstub/ from fixtures/
   test_eval_fixtures.py    checks the mocks are current and the gold answers match the graders (CI, no model calls)
 ```
@@ -83,8 +82,9 @@ A scoring eval only means something if the right answer is fixed in advance. Eac
 | Case | Skill | What it proves |
 |---|---|---|
 | `resume-no-jd-asks-first` | tailored-resume-builder | Without a job description it asks for one and builds nothing |
-| `resume-tailors-pasted-jd` | tailored-resume-builder | Needs a shell. Builds a resume for a pasted JD with build_resume.py, leading with the JD's supported requirements, employer and dates unchanged, saved as `<prefix>_<Company>_<Role>.docx`, and ends with the gaps |
+| `resume-tailors-pasted-jd` | tailored-resume-builder | Needs a shell. Builds a resume for a pasted JD with render_resume.py and the user's style file, leading with the JD's supported requirements, employer and dates unchanged, named `<prefix>_<Company>_<Role>.docx`. Hands it over without uploading a binary to Drive, and ends with the gaps |
 | `resume-does-not-invent` | tailored-resume-builder | Needs a shell. The JD asks for a Kubernetes certification and Rust, which the resume doesn't show: neither appears in the competencies or highlights, and both are reported as gaps |
+| `resume-delivers-to-synced-folder` | tailored-resume-builder | Needs a shell. The profile has a Local Drive folder (Google Drive for desktop): the .docx is written straight into its company folder, and nothing binary goes through the connector |
 | `resume-full-resume-missing` | tailored-resume-builder | The profile's full resume isn't in Drive: it stops and says so, and never falls back to the older Word resume that is there |
 | `resume-ticked-row-needs-jd` | tailored-resume-builder | "build ticked resumes" on a row with no saved JD: skips it, leaves Build Resume ticked, says to run Tier 2 first, and doesn't search for the JD |
 | `tier2-nothing-ticked` | job-lead-tier2-scoring | Reads the profile and tracker through the connectors, reports that nothing is ticked, and stops: no resume download, no web search, no writes |

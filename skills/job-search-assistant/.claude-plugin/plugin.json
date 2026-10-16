@@ -1,7 +1,7 @@
 {
   "name": "job-search-assistant",
-  "version": "0.1.6",
-  "description": "JobSearchAssistant: finds job leads in job-alert email and on company career sites you choose, logs them to a Google Sheet tracker with a quick Tier 1 fit score, scores the leads you tick in the tracker against the full resume with a deterministic rubric and a full gap report, rescores as you update the resume, and builds tailored resumes on request.",
+  "version": "0.2.0",
+  "description": "JobSearchAssistant: finds job leads in job-alert email and on company career sites you choose, logs them to a Google Sheet tracker with a quick Tier 1 fit score, scores the leads you tick in the tracker against the full resume with a deterministic rubric and a full gap report, rescores as you update the resume, and builds tailored resumes on request in the user's own resume style.",
   "author": {
     "name": "Eric Scott"
   },

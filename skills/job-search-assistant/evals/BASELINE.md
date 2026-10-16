@@ -34,7 +34,9 @@ Total: 18 runs, $9.51, about 10 minutes at `-j 3`.
 | `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $1.34-1.64 | Built the resume with vendor management featured; no Kubernetes, CKA or Rust anywhere; listed both as gaps |
 | `resume-tailors-pasted-jd` | 1.00 · 0.78 · 0.56 | $1.17-1.58 | Content was right in every run. The two partial runs failed on moving files, not on judgement (see below) |
 
-**Known limit: binary files pass through the model.** The Drive connector hands a file to the skill as base64 text, and takes an upload the same way, so the model has to copy the template's base64 into a file and the finished .docx's base64 into the upload. In one run a copied template was corrupt and the skill rightly stopped before building. In another, it repaired the template and built the resume, but declined to upload it rather than risk a corrupt copy. Until the skill stops depending on that round trip, this case isn't expected to pass every run.
+**Superseded in 0.2.0.** The resume builder no longer moves Word files through the connector: it renders from the user's text style file and delivers the .docx and PDF by download or a synced Drive folder. The note below describes 0.1.5.
+
+**Known limit (0.1.5): binary files pass through the model.** The Drive connector hands a file to the skill as base64 text, and takes an upload the same way, so the model has to copy the template's base64 into a file and the finished .docx's base64 into the upload. In one run a copied template was corrupt and the skill rightly stopped before building. In another, it repaired the template and built the resume, but declined to upload it rather than risk a corrupt copy. Until the skill stops depending on that round trip, this case isn't expected to pass every run.
 
 **Eval environment limit:** LibreOffice won't start inside the eval sandbox, so these runs can't make a PDF or count pages. The skill saves the .docx and reports the page count as unverified, as its rules say. The page-count logic itself is covered by `build_resume.py`'s unit tests, which run where LibreOffice is installed.
 
