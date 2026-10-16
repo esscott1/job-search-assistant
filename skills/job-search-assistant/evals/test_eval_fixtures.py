@@ -56,3 +56,12 @@ def test_rescore_keeps_the_r1_requirement_list():
     r2 = json.loads((EVALS / "fixtures/gold/JS-102-r2.json").read_text(encoding="utf-8"))
     strip = lambda t: [(r["text"], r["type"]) for r in t["requirements"]]  # noqa: E731
     assert strip(r1) == strip(r2)
+
+
+def test_career_feed_url_points_at_the_feed_fixture():
+    """The careers profile fetches the feed from GitHub at a pinned commit; the path must match the file."""
+    profile = (EVALS / "fixtures/job-search-profile-careers.md").read_text(encoding="utf-8")
+    url = re.search(r"https://raw\.githubusercontent\.com/esscott1/job-search-assistant/([0-9a-f]{40})/(\S+?) \|", profile)
+    assert url, "the career site URL must be pinned to a full commit SHA"
+    repo_root = EVALS.parents[2]
+    assert (repo_root / url.group(2)).is_file(), url.group(2)

@@ -34,6 +34,22 @@ Total: 18 runs, $9.51, about 10 minutes at `-j 3`.
 | `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $1.34-1.64 | Built the resume with vendor management featured; no Kubernetes, CKA or Rust anywhere; listed both as gaps |
 | `resume-tailors-pasted-jd` | 1.00 · 0.78 · 0.56 | $1.17-1.58 | Content was right in every run. The two partial runs failed on moving files, not on judgement (see below) |
 
+**Intake and cleanup cases**, 3 runs each, 2026-10-16. Intake runs needing a shell were in WSL (with `--allow-tools Bash Write WebFetch`); cleanup and nothing-to-scan ran on Windows:
+
+| Case | Score (3 runs) | Usage per run (API-equivalent) |
+|---|---|---|
+| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 | $0.56-0.59 |
+| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 | $0.60-0.65 |
+| `intake-nothing-to-scan` | 1.00 · 1.00 · 0.83 | $0.22-0.26 |
+| `cleanup-archives-untouched-rows` | 0.95 · 0.95 · 0.95 | $0.45-0.51 |
+| `cleanup-creates-archive-tab` | 1.00 · 1.00 · 1.00 | $0.37-0.50 |
+| `cleanup-honours-archive-age` | 1.00 · 1.00 · 1.00 | $0.22 |
+| `cleanup-restores-a-row` | 1.00 · 1.00 · 1.00 | $0.36-0.37 |
+
+Every deterministic check passed in every run: which rows were written, moved or skipped, one revision-checked batch, inserts at the top, canonical links, no sign-in tokens, and score.py and canonical_url.py actually run. The misses were LLM-judge checks on the final summary:
+- In `cleanup-archives-untouched-rows`, the simulated spreadsheet (a small model playing Sheets) miscounted the Job Log's rows (7 instead of 8) and lost the last row when applying the batch. The skill's read-back check caught it and reported it honestly without repairing anything, as the skill says to. The Sheets mock now states each tab's exact row count. After that, the case scored 1.00 in 3 of 3 runs, and every cleanup case scored 1.00 in a further single pass. The summary judge also accepts an honest mismatch report, since that's the right behaviour if the sheet really changes.
+- In `intake-nothing-to-scan`, the judge wanted a suggestion of where to add a source. It now asks only that the reply says why there's nothing to scan.
+
 **Resume and profile cases at 0.2.0** (style file, no Word files through the connector), run in WSL with `--scaffold`, 3 runs each, 2026-10-15:
 
 | Case | Score (3 runs) | Usage per run (API-equivalent) |

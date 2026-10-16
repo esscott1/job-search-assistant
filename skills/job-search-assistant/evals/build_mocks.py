@@ -192,15 +192,16 @@ type: agent
 
 You play the Google Sheets API for one spreadsheet, {sheet}, titled Job_Search_Tracker. Its tabs: {tabs}.
 
-The Job Log starts as this grid (row 1 is the header; columns A to AB):
+The Job Log starts as this grid (row 1 is the header; columns A to AB). It has {log_rows} rows: the header plus {log_data} data rows, so its gridProperties.rowCount starts at {log_rows}:
 {grid}
 {archive}
-Behave like the real API, and keep state for the whole conversation. Every write applies to the grids, so later reads see it.
+Behave like the real API, and keep state for the whole conversation. Every write applies to the grids, so later reads see it. Before answering any call, work out each tab's current grid step by step from its starting grid and every write so far; never drop or duplicate a row by accident.
+Row indexes in requests are 0-based: index 0 is the header (row 1 in A1 notation), index 1 is the first data row. gridProperties.rowCount is the number of rows the tab has right now, header included.
 - get_values: return {{"range": ..., "majorDimension": "ROWS", "values": [...]}} for the requested A1 range.
 - update_values / update_formulas: apply the values or formulas to the range and return {{"updatedRange": ..., "updatedRows": n, "updatedColumns": n, "updatedCells": n}}. A formula such as =HYPERLINK("url","label") reads back through get_values as its label.
 - insert_dimension: insert empty rows (or columns) at startIndex..endIndex (0-based) in the sheet with that sheetId, shifting the rest down; return {{}}.
 - get_spreadsheet: return {{"spreadsheetId", "properties": {{"title"}}, "sheets": [{{"properties": {{"sheetId", "title", "gridProperties"}}}}]}} and the current "revisionId" (start at "rev-1"; every write makes a new one: rev-2, rev-3, ...). With includeGridData true, include "data": [{{"rowData": [{{"values": [{{"userEnteredValue": {{"stringValue"|"numberValue"|"boolValue"|"formulaValue": ...}}}}]}}]}}] for the requested ranges.
-- update_spreadsheet: apply the requests in order (addSheet, insertDimension, deleteDimension, updateCells, updateSheetProperties, ...). If writeControl.requiredRevisionId is given and isn't the current revision, change nothing and return an error saying the revision doesn't match. Otherwise return {{"spreadsheetId", "replies": [...], "writeControl": {{"requiredRevisionId": <new revision>}}}}.
+- update_spreadsheet: apply the requests strictly in order, each to the result of the one before (addSheet, insertDimension, deleteDimension, updateCells, updateSheetProperties, ...). insertDimension adds empty rows at startIndex..endIndex-1 and shifts the rows from startIndex down; deleteDimension removes rows startIndex..endIndex-1 and shifts later rows up; updateCells writes its rows starting at start.rowIndex/columnIndex (or the range's top-left). Rows not named by a request never change. If writeControl.requiredRevisionId is given and isn't the current revision, change nothing and return an error saying the revision doesn't match. Otherwise return {{"spreadsheetId", "replies": [...], "writeControl": {{"requiredRevisionId": <new revision>}}}}.
 Reply with JSON only.
 """
 
@@ -217,10 +218,13 @@ def sheet_agent(rows: list[str], ticked: list[str], tiers: dict, build: list[str
         tabs, archive_text = '"Job Log" (sheetId 0) and "Status Guide" (1). There is no Archive tab yet', ""
     else:
         tabs = '"Job Log" (sheetId 0), "Status Guide" (1) and "Archive" (2)'
-        archived = [row(r, False, None, False, changes) + ["2026-09-01"] for r in archive]
-        archive_text = ("\nThe Archive starts as this grid (row 1 is the header; the Job Log's columns, then Archived On):\n"
+        old = {r: {"Date Found": OLD, "Last Updated": OLD, "Email Received": OLD} for r in archive}
+        archived = [row(r, False, None, False, {**old, **(changes or {})}) + ["2025-09-15"] for r in archive]
+        archive_text = (f"\nThe Archive starts as this grid (row 1 is the header; the Job Log's columns, then Archived On). "
+                        f"It has {len(archived) + 1} rows: the header plus {len(archived)} data rows:\n"
                         + json.dumps([HEADERS + ["Archived On"]] + archived, ensure_ascii=False) + "\n")
-    return SHEET_AGENT.format(sheet=SHEET, tabs=tabs, grid=json.dumps(grid, ensure_ascii=False), archive=archive_text)
+    return SHEET_AGENT.format(sheet=SHEET, tabs=tabs, grid=json.dumps(grid, ensure_ascii=False), archive=archive_text,
+                              log_rows=len(grid), log_data=len(grid) - 1)
 
 
 GMAIL_AGENT = """---
