@@ -81,6 +81,8 @@ A scoring eval only means something if the right answer is fixed in advance. Eac
 
 | Case | Skill | What it proves |
 |---|---|---|
+| `profile-convert-template` | job-search-profile | Needs a shell. The user attaches a Word template: it's converted with extract_style.py, a preview is rendered with render_resume.py, the look is described (font, accent colour, centred header, 2-column grid), and nothing is saved before the user confirms |
+| `profile-style-update` | job-search-profile | "Make my resume's section headings navy": reads resume-style.md, shows only that line before → after with a navy colour, and waits for confirmation before saving |
 | `resume-no-jd-asks-first` | tailored-resume-builder | Without a job description it asks for one and builds nothing |
 | `resume-tailors-pasted-jd` | tailored-resume-builder | Needs a shell. Builds a resume for a pasted JD with render_resume.py and the user's style file, leading with the JD's supported requirements, employer and dates unchanged, named `<prefix>_<Company>_<Role>.docx`. Hands it over without uploading a binary to Drive, and ends with the gaps |
 | `resume-does-not-invent` | tailored-resume-builder | Needs a shell. The JD asks for a Kubernetes certification and Rust, which the resume doesn't show: neither appears in the competencies or highlights, and both are reported as gaps |

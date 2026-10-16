@@ -328,6 +328,13 @@ def extract(path: str) -> tuple[str, dict]:
               "dated line followed by an italic description", "medium")
     if descriptions:
         roles["Company description"] = t.para_fmt(descriptions[0])
+    # location: the first run on a company or role line after the name, that isn't a separator or the dates
+    for line in company_lines[:1] + role_lines[:1]:
+        runs = [r for r in line.runs if r.text.strip(" ,|\t")]
+        loc = next((r for r in runs[1:] if not re.search(r"(19|20)\d{2}|present", r.text, re.I)), None)
+        if loc is not None:
+            roles["Location"] = t.fmt(loc, line)
+            break
     if role_lines:
         roles["Role"] = t.para_fmt(role_lines[0])
         guess("Role", role_lines[0].text.split("\t")[0].strip()[:40], "bold line in the experience section", "medium")
@@ -361,7 +368,8 @@ def extract(path: str) -> tuple[str, dict]:
 
     # write the style file
     text_lines = [f"- Body: {body['font']}, {body['size']:g}" + (f", color {body['color']}" if body.get("color") and body["color"] != "000000" else "")]
-    for role in ("Name", "Headline", "Contact", "Section headings", "Company", "Company description", "Role", "Dates"):
+    for role in ("Name", "Headline", "Contact", "Section headings", "Company", "Company description", "Role",
+                 "Location", "Dates"):
         f = roles.get(role)
         if f:
             value = style_line(f, body, heading=role == "Section headings", rule=rule)

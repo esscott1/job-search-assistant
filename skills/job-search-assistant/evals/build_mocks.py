@@ -77,6 +77,8 @@ CASES = {
     "tier2-gold-partial-fit": {"rows": ["JS-102", "JS-002"], "ticked": ["JS-102"]},
     "tier2-gold-relocation-mismatch": {"rows": ["JS-103", "JS-002"], "ticked": ["JS-103"]},
     "resume-tailors-pasted-jd": {},
+    "profile-convert-template": {},
+    "profile-style-update": {},
     "resume-does-not-invent": {},
     "resume-delivers-to-synced-folder": {
         "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-local.md", FOLDER, "text/markdown")},
