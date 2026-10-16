@@ -3,12 +3,13 @@
 # On Windows the eval runner refuses to grant a shell (no OS sandbox), so cases that run
 # scripts such as score.py must run under WSL, Linux or macOS.
 # Run inside Ubuntu (WSL) from the repo root:  bash scripts/setup-wsl-evals.sh
+# Guide for Windows users: docs/setup/windows-wsl-evals.md
 set -euo pipefail
 
 echo "== 1/4 System packages (asks for your Ubuntu password)"
 sudo apt-get update -y
 # bubblewrap + socat: the sandbox Claude Code needs before it will grant a shell to an eval run.
-sudo apt-get install -y bubblewrap socat python3 curl ca-certificates git
+sudo apt-get install -y bubblewrap socat python3 python3-pytest curl ca-certificates git
 # python-docx, LibreOffice and pdfinfo: the resume builder's evals build a real .docx and count its pages.
 # Carlito and Caladea are metric-compatible stand-ins for Calibri and Cambria, so PDFs and page
 # counts match what Word shows.
@@ -41,5 +42,7 @@ Setup done. One step left, which needs you:
   run `source ~/.bashrc` (or open a new Ubuntu window) so the shell finds Node, then run
   `claude`, sign in with your Claude account (it shows a browser link), and type /exit.
 
-Then run evals from the repo (its Windows path is under /mnt/c/...), as skills/job-search-assistant/evals/README.md shows.
+Then run evals from the repo (its Windows path is under /mnt/c/...):
+  bash scripts/run-evals-wsl.sh 'resume-*'
+The full guide is docs/setup/windows-wsl-evals.md.
 MSG
