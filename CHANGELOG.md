@@ -2,6 +2,13 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.2.2
+
+- Evals for `job-lead-intake-scan` and `job-tracker-cleanup`.
+  - **Intake:** new leads from email logged at the top with the right IDs, canonical links and T1 scores; Never-interested jobs, duplicates under other tracking parameters, archived jobs and sign-in tokens never written; a career site read from its feed; nothing to scan.
+  - **Cleanup:** only untouched rows past the archive age are archived, in one revision-checked batch; the Archive tab is created when missing; the archive age is honoured; a row is restored.
+- The eval stubs gain Gmail and web-fetch stand-ins and Sheets batch operations. Every eval is self-contained: test data lives in the eval folder, and nothing is fetched from the network or this repository. Skills are unchanged.
+
 ## job-search-assistant 0.2.1, ai-governance 0.1.3
 
 - No `.claude-plugin` folder sits below either plugin's root any more. The eval stub plugins declare their mock servers in a bare `.mcp.json` (no manifest), and sally-audit's frozen test worlds name their manifest folders `_claude-plugin`, which the case prompts explain. A test keeps it that way. Nested manifest folders are suspected of breaking the Claude app's marketplace sync, though that isn't confirmed. Skills are unchanged.

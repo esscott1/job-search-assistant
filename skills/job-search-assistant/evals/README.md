@@ -65,6 +65,9 @@ plugins: ["gstub", "../.."]
 - **The stub must sit in the case's own folder.** The CLI refuses a plugin path that covers the case, its graders or its mocks, so each such case carries its own copy. `test_eval_fixtures.py` checks that all copies are identical.
 - **Mock tool names in graders** look like `mcp__plugin_gstub_gsheets__update_values`.
 - **Mocks are fixed responses**, built by `build_mocks.py`; never edit them by hand. Drive downloads are served per file id (`{{file:fixtures/{input.fileId}.json}}`, resolved next to the mock), so each fixture file is one Drive file. A case with its own Job Log or Drive gets `<case>/mocks/...`, which overrides the shared mock.
+- **Gmail** is a third stub server. A case with an inbox (`fixtures/inbox.json`) gets a Gmail mock played by a small model, which filters the fixture messages by sender and treats every message as within any date limit.
+- **Dates in cleanup fixtures are in 2025**, long past any archive age, so the cases stay valid as time passes. `cleanup-honours-archive-age` tests the age rule from the other side, with an archive age no row can reach.
+- **Web pages and feeds** come from `fixtures/web/`. A case that reads a page sets `disallowed_tools: [WebFetch, WebSearch]`, and the stub plugin's `web` server answers `fetch` from the fixture (`<case>/mocks/web/fetch.md`, built by `build_mocks.py`). The skills say "fetch the URL" without naming a tool, so they use the stub. Nothing is fetched from the network or from this repository, and `test_eval_fixtures.py` checks that.
 - **A case that writes to the sheet gets a Sheets mock played by a small model** (`type: agent`), seeded with that case's Job Log. Skills re-find a row before writing and sometimes read it back afterwards, and a fixed mock would return the old row and make a correct run look like a failed write. The model costs a fraction of a cent per run. Don't adopt its recordings into `.replay/`: each run should start from the seeded sheet. Edit the fixtures or the tables at the top of `build_mocks.py`, then run `python build_mocks.py`. The test fails if a mock is stale.
 
 ## Scoring cases: a known right answer
@@ -81,6 +84,13 @@ A scoring eval only means something if the right answer is fixed in advance. Eac
 
 | Case | Skill | What it proves |
 |---|---|---|
+| `cleanup-archives-untouched-rows` | job-tracker-cleanup | Archives exactly the two untouched rows past the archive age, in one batch tied to the sheet's revision, and keeps the five the user acted on (Run Tier 2 or Build Resume ticked, a note, a non-default status, a tailored resume) |
+| `cleanup-creates-archive-tab` | job-tracker-cleanup | With no Archive tab, creates it (with an Archived On column) in the same batch |
+| `cleanup-honours-archive-age` | job-tracker-cleanup | The profile's Archive after days is beyond every row's age: nothing moves, and it says so |
+| `cleanup-restores-a-row` | job-tracker-cleanup | "restore JS-005" moves the archived row back to the Job Log in one revision-checked batch |
+| `intake-logs-new-leads` | job-lead-intake-scan | Needs a shell. Two LinkedIn digests and a Never-scan message: logs Globex and Initech as JS-006 and JS-007 (the Archive holds JS-005), inserted at the top, with canonical links and T1 scores from score.py. Skips the Never-interested retail job, the job already logged under other tracking parameters, the job already in the Archive, and never stores a sign-in token |
+| `intake-scans-career-site` | job-lead-intake-scan | Needs a shell and web fetch. A profile with only a career site (method feed): reads the feed, logs the two matching new jobs with Source "Careers: Northwind", and skips the off-target job and the one already in the tracker |
+| `intake-nothing-to-scan` | job-lead-intake-scan | No email sources and no career sites: says there's nothing to scan, and writes nothing |
 | `profile-convert-template` | job-search-profile | Needs a shell. The user attaches a Word template: it's converted with extract_style.py, a preview is rendered with render_resume.py, the look is described (font, accent colour, centred header, 2-column grid), and nothing is saved before the user confirms |
 | `profile-style-update` | job-search-profile | "Make my resume's section headings navy": reads resume-style.md, shows only that line before → after with a navy colour, and waits for confirmation before saving |
 | `resume-no-jd-asks-first` | tailored-resume-builder | Without a job description it asks for one and builds nothing |

@@ -1,0 +1,43 @@
+{
+  "tools": [
+    {
+      "name": "search_threads",
+      "description": "Lists email threads matching a Gmail query (from:, newer_than:, after:YYYY/MM/DD, subject:, OR, -, ...). Returns thread ids with each message's id, sender, subject, snippet and date. Full bodies need get_thread.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "pageSize": {
+            "type": "integer"
+          },
+          "pageToken": {
+            "type": "string"
+          },
+          "view": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_thread",
+      "description": "Retrieves an email thread with its messages. messageFormat PLAIN_TEXT returns each message's id, sender, subject, date and plaintext_body.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "threadId": {
+            "type": "string"
+          },
+          "messageFormat": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "threadId"
+        ]
+      }
+    }
+  ]
+}
