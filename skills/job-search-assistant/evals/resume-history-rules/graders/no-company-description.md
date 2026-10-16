@@ -1,7 +1,7 @@
 ---
 type: regex
 target: trace
-pattern: 'description\?"\s*:\s*\?"(?:Example Corp|Sample Systems) is'
+pattern: 'description\W{1,8}(?:Example Corp|Sample Systems) is'
 match: not_contains
 weight: 3
 ---

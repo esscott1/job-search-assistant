@@ -1,7 +1,7 @@
 ---
 type: regex
 target: trace
-pattern: 'check_content\.py[\s\S]{0,6000}ok\?"\s*:\s*true'
+pattern: 'check_content\.py[\s\S]{0,6000}\Wok\W{1,6}true'
 match: contains
 weight: 2
 ---

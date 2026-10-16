@@ -197,8 +197,9 @@ def test_every_role_needs_a_line(tmp_path):
     r, _ = render(tmp_path, content=edited(lambda c: c["experience"][0]["roles"][1].update(bullets=[])))
     assert r.returncode == 2 and "needs at least one line" in json.loads(r.stdout)["error"]
 
-    def summary_only(c):
-        c["experience"][0]["roles"][1].update(bullets=[], summary="Delivered synthetic projects.")
+    def summary_only(c):  # a summary with no bullets key at all is fine
+        c["experience"][0]["roles"][1].pop("bullets")
+        c["experience"][0]["roles"][1]["summary"] = "Delivered synthetic projects."
     _, d = render(tmp_path, with_line("Accomplishments label", "Key Accomplishments:"), edited(summary_only))
     assert "Delivered synthetic projects." in texts(d)
     assert texts(d).count("Key Accomplishments:") == 1  # only the role with bullets gets the label

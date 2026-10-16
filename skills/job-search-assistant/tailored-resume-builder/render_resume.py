@@ -263,10 +263,10 @@ def content_problems(c: dict) -> list[str]:
             problems.append(f"company descriptions aren't shown on tailored resumes; "
                             f"remove 'description' from {j['company']}")
         for r in j["roles"]:
-            absent = [k for k in ("title", "dates", "bullets") if k not in r]
+            absent = [k for k in ("title", "dates") if k not in r]
             if absent:
                 problems += [f"role missing '{k}'" for k in absent]
-            elif not r["bullets"] and not (r.get("summary") or "").strip():
+            elif not r.get("bullets") and not (r.get("summary") or "").strip():
                 problems.append(f"{r['title']} at {j['company']} needs at least one line (a summary or a bullet)")
     return problems
 
@@ -472,9 +472,10 @@ class Renderer:
                     line.paragraph_format.space_before = gap
                 if role.get("summary"):
                     self.run(self.para(after=1), role["summary"], "Body")
-                if role["bullets"] and self.st.acc_label:
+                bullets = role.get("bullets") or []
+                if bullets and self.st.acc_label:
                     self.run(self.para(), self.st.acc_label, "Body", bold=True)
-                for b in role["bullets"]:
+                for b in bullets:
                     self.bullet(b)
 
     def _pairs(self, section, items, first, second):

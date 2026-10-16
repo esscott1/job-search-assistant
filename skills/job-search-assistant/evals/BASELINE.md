@@ -65,6 +65,31 @@ Every deterministic check passed in every run: which rows were written, moved or
 
 Total: 24 runs, $11.53 of API-equivalent usage, about 12 minutes at `-j 3`. Every deterministic check passed in every run: render_resume.py ran with the style file, the style was read, nothing binary was uploaded, no invented skills, and the file landed in the synced folder. The two misses were single LLM-judge checks in one run each: "lists the gaps" (does-not-invent) and "nothing beyond the full resume" (pasted JD, a 2-1 split vote). Building a resume now takes about 2 minutes, down from 5-15.
 
+**Resume cases at 0.3.0** (3-page limit, the user's lower limit, no company descriptions, every role has a line, the 15-year rule, check_content.py), run in WSL with `--scaffold`, 3 runs each, 2026-10-16:
+
+| Case | Score (3 runs) | Cost (3 runs) |
+|---|---|---|
+| `resume-history-rules` (new) | 1.00 · 1.00 · 1.00 | $2.17 |
+| `resume-honours-requested-page-limit` (new) | 1.00 · 1.00 · 1.00 | $2.19 |
+| `resume-tailors-pasted-jd` | 1.00 · 1.00 · 0.94 | $2.05 |
+| `resume-delivers-to-synced-folder` | 1.00 · 1.00 · 1.00 | $2.07 |
+| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $1.90 |
+| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | $1.05 |
+| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | $1.06 |
+| `resume-no-jd-asks-first` | 1.00 · 1.00 · 1.00 | $0.50 |
+
+Every deterministic check passed in every run:
+- `check_content.py` ran and reported ok.
+- No company description reached `content.json`.
+- The old but relevant Vendor Contracts Analyst role was kept.
+- `--max-pages 2` reached the renderer when the user asked, and the default was 3 otherwise.
+
+The one miss was the existing `truthful` judge in one pasted-JD run. That summary also gave a fit score, which this skill doesn't calculate; every resume line traced to the full resume.
+
+In a first pass, three new graders failed even though the skill had behaved correctly. Two regex patterns used `\\`, which the runner reads as a single backslash (see README). A judge also tried to check `content.json`, but a judge sees only the final message. Those graders were fixed or removed before the runs above. The first pass also showed the model leaving out `"bullets"` on a summary-only role, which the checker rejected until the model added it, so `bullets` is now optional when a role has a summary.
+
+The page limit and the half-full 3rd page can't be exercised here, because LibreOffice can't run in the sandbox. They're covered by `test_render_resume.py`, which renders real PDFs where LibreOffice is installed.
+
 **Superseded in 0.2.0.** The resume builder no longer moves Word files through the connector: it renders from the user's text style file and delivers the .docx and PDF by download or a synced Drive folder. The note below describes 0.1.5.
 
 **Known limit (0.1.5): binary files pass through the model.** The Drive connector hands a file to the skill as base64 text, and takes an upload the same way, so the model has to copy the template's base64 into a file and the finished .docx's base64 into the upload. In one run a copied template was corrupt and the skill rightly stopped before building. In another, it repaired the template and built the resume, but declined to upload it rather than risk a corrupt copy. Until the skill stops depending on that round trip, this case isn't expected to pass every run.

@@ -1,7 +1,7 @@
 ---
 type: regex
 target: trace
-pattern: 'max_pages\?"\s*:\s*3'
+pattern: 'max_pages\W{1,6}3\b'
 match: contains
 weight: 1
 ---

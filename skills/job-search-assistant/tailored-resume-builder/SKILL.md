@@ -73,7 +73,7 @@ Turns one job description into one resume of at most 3 pages, or fewer when the 
   "highlights": ["3-5 one-sentence achievements"],
   "experience": [
     {"company": "...", "location": "...", "dates": "...",
-     "roles": [{"title": "...", "location": "...", "dates": "...", "summary": "optional", "bullets": ["..."]}]}
+     "roles": [{"title": "...", "location": "...", "dates": "...", "summary": "optional", "bullets": ["optional if there's a summary"]}]}
   ],
   "education": [{"degree": "...", "school": "..."}],
   "certifications": [{"name": "...", "detail": "issuer, year"}],

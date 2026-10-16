@@ -47,7 +47,8 @@ evals/
 
 **Graders.** Prefer deterministic checks, and use an LLM judge only where judgement is the point:
 - `tool_used` with `min`/`max`: a tool was or wasn't called, for example `update_values` `max: 0` for "wrote nothing".
-- `regex` on the last message, the trace or a file.
+- `regex` on the last message, the trace or a file. **Don't write `\\` in a pattern:** the runner reads it as a single backslash, so a pattern like `ok\\?"` silently becomes "the text `ok?"`" and never matches (and a `not_contains` grader then always passes). JSON in the trace has escaped quotes, so step over quotes and escapes with `\W{1,6}`, as in `max_pages\W{1,6}3\b`.
+- An `llm` judge sees the final message, not the trace, so it can't check what was written to a file or passed to a script. Check those with `regex` on the trace, or `tool_used` with `input_match`.
 - `llm`: the body states what a good reply does. A judge votes three times and two passes win. Describe the behaviour, not exact wording, because the skill's phrasing varies between runs.
 - `tool_used: Skill` with an `input_match` on the skill name shows the skill fired. Under the baseline it's reported as an indicator, not scored.
 
