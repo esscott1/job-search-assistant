@@ -2,6 +2,16 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.3.0
+
+- `tailored-resume-builder`: new rules for what a tailored resume shows. Reinstall the plugin to pick them up.
+  - **Length:** at most 3 pages by default, instead of 2. Ask for fewer for a particular resume ("keep it to 2 pages"). A 3rd page must be at least half full; otherwise the resume is trimmed to 2 pages, never padded. `render_resume.py` takes `--max-pages` and reports how full the last page is (`last_page_fill`, measured with `pdftotext`).
+  - **No company descriptions.** Employers show their name, location and dates only, even when the full resume describes the company. `render_resume.py` rejects a `description` in `content.json`.
+  - **Dates once.** A role's dates and location are shown only where they differ from the employer's, so a single-role employer's dates no longer appear twice.
+  - **Every role has a line:** a summary or a bullet. `render_resume.py` rejects a role with neither.
+  - **Older roles:** a role that ended more than 15 years ago may be left out when it isn't relevant to the job; every other role stays. The end-of-run summary lists what was left out.
+  - New `check_content.py` checks `content.json` against the full resume before delivery: employers, titles and dates match, no role from the last 15 years is missing, and the rules above hold.
+
 ## job-search-assistant 0.2.2
 
 - Evals for `job-lead-intake-scan` and `job-tracker-cleanup`.

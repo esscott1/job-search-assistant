@@ -1,23 +1,25 @@
 ---
 name: "tailored-resume-builder"
-description: "On demand only, never scheduled: when the user says 'build ticked resumes' (tracker rows ticked in Build Resume), names tracker rows, or pastes a job description: picks the most relevant true content from the user's full resume and renders a .docx and PDF of at most 2 pages in the user's own resume style (resume-style.md, or the plugin's default). Never invents experience; reports gaps instead. Not for scoring (that's job-fit-rubric), not for editing the master inventory, and not for setting up the resume style (that's job-search-profile)."
+description: "On demand only, never scheduled: when the user says 'build ticked resumes' (tracker rows ticked in Build Resume), names tracker rows, or pastes a job description: picks the most relevant true content from the user's full resume and renders a .docx and PDF of at most 3 pages (or fewer when the user asks) in the user's own resume style (resume-style.md, or the plugin's default). Never invents experience; reports gaps instead. Not for scoring (that's job-fit-rubric), not for editing the master inventory, and not for setting up the resume style (that's job-search-profile)."
 ---
 
 # Tailored Resume Builder
 
-Turns one job description into one resume of at most 2 pages, in the user's own look. Shorter is fine: a one-page resume is the right result when the full resume doesn't hold two pages of relevant, true content. It's the last step of the tracker loop: the user ticks Run Tier 2, works through the gaps in the fit report (adding anything true but missing to their full resume and re-ticking to rescore), and when they're done ticks **Build Resume** and asks for "build ticked resumes". The model does the judgment (which true things to show, in what words); `render_resume.py` does the layout from the user's style file, so every resume looks the same and nothing is hand-built.
+Turns one job description into one resume of at most 3 pages, or fewer when the user asks for that resume to be shorter ("keep it to 2 pages"), in the user's own look. A 3rd page must be at least half full; otherwise the resume is cut to 2 pages. Shorter is fine: a one- or two-page resume is the right result when the full resume doesn't hold more relevant, true content. It's the last step of the tracker loop: the user ticks Run Tier 2, works through the gaps in the fit report (adding anything true but missing to their full resume and re-ticking to rescore), and when they're done ticks **Build Resume** and asks for "build ticked resumes". The model does the judgment (which true things to show, in what words); `render_resume.py` does the layout from the user's style file, so every resume looks the same and nothing is hand-built.
 
 ## Key files and systems
 - **Profile and tracker:** load the `job-tracker` skill before anything else. It explains how to find the user's job-search profile and tracker, the Build Resume checkbox, the columns this skill writes, and the job files in Drive (`<ID>_JD.md`, the fit reports, the company folder). This skill uses the profile's **Candidate** settings (Full resume, Resume style, Tailored resume prefix) and **Tracker → Local Drive folder**.
 - **Content source** (the only source of facts): the full resume named in the profile, found as `job-tracker` describes. It's read-only here; the user edits it. If it isn't found, stop and say so.
 - **Look:** the style file named in **Candidate → Resume style**, usually `resume-style.md` in the tracker folder. It's small text, so read it with the Drive connector like any other Markdown file. `default` (or a blank setting) means `default-style.md` in this skill's folder. The format is in `resume-style-format.md` here. If the profile still names a **Resume template** (.docx) instead, use the default style for now, and tell the user to say "set up my resume style" to convert their template. **Never download a .docx through the Drive connector.** It arrives as base64 that has to be copied by hand, which corrupts files.
-- **`render_resume.py`** (this folder): `python3 render_resume.py --style <style.md> --content content.json --out <file>.docx --pdf`. It needs `python-docx`; page counting and the PDF need LibreOffice (`soffice`) and `pdfinfo`. It prints JSON with `pages` and `warnings`, and exits 2 with a reason if the style file or `content.json` is invalid.
+- **`render_resume.py`** (this folder): `python3 render_resume.py --style <style.md> --content content.json --out <file>.docx --pdf --max-pages <N>`. It needs `python-docx`; page counting and the PDF need LibreOffice (`soffice`), and `pdfinfo` and `pdftotext` (poppler). It prints JSON with `pages`, `max_pages`, `last_page_fill` (how far down the last page the text reaches, 0-1) and `warnings`, and exits 2 with a reason if the style file, `content.json` or `--max-pages` is invalid.
+- **`check_content.py`** (this folder): `python3 check_content.py --inventory <full resume>.md --content content.json`. Checks `content.json` against the full resume: employers, titles and dates match it, every role that ended in the last 15 years is there, no company descriptions, and every role has a line. Prints JSON with `ok`, `errors`, `warnings` and `omitted_old_roles`, and exits 1 when there are errors.
 - **Also here:** `extract_style.py`, which `job-search-profile` uses to convert a Word template into a style file. This skill doesn't call it.
 - **Evals:** the `resume-*` cases in this plugin's `evals/` folder.
 
 ## Procedure
-1. **Pick the jobs and get each job description.**
+1. **Pick the jobs, their page limit, and each job description.**
    - **"Build ticked resumes":** every tracker row with **Build Resume** ticked, lowest ID first. **Named rows:** exactly those. Build the first 3, then check in before doing more.
+   - **Page limit:** 3 pages, unless the user asks for fewer for this resume ("max 2 pages", "keep it to one page"); a limit given with "build ticked resumes" applies to every row in that run. More than 3 is never allowed: if asked, say 3 is the most and use 3.
    - For a tracker row, the JD is the saved `<ID>_JD.md` (`search_files` with `title = '<ID>_JD.md'`). If there isn't one, skip the row, leave it ticked, and report "run Tier 2 first". Don't search for the JD here.
    - **Pasted or attached JD** with no tracker row: use it as given.
    - If there is no usable JD, stop and ask. Never tailor to a job title alone.
@@ -29,14 +31,19 @@ Turns one job description into one resume of at most 2 pages, in the user's own 
    - Headline: a short line matching the target role, built from titles and strengths the user really has. The style decides its capitalisation.
    - Competencies: at most 12, only ones the inventory evidences, ordered by JD relevance.
    - Career highlights: 3 to 5, the strongest matches to the JD's required items.
-   - Experience: all roles stay, newest first. Give the most bullets to the roles that best match the JD, and trim older or less relevant roles to 1-3 bullets. Drop a role's summary before dropping a strong bullet.
+   - Experience, newest first:
+     - Every role that ended within the last 15 years stays. A role that ended more than 15 years ago may be left out, but only when nothing in it is directly relevant to the JD; if it is relevant, keep it.
+     - Every role shown has at least one line under it: its summary or a bullet, from the inventory. Never show a bare title.
+     - Give the most bullets to the roles that best match the JD, and trim older or less relevant roles to 1-3 lines. Drop a role's summary before dropping a strong bullet, but never take a role below one line.
+   - No company descriptions. Each employer gets its name, location and dates only, even when the inventory has a line describing the company. Leave out `description` in `content.json`; `render_resume.py` rejects it.
    - Education and certifications: include as in the inventory. Certification credential IDs are optional; leave them out to save space.
-5. **Build:** run `render_resume.py` with `--pdf`.
-   - **Over 2 pages:** trim the least relevant bullets and shorten summaries, then rebuild until it's 2 pages or fewer.
-   - **Under 2 pages:** fine. Use the room for relevant bullets the inventory really has, and never pad with filler to reach a length.
-   - **`pages` is null** (LibreOffice isn't available, so the page count can't be checked): keep the content within the limits above, and say in the summary that the page count is unverified.
+5. **Build:** run `render_resume.py` with `--pdf` and `--max-pages` set to the page limit. Act on every warning before delivering. When trimming, cut in this order: roles that ended more than 15 years ago and aren't relevant to the JD, then the least relevant bullets, then long summaries. Never take a role below one line, and never drop a role that ended in the last 15 years.
+   - **Over the limit:** trim, then rebuild until it fits.
+   - **Page 3 under half full** (the warning says "trim to 2 pages"): trim to 2 pages and rebuild. Never pad page 3 to reach half. If it can't fit 2 pages without breaking the rules in step 4, stop and say so instead of delivering.
+   - **Under the limit:** fine. Use the room for relevant bullets the inventory really has, and never pad with filler to reach a length.
+   - **`pages` is null** (LibreOffice isn't available, so the page count can't be checked): keep the content within the limits above, and say in the summary that the page count is unverified. If `last_page_fill` is null on a 3-page build, trim to 2 pages to be safe and say the fill couldn't be checked.
    - **Look at the PDF** (convert its pages to images) to check nothing is broken: dates line up at the right margin, and there's no stray blank page.
-6. **Check truthfulness.** For every bullet, headline, highlight and competency in the output, confirm it traces to a line in the full resume. Fix or remove anything that doesn't. Do not skip this even when running unattended.
+6. **Check the content.** Save the full resume's text to a scratch file and run `check_content.py` on it and `content.json`. Fix every error and rebuild until `ok` is true. Note each role in `omitted_old_roles` for the summary. If it warns that the work history isn't in `### Employer | dates` and `#### Title | dates` headings, do those checks by hand. Then, for every bullet, headline, highlight and competency in the output, confirm it traces to a line in the full resume. Fix or remove anything that doesn't. Do not skip this even when running unattended.
 7. **Deliver.** File names: `<Tailored resume prefix>_<Company>_<Role>.docx` and `.pdf`, using the prefix from the profile (e.g. `Jane_Example_Resume_Acme_Corp_Program_Manager.pdf`). If a resume with that name already exists for the job, add `_v2`, `_v3` and so on; never overwrite an earlier one. They belong in the job's company folder, `<tracker folder>/<Company_Folder>/` (naming rule in `job-tracker`).
 
    **Never upload a .docx or PDF through the Drive connector.** A binary upload has to be copied by hand as base64, which corrupts files. Deliver the resume one of these ways:
@@ -48,7 +55,7 @@ Turns one job description into one resume of at most 2 pages, in the user's own 
    **For a tracker row:**
    - Write **Tailored Resume**: a link to the PDF labelled with its file name, or the file name followed by `(syncing to Drive)`, or `(download; add to <Company_Folder>/)`.
    - Write **Resume Created** and **Last Updated** (today), then untick **Build Resume** as the last write (`job-tracker` has the rules).
-   - If the build failed or is over 2 pages, leave the box ticked and say why.
+   - If the build failed, is over its page limit, or has a 3rd page under half full, leave the box ticked and say why.
    - If there's no PDF because the page count couldn't be checked, deliver the .docx, refer to it in the row, and say so.
    - Never touch Status or Next Action / Notes.
 
@@ -65,7 +72,7 @@ Turns one job description into one resume of at most 2 pages, in the user's own 
   "competencies": ["up to 12 short phrases"],
   "highlights": ["3-5 one-sentence achievements"],
   "experience": [
-    {"company": "...", "location": "...", "dates": "...", "description": "one-line company description",
+    {"company": "...", "location": "...", "dates": "...",
      "roles": [{"title": "...", "location": "...", "dates": "...", "summary": "optional", "bullets": ["..."]}]}
   ],
   "education": [{"degree": "...", "school": "..."}],
@@ -73,7 +80,7 @@ Turns one job description into one resume of at most 2 pages, in the user's own 
   "additional": ["optional lines"]
 }
 ```
-Take contact details from the inventory's contact line, not from memory.
+Take contact details from the inventory's contact line, not from memory. Give each role its own location and dates as the inventory has them; the renderer shows them only where they differ from the employer's, so a single-role employer's dates appear once. Every role needs a `summary` or at least one bullet.
 
 ## Known constraints
 - Never invents or inflates anything; gaps are reported, not filled.
@@ -82,12 +89,15 @@ Take contact details from the inventory's contact line, not from memory.
 - Never commits the style file, the inventory, a generated resume or a JD to the repo (it's a public repo).
 - Never sends a resume or applies to a job; the user does that.
 - Never runs on a schedule. Building a resume is always the user's explicit request.
-- If the inventory can't be found, the style file is invalid, or the output can't be brought to 2 pages or fewer, say so rather than delivering something off-format.
+- Never shows a company description, and never lists a role without at least one line under it.
+- At most 3 pages, or the user's lower limit; a 3rd page is at least half full.
+- If the inventory can't be found, the style file is invalid, or the output can't be brought within its page limit, say so rather than delivering something off-format.
 
 ## End-of-run summary
-- Job and files produced: names, where they were delivered (written to the synced folder, or handed over as downloads), page count, and which tracker rows were unticked.
+- Job and files produced: names, where they were delivered (written to the synced folder, or handed over as downloads), page count against its limit (3 by default, or the user's), and which tracker rows were unticked.
 - The style used (the user's `resume-style.md`, or the default) and, if the profile still names a Word template, how to convert it.
 - Ticked rows skipped, and why (no saved JD, build failed).
 - What was emphasized and what was trimmed.
+- Older roles left out: each one from `omitted_old_roles`, ended more than 15 years ago and not relevant to the JD.
 - Gaps: required JD items with no support in the inventory.
 - Anything you couldn't verify, such as the page count.

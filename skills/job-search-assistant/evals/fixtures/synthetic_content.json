@@ -3,7 +3,7 @@
  "summary":"Synthetic profile used only for testing the resume builder.",
  "competencies":["Program Delivery","Vendor Management","Budgeting","Agile","PMO","Risk Management","Cloud Migration","Stakeholder Reporting"],
  "highlights":["Delivered a synthetic $1m program on time.","Cut a synthetic process time by 30%."],
- "experience":[{"company":"Example Corp","location":"Columbus, OH","dates":"2020 - Present","description":"Fictional company for tests.",
+ "experience":[{"company":"Example Corp","location":"Columbus, OH","dates":"2020 - Present",
    "roles":[{"title":"Director of IT","location":"Columbus, OH","dates":"2022 - Present","summary":"Led a fictional team.","bullets":["Ran a synthetic migration.","Managed a synthetic budget."]},
             {"title":"Program Manager","dates":"2020 - 2022","bullets":["Delivered synthetic projects."]}]}],
  "education":[{"degree":"Bachelor of Science, Testing","school":"Example University"}],

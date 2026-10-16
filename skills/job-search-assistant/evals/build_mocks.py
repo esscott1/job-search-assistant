@@ -112,6 +112,13 @@ CASES = {
         },
     },
     "resume-ticked-row-needs-jd": {"rows": ["JS-002", "JS-001"], "ticked": [], "build": ["JS-002"]},
+    "resume-history-rules": {
+        "drive": {
+            "FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-local.md", FOLDER, "text/markdown"),
+            "FILE_RESUME_0001": ("Full-Resume.md", "Full-Resume-history.md", FOLDER, "text/markdown"),
+        },
+    },
+    "resume-honours-requested-page-limit": {},
     "cleanup-archives-untouched-rows": {"rows": CLEANUP_ROWS, "ticked": [], "changes": CLEANUP_CHANGES,
                                         "archive": ["JS-005"]},
     "cleanup-creates-archive-tab": {"rows": ["JS-010", "JS-014"], "ticked": [], "changes": CLEANUP_CHANGES,

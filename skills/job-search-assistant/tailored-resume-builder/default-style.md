@@ -17,7 +17,6 @@ resume-style-format.md in this skill's folder.
 - Contact: Calibri, 9.5, color 404040
 - Section headings: Calibri, 11, bold, caps, color 1F3864, rule
 - Company: bold
-- Company description: italic, color 595959
 - Role: bold
 - Location: italic
 - Dates: color 404040
