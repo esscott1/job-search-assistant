@@ -10,7 +10,9 @@ sudo apt-get update -y
 # bubblewrap + socat: the sandbox Claude Code needs before it will grant a shell to an eval run.
 sudo apt-get install -y bubblewrap socat python3 curl ca-certificates git
 # python-docx, LibreOffice and pdfinfo: the resume builder's evals build a real .docx and count its pages.
-sudo apt-get install -y python3-docx libreoffice-writer-nogui poppler-utils unzip
+# Carlito and Caladea are metric-compatible stand-ins for Calibri and Cambria, so PDFs and page
+# counts match what Word shows.
+sudo apt-get install -y python3-docx libreoffice-writer-nogui poppler-utils unzip fonts-crosextra-carlito fonts-crosextra-caladea
 
 echo "== 2/4 Node.js 22 via nvm (no sudo)"
 export NVM_DIR="$HOME/.nvm"

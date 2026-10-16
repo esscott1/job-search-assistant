@@ -1,8 +1,8 @@
 name: skill-tests
 
 # Unit tests for the Python scripts that ship inside skills (score.py, canonical_url.py,
-# build_resume.py). No keys, no network. build_resume's tests skip themselves unless the
-# TEMPLATE env var points at the resume template, which isn't in the repo.
+# render_resume.py, extract_style.py) and the eval fixtures. No keys, no network. Tests that
+# count PDF pages skip themselves where LibreOffice isn't installed.
 on:
   pull_request:
     paths:

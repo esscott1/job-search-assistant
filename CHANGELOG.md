@@ -2,6 +2,19 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.2.0
+
+**Breaking:** tailored resumes take their look from a text style file instead of a Word template. Say "set up my resume style" once, and attach the Word template you were using.
+
+- `job-search-profile`: a resume style step. You attach a Word template, and `extract_style.py` converts its page setup, fonts, colours and layout into `resume-style.md`. The skill previews the result with your own resume content, goes over uncertain guesses and anything that can't be carried over (pictures, text boxes, columns), and saves only once you confirm. "Make the headings navy" and similar requests edit the style. A new **Candidate → Resume style** setting replaces **Resume template**, and a new optional **Tracker → Local Drive folder** names where Google Drive for desktop syncs your folder.
+- `tailored-resume-builder`: renders with `render_resume.py` from your style file, or the default. No Word file is downloaded or uploaded through the Drive connector any more, because copying a file as base64 corrupted templates and uploads. On your computer with a Local Drive folder, the .docx and PDF are written straight into the job's folder. From the cloud, they're handed over as downloads. `build_resume.py` (Job-Seeker-6 only) is retired.
+- `job-tracker`: **Tailored Resume** can hold a file name marked `(syncing to Drive)` or `(download; add to <folder>/)` until a link is available.
+- `extract_style.py` adds two layout settings, header order and section heading alignment.
+
+## job-search-assistant 0.1.6
+
+- `tailored-resume-builder` gains `render_resume.py`, which builds a resume .docx (and PDF) from scratch, using a small text **style file** for the user's look. The style file sets page size, margins, fonts, colours, section order and titles, the competencies grid or list, bullets and date alignment. No Word template is needed. `default-style.md` is a clean single-column default, and `resume-style-format.md` documents the format. The skill doesn't use it yet; the next releases add converting a user's Word template to a style file, and switch the skill over.
+
 ## job-search-assistant 0.1.5
 
 - `tailored-resume-builder`: a tailored resume is at most 2 pages, not exactly 2. When the full resume doesn't hold two pages of relevant, true content, a shorter resume is the right result; it's never padded. When LibreOffice isn't available to count pages, the .docx is still saved and the page count is reported as unverified. `build_resume.py` warns only when a resume runs over 2 pages.

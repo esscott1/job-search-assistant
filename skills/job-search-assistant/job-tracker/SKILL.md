@@ -22,7 +22,7 @@ Everything specific to a user (their name, files, tracker, target roles, locatio
 | Setting | Used by |
 |---|---|
 | Candidate → Full resume | every skill that scores, and the resume builder |
-| Candidate → Resume template, Tailored resume prefix | tailored-resume-builder |
+| Candidate → Resume style, Tailored resume prefix; Tracker → Local Drive folder | tailored-resume-builder |
 | Tracker → Sheet ID, Sheet name, Folder ID | every skill (finding the tracker and the job folders) |
 | Tracker → Time zone | every skill that writes a date |
 | Target roles | intake screening, and `title_seniority` in `job-fit-rubric` |
@@ -60,7 +60,7 @@ Find every column by its header text on each run, never by letter: the user may 
 | Status | **The user**; intake writes `Need to review` on new rows only | Dropdown. No skill ever changes it after that |
 | Next Action / Notes | **The user only** | No skill writes here |
 | Contact / Referrer | The user; intake when the source's profile notes say it's a recruiter | The recruiter's name, written as on earlier rows from that source |
-| Tailored Resume, Resume Created | tailored-resume-builder | `=HYPERLINK("<Drive URL of the PDF>","<file name>")`; date built |
+| Tailored Resume, Resume Created | tailored-resume-builder | `=HYPERLINK("<Drive URL of the PDF>","<file name>")`, or the file name followed by `(syncing to Drive)` or `(download; add to <Company_Folder>/)` when the link isn't available yet; date built |
 | Date Submitted, Submission Email | The user | |
 | Last Updated | every skill that writes the row | Today, `YYYY-MM-DD` |
 | Source Email | intake | `=HYPERLINK("https://mail.google.com/mail/u/0/#all/<Gmail message id>","Email")`. Blank for a lead from a career site |

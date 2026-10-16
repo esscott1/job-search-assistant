@@ -37,7 +37,7 @@ DRIVE = {
     "FILE_JD_JS101": ("JS-101_JD.md", "JS-101_JD.md", "FOLDER_Northwind_Logistics", "text/markdown"),
     "FILE_JD_JS102": ("JS-102_JD.md", "JS-102_JD.md", "FOLDER_Contoso_Health", "text/markdown"),
     "FILE_JD_JS103": ("JS-103_JD.md", "JS-103_JD.md", "FOLDER_Fabrikam_Robotics", "text/markdown"),
-    "FILE_TEMPLATE_0001": ("Job-Seeker-6-Resume-Template.docx", "Synthetic-Resume-Template.docx", FOLDER, DOCX),
+    "FILE_STYLE_0001": ("resume-style.md", "resume-style.md", FOLDER, "text/markdown"),
 }
 FOLDERS = {
     FOLDER: ("Job Search", "root"),
@@ -77,11 +77,16 @@ CASES = {
     "tier2-gold-partial-fit": {"rows": ["JS-102", "JS-002"], "ticked": ["JS-102"]},
     "tier2-gold-relocation-mismatch": {"rows": ["JS-103", "JS-002"], "ticked": ["JS-103"]},
     "resume-tailors-pasted-jd": {},
+    "profile-convert-template": {},
+    "profile-style-update": {},
     "resume-does-not-invent": {},
+    "resume-delivers-to-synced-folder": {
+        "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-local.md", FOLDER, "text/markdown")},
+    },
     "resume-full-resume-missing": {
         "drive": {
             "FILE_RESUME_0001": None,
-            "FILE_OLD_RESUME_0001": ("Old-Resume.docx", "Synthetic-Resume-Template.docx", FOLDER, DOCX),
+            "FILE_OLD_RESUME_0001": ("Old-Resume.docx", "Old-Resume.docx", FOLDER, DOCX),
         },
     },
     "resume-ticked-row-needs-jd": {"rows": ["JS-002", "JS-001"], "ticked": [], "build": ["JS-002"]},
@@ -210,7 +215,14 @@ def build() -> dict[Path, str]:
 def main(argv: list[str]) -> int:
     check = "--check" in argv
     stale = []
-    for path, text in build().items():
+    built = build()
+    # Generated Drive fixtures this build no longer produces (a file removed from DRIVE or a case)
+    for leftover in sorted(HERE.glob("**/mocks/gdrive/fixtures/*.json")):
+        if leftover not in built:
+            stale.append(leftover.relative_to(HERE))
+            if not check:
+                leftover.unlink()
+    for path, text in built.items():
         current = path.read_text(encoding="utf-8") if path.exists() else None
         if current == text:
             continue

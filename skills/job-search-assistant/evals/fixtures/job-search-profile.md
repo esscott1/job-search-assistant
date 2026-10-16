@@ -8,7 +8,7 @@ Last updated: 2026-10-01
 ## Candidate
 - Name: Jane Example
 - Full resume: Full-Resume.md
-- Resume template: Job-Seeker-6-Resume-Template.docx
+- Resume style: resume-style.md
 - Tailored resume prefix: Jane_Example_Resume
 
 ## Tracker
