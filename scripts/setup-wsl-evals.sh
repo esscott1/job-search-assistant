@@ -35,6 +35,7 @@ python3 --version
 python3 -c "import docx; print('python-docx ok')"
 soffice --version
 pdfinfo -v 2>&1 | head -1
+pdftotext -v 2>&1 | head -1
 
 cat <<'MSG'
 

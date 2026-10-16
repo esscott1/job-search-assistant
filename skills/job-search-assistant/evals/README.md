@@ -47,7 +47,8 @@ evals/
 
 **Graders.** Prefer deterministic checks, and use an LLM judge only where judgement is the point:
 - `tool_used` with `min`/`max`: a tool was or wasn't called, for example `update_values` `max: 0` for "wrote nothing".
-- `regex` on the last message, the trace or a file.
+- `regex` on the last message, the trace or a file. **Don't write `\\` in a pattern:** the runner reads it as a single backslash, so a pattern like `ok\\?"` silently becomes "the text `ok?"`" and never matches (and a `not_contains` grader then always passes). JSON in the trace has escaped quotes, so step over quotes and escapes with `\W{1,6}`, as in `max_pages\W{1,6}3\b`.
+- An `llm` judge sees the final message, not the trace, so it can't check what was written to a file or passed to a script. Check those with `regex` on the trace, or `tool_used` with `input_match`.
 - `llm`: the body states what a good reply does. A judge votes three times and two passes win. Describe the behaviour, not exact wording, because the skill's phrasing varies between runs.
 - `tool_used: Skill` with an `input_match` on the skill name shows the skill fired. Under the baseline it's reported as an indicator, not scored.
 
@@ -94,9 +95,11 @@ A scoring eval only means something if the right answer is fixed in advance. Eac
 | `profile-convert-template` | job-search-profile | Needs a shell. The user attaches a Word template: it's converted with extract_style.py, a preview is rendered with render_resume.py, the look is described (font, accent colour, centred header, 2-column grid), and nothing is saved before the user confirms |
 | `profile-style-update` | job-search-profile | "Make my resume's section headings navy": reads resume-style.md, shows only that line before → after with a navy colour, and waits for confirmation before saving |
 | `resume-no-jd-asks-first` | tailored-resume-builder | Without a job description it asks for one and builds nothing |
-| `resume-tailors-pasted-jd` | tailored-resume-builder | Needs a shell. Builds a resume for a pasted JD with render_resume.py and the user's style file, leading with the JD's supported requirements, employer and dates unchanged, named `<prefix>_<Company>_<Role>.docx`. Hands it over without uploading a binary to Drive, and ends with the gaps |
+| `resume-tailors-pasted-jd` | tailored-resume-builder | Needs a shell. Builds a resume for a pasted JD with render_resume.py and the user's style file, leading with the JD's supported requirements, employer and dates unchanged, named `<prefix>_<Company>_<Role>.docx`, to the default 3-page limit and checked with `check_content.py`. Hands it over without uploading a binary to Drive, and ends with the gaps |
 | `resume-does-not-invent` | tailored-resume-builder | Needs a shell. The JD asks for a Kubernetes certification and Rust, which the resume doesn't show: neither appears in the competencies or highlights, and both are reported as gaps |
 | `resume-delivers-to-synced-folder` | tailored-resume-builder | Needs a shell. The profile has a Local Drive folder (Google Drive for desktop): the .docx is written straight into its company folder, and nothing binary goes through the connector |
+| `resume-history-rules` | tailored-resume-builder | Needs a shell. A full resume with company descriptions, a single-role employer, a role with only a summary, and two roles that ended over 15 years ago: no company description reaches content.json, `check_content.py` runs and passes, the old but relevant Vendor Contracts Analyst role stays, every role has a line, and an old role left out is reported |
+| `resume-honours-requested-page-limit` | tailored-resume-builder | Needs a shell. "Keep this one to a maximum of 2 pages": render_resume.py runs with `--max-pages 2`, never 3, and the summary says so |
 | `resume-full-resume-missing` | tailored-resume-builder | The profile's full resume isn't in Drive: it stops and says so, and never falls back to the older Word resume that is there |
 | `resume-ticked-row-needs-jd` | tailored-resume-builder | "build ticked resumes" on a row with no saved JD: skips it, leaves Build Resume ticked, says to run Tier 2 first, and doesn't search for the JD |
 | `tier2-nothing-ticked` | job-lead-tier2-scoring | Reads the profile and tracker through the connectors, reports that nothing is ticked, and stops: no resume download, no web search, no writes |

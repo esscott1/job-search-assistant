@@ -34,7 +34,7 @@ Anything not given is taken from **Body**: its font, size and colour. Bold, ital
 | Contact | The contact line |
 | Section headings | Section titles |
 | Company | Employer name on the company line |
-| Company description | The one-line description under the company |
+| Company description | Accepted so older style files still load, but not used: tailored resumes don't show company descriptions |
 | Role | Job title on the role line |
 | Location | Locations on company and role lines |
 | Dates | Dates on company and role lines |

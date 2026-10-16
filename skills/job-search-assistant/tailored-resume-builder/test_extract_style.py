@@ -95,7 +95,7 @@ def test_round_trip_recovers_the_default_style(tmp_path):
     assert got["Body"] == "Calibri, 10.5"
     assert got["Name"] == "20, bold, caps, color 1F3864"
     assert got["Section headings"] == "11, bold, caps, color 1F3864, rule"
-    assert got["Company description"].startswith("italic")
+    assert "Company description" not in got  # tailored resumes never show one, so the template has none
     assert got["Location"] == "italic"
     assert got["Header order"] == "name, headline, contact"
     assert got["Section order"] == "summary, competencies, highlights, experience, education, certifications, additional"

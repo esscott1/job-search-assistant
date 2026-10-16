@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Render a resume .docx (and PDF) from content.json and a resume style file.
 
-Usage: render_resume.py --style resume-style.md --content content.json --out out.docx [--pdf]
+Usage: render_resume.py --style resume-style.md --content content.json --out out.docx [--pdf] [--max-pages N]
 
 The style file (format: resume-style-format.md; example: default-style.md) is the user's look,
 as text: page, fonts, colours, section order and layout. The document is built from scratch, so
-no Word template is needed. Prints JSON: {"out": ..., "pages": N or null, "warnings": [...]}.
-Exit 2, with {"error": ...}, on an invalid style file or content.json.
+no Word template is needed. Prints JSON: {"out": ..., "pages": N or null, "max_pages": N,
+"last_page_fill": 0-1 or null, "warnings": [...]}. The page limit is 3 unless --max-pages lowers it,
+and a 3rd page must be at least half full. Exit 2, with {"error": ...}, on an invalid style file,
+content.json or --max-pages.
 """
 
 from __future__ import annotations
@@ -39,6 +41,8 @@ TEXT_ROLES = ("Body", "Name", "Headline", "Contact", "Section headings", "Compan
               "Company description", "Role", "Location", "Dates")
 PAGE_SIZES = {"letter": (8.5, 11.0), "a4": (8.27, 11.69)}
 LIMITS = dict(competencies=12, highlights=5)
+MAX_PAGES = 3  # the hard limit; the user can ask for fewer
+MIN_LAST_PAGE_FILL = 0.5  # a 3rd page must be at least this full, or the resume goes back to 2 pages
 
 
 class StyleError(ValueError):
@@ -239,22 +243,47 @@ def parse_layout(st: Style, key: str, value: str, where: str) -> None:
 # ---------------------------------------------------------------- content
 
 
-def validate(c: dict) -> None:
-    for k in ("name", "contact", "headline", "summary", "competencies", "highlights", "experience", "education"):
-        if k not in c:
-            fail(f"content.json missing '{k}'")
+def content_problems(c: dict) -> list[str]:
+    """Everything wrong with content.json, as messages; empty when it's valid."""
+    missing = [k for k in ("name", "contact", "headline", "summary", "competencies", "highlights",
+                           "experience", "education") if k not in c]
+    if missing:
+        return [f"content.json missing '{k}'" for k in missing]
+    problems = []
     if len(c["competencies"]) > LIMITS["competencies"]:
-        fail("too many competencies (max 12)")
+        problems.append("too many competencies (max 12)")
     if len(c["highlights"]) > LIMITS["highlights"]:
-        fail("too many career highlights (max 5)")
+        problems.append("too many career highlights (max 5)")
     for j in c["experience"]:
-        for k in ("company", "dates", "roles"):
-            if k not in j:
-                fail(f"experience entry missing '{k}'")
+        absent = [k for k in ("company", "dates", "roles") if k not in j]
+        if absent:
+            problems += [f"experience entry missing '{k}'" for k in absent]
+            continue
+        if j.get("description"):
+            problems.append(f"company descriptions aren't shown on tailored resumes; "
+                            f"remove 'description' from {j['company']}")
         for r in j["roles"]:
-            for k in ("title", "dates", "bullets"):
-                if k not in r:
-                    fail(f"role missing '{k}'")
+            absent = [k for k in ("title", "dates") if k not in r]
+            if absent:
+                problems += [f"role missing '{k}'" for k in absent]
+            elif not r.get("bullets") and not (r.get("summary") or "").strip():
+                problems.append(f"{r['title']} at {j['company']} needs at least one line (a summary or a bullet)")
+    return problems
+
+
+def validate(c: dict) -> None:
+    problems = content_problems(c)
+    if problems:
+        fail(problems[0])
+
+
+def normalize(text: str) -> str:
+    """Dates and places compared loosely: any dash, any spacing, any case."""
+    return re.sub(r"\s+", " ", re.sub(r"\s*[-\u2013\u2014]\s*", " - ", text or "")).strip().lower()
+
+
+def same(a: str, b: str) -> bool:
+    return bool(a) and normalize(a) == normalize(b)
 
 
 # ---------------------------------------------------------------- rendering
@@ -434,17 +463,19 @@ class Renderer:
             line = self.dated_line("Company", job["company"], job.get("location", ""), job["dates"])
             if j:
                 line.paragraph_format.space_before = gap
-            if job.get("description"):
-                self.run(self.para(after=1), job["description"], "Company description")
             for i, role in enumerate(job["roles"]):
-                line = self.dated_line("Role", role["title"], role.get("location", ""), role["dates"], after=1)
+                # a role's place and dates are shown only where they differ from the employer's
+                location = "" if same(role.get("location", ""), job.get("location", "")) else role.get("location", "")
+                dates = "" if same(role["dates"], job["dates"]) else role["dates"]
+                line = self.dated_line("Role", role["title"], location, dates, after=1)
                 if i:  # the space goes before each later role, so no empty spacer paragraphs
                     line.paragraph_format.space_before = gap
                 if role.get("summary"):
                     self.run(self.para(after=1), role["summary"], "Body")
-                if role["bullets"] and self.st.acc_label:
+                bullets = role.get("bullets") or []
+                if bullets and self.st.acc_label:
                     self.run(self.para(), self.st.acc_label, "Body", bold=True)
-                for b in role["bullets"]:
+                for b in bullets:
                     self.bullet(b)
 
     def _pairs(self, section, items, first, second):
@@ -478,7 +509,29 @@ class Renderer:
         self.d.save(out)
 
 
-def count_pages(path: str):
+def bbox_fill(bbox_html: str, margins: dict):
+    """How far down the text area a page's last line reaches (0-1), from `pdftotext -bbox` output
+    for that one page. Coordinates are points from the top of the page."""
+    page = re.search(r'<page width="([\d.]+)" height="([\d.]+)"', bbox_html)
+    bottoms = [float(y) for y in re.findall(r'<word [^>]*yMax="([\d.]+)"', bbox_html)]
+    if not page or not bottoms:
+        return None
+    top, bottom = margins["top"] * 72, margins["bottom"] * 72
+    usable = float(page.group(2)) - top - bottom
+    return round(min(1.0, max(0.0, (max(bottoms) - top) / usable)), 2)
+
+
+def last_page_fill(pdf: str, page: int, margins: dict):
+    try:
+        out = subprocess.run(["pdftotext", "-f", str(page), "-l", str(page), "-bbox", pdf, "-"],
+                             check=True, capture_output=True, text=True, timeout=60).stdout
+        return bbox_fill(out, margins)
+    except Exception:
+        return None
+
+
+def count_pages(path: str, margins: dict):
+    """(pages, PDF bytes, last-page fill), or Nones when LibreOffice or poppler aren't available."""
     try:
         with tempfile.TemporaryDirectory() as td:
             subprocess.run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", td, path],
@@ -486,10 +539,24 @@ def count_pages(path: str):
             pdf = os.path.join(td, os.path.splitext(os.path.basename(path))[0] + ".pdf")
             out = subprocess.run(["pdfinfo", pdf], capture_output=True, text=True).stdout
             n = int([line for line in out.splitlines() if line.startswith("Pages:")][0].split()[1])
+            fill = last_page_fill(pdf, n, margins)
             with open(pdf, "rb") as fh:
-                return n, fh.read()
+                return n, fh.read(), fill
     except Exception:
-        return None, None
+        return None, None, None
+
+
+def page_warnings(pages, max_pages: int, fill) -> list[str]:
+    if pages is None:
+        return ["could not render to PDF; page count unverified"]
+    if pages > max_pages:
+        return [f"resume is {pages} pages; the limit is {max_pages}"]
+    if pages == 3 and fill is None:
+        return ["page 3 fill couldn't be measured; trim to 2 pages"]
+    if pages == 3 and fill < MIN_LAST_PAGE_FILL:
+        return [f"page 3 is only {round(fill * 100)}% full (needs {round(MIN_LAST_PAGE_FILL * 100)}%+); "
+                "trim to 2 pages"]
+    return []
 
 
 def main() -> None:
@@ -498,7 +565,10 @@ def main() -> None:
     a.add_argument("--content", required=True)
     a.add_argument("--out", required=True)
     a.add_argument("--pdf", action="store_true")
+    a.add_argument("--max-pages", type=int, default=MAX_PAGES)
     a = a.parse_args()
+    if not 1 <= a.max_pages <= MAX_PAGES:
+        fail(f"max pages must be 1, 2 or {MAX_PAGES}")
     try:
         with open(a.style, encoding="utf-8") as fh:
             st = parse_style(fh.read())
@@ -510,16 +580,12 @@ def main() -> None:
     r = Renderer(st)
     r.render(c)
     r.save(a.out)
-    pages, pdf = count_pages(a.out)
-    warnings = []
-    if pages is None:
-        warnings.append("could not render to PDF; page count unverified")
-    elif pages > 2:
-        warnings.append(f"resume is {pages} pages; the limit is 2")
+    pages, pdf, fill = count_pages(a.out, st.margins)
     if a.pdf and pdf:
         with open(os.path.splitext(a.out)[0] + ".pdf", "wb") as fh:
             fh.write(pdf)
-    print(json.dumps({"out": a.out, "pages": pages, "warnings": warnings}))
+    print(json.dumps({"out": a.out, "pages": pages, "max_pages": a.max_pages, "last_page_fill": fill,
+                      "warnings": page_warnings(pages, a.max_pages, fill)}))
 
 
 if __name__ == "__main__":
