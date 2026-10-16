@@ -66,7 +66,29 @@ TRACKER_ROWS = {
                "https://www.linkedin.com/jobs/view/4000000002/"),
     "JS-001": ("Example Corp", "IT Vendor Manager", "Remote", 6,
                "https://www.linkedin.com/jobs/view/4000000001/"),
+    # cleanup cases: all found long ago; each differs in one way the cleanup rules care about
+    "JS-010": ("Vandelay Example", "IT Program Manager", "Remote", 5, "https://www.linkedin.com/jobs/view/4000000010/"),
+    "JS-011": ("Hooli Example", "Cloud Program Lead", "Remote", 6, "https://www.linkedin.com/jobs/view/4000000011/"),
+    "JS-012": ("Pied Piper Example", "Senior Program Manager", "Remote", 7, "https://www.linkedin.com/jobs/view/4000000012/"),
+    "JS-013": ("Wonka Example", "IT Vendor Manager", "Remote", 6, "https://www.linkedin.com/jobs/view/4000000013/"),
+    "JS-014": ("Stark Example", "Technical Program Manager", "Remote", 7, "https://www.linkedin.com/jobs/view/4000000014/"),
+    "JS-015": ("Wayne Example", "Program Manager, Cloud", "Remote", 8, "https://www.linkedin.com/jobs/view/4000000015/"),
+    "JS-016": ("Tyrell Example", "IT Program Director", "Remote", 6, "https://www.linkedin.com/jobs/view/4000000016/"),
+    "JS-005": ("Umbrella Example", "Program Manager, Infrastructure", "Remote", 5,
+               "https://www.linkedin.com/jobs/view/4000000005/"),
 }
+
+OLD = "2025-08-04"  # long past any archive age, so cleanup cases stay valid over time
+CLEANUP_ROWS = ["JS-010", "JS-011", "JS-012", "JS-013", "JS-014", "JS-015", "JS-016"]
+# Row overrides {id: {header: value}}: what the user has done to each cleanup row
+CLEANUP_CHANGES = {
+    **{r: {"Date Found": OLD, "Last Updated": OLD, "Email Received": OLD} for r in CLEANUP_ROWS},
+}
+CLEANUP_CHANGES["JS-012"]["Run Tier 2"] = True
+CLEANUP_CHANGES["JS-013"]["Next Action / Notes"] = "Call the recruiter on Monday"
+CLEANUP_CHANGES["JS-014"]["Status"] = "Submitted"
+CLEANUP_CHANGES["JS-015"]["Tailored Resume"] = "Jane_Example_Resume_Wayne_Example_Program_Manager.pdf"
+CLEANUP_CHANGES["JS-016"]["Build Resume"] = True
 
 # Cases with their own Job Log or Drive. "ticked": rows with Run Tier 2 TRUE; "build": rows
 # with Build Resume TRUE. "drive": extra or replacement Drive files
@@ -90,6 +112,24 @@ CASES = {
         },
     },
     "resume-ticked-row-needs-jd": {"rows": ["JS-002", "JS-001"], "ticked": [], "build": ["JS-002"]},
+    "cleanup-archives-untouched-rows": {"rows": CLEANUP_ROWS, "ticked": [], "changes": CLEANUP_CHANGES,
+                                        "archive": ["JS-005"]},
+    "cleanup-creates-archive-tab": {"rows": ["JS-010", "JS-014"], "ticked": [], "changes": CLEANUP_CHANGES,
+                                    "archive": None},
+    "cleanup-honours-archive-age": {
+        "rows": ["JS-010", "JS-011"], "ticked": [], "changes": CLEANUP_CHANGES, "archive": ["JS-005"],
+        "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-archive-never.md", FOLDER, "text/markdown")},
+    },
+    "cleanup-restores-a-row": {"rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"]},
+    "intake-logs-new-leads": {"rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"], "inbox": "inbox.json"},
+    "intake-scans-career-site": {
+        "rows": ["JS-101", "JS-002"], "ticked": [], "archive": ["JS-005"],
+        "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-careers.md", FOLDER, "text/markdown")},
+    },
+    "intake-nothing-to-scan": {
+        "rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"],
+        "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-no-sources.md", FOLDER, "text/markdown")},
+    },
     "tier2-rescore-closes-gap": {
         "rows": ["JS-102", "JS-002"],
         "ticked": ["JS-102"],
@@ -109,6 +149,7 @@ STUB = {
     "mcpServers": {
         "gdrive": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
         "gsheets": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
+        "gmail": {"command": "python", "args": ["-c", "raise SystemExit('eval stub: mocked only')"]},
     },
 }
 
@@ -123,7 +164,7 @@ def dumps(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, indent=2) + "\n"
 
 
-def row(job_id: str, ticked: bool, tier: tuple | None, build: bool = False) -> list:
+def row(job_id: str, ticked: bool, tier: tuple | None, build: bool = False, changes: dict | None = None) -> list:
     company, title, location, t1, url = TRACKER_ROWS[job_id]
     cells = dict.fromkeys(HEADERS, "")
     score_tier, score, breakdown = tier or ("T1", t1, "Alert email | Rubric v1.1 | Tier 1")
@@ -135,6 +176,7 @@ def row(job_id: str, ticked: bool, tier: tuple | None, build: bool = False) -> l
         "Last Updated": "2026-10-12", "Email Received": "2026-10-12", "Score Breakdown": breakdown,
         "Canonical URL": url,
     })
+    cells.update((changes or {}).get(job_id, {}))
     return [cells[h] for h in HEADERS]
 
 
@@ -148,27 +190,57 @@ SHEET_AGENT = """---
 type: agent
 ---
 
-You play the Google Sheets API for one spreadsheet, {sheet}, which has tabs "Job Log" (sheetId 0), "Status Guide" (1) and "Archive" (2).
+You play the Google Sheets API for one spreadsheet, {sheet}, titled Job_Search_Tracker. Its tabs: {tabs}.
 
 The Job Log starts as this grid (row 1 is the header; columns A to AB):
 {grid}
-
-Behave like the real API, and keep state for the whole conversation:
-- get_values: return {{"range": ..., "majorDimension": "ROWS", "values": [...]}} for the requested A1 range, reflecting every update_values call made so far.
-- update_values: apply the values to the range and return {{"updatedRange": ..., "updatedRows": n, "updatedColumns": n, "updatedCells": n}}.
-- get_spreadsheet: return the spreadsheet id, title Job_Search_Tracker and the three tabs.
+{archive}
+Behave like the real API, and keep state for the whole conversation. Every write applies to the grids, so later reads see it.
+- get_values: return {{"range": ..., "majorDimension": "ROWS", "values": [...]}} for the requested A1 range.
+- update_values / update_formulas: apply the values or formulas to the range and return {{"updatedRange": ..., "updatedRows": n, "updatedColumns": n, "updatedCells": n}}. A formula such as =HYPERLINK("url","label") reads back through get_values as its label.
+- insert_dimension: insert empty rows (or columns) at startIndex..endIndex (0-based) in the sheet with that sheetId, shifting the rest down; return {{}}.
+- get_spreadsheet: return {{"spreadsheetId", "properties": {{"title"}}, "sheets": [{{"properties": {{"sheetId", "title", "gridProperties"}}}}]}} and the current "revisionId" (start at "rev-1"; every write makes a new one: rev-2, rev-3, ...). With includeGridData true, include "data": [{{"rowData": [{{"values": [{{"userEnteredValue": {{"stringValue"|"numberValue"|"boolValue"|"formulaValue": ...}}}}]}}]}}] for the requested ranges.
+- update_spreadsheet: apply the requests in order (addSheet, insertDimension, deleteDimension, updateCells, updateSheetProperties, ...). If writeControl.requiredRevisionId is given and isn't the current revision, change nothing and return an error saying the revision doesn't match. Otherwise return {{"spreadsheetId", "replies": [...], "writeControl": {{"requiredRevisionId": <new revision>}}}}.
 Reply with JSON only.
 """
 
 
-def sheet_agent(rows: list[str], ticked: list[str], tiers: dict, build: list[str] = ()) -> str:
+def sheet_agent(rows: list[str], ticked: list[str], tiers: dict, build: list[str] = (), changes: dict | None = None,
+                archive: list[str] | None = ()) -> str:
     """A Sheets mock played by a small model, so a read after a write sees the write.
 
     Skills re-find a row before writing and may read it back afterwards; a fixed mock would
     return the old row and make a correct run look like a failed write.
     """
-    grid = [HEADERS] + [row(r, r in ticked, tiers.get(r), r in build) for r in rows]
-    return SHEET_AGENT.format(sheet=SHEET, grid=json.dumps(grid, ensure_ascii=False))
+    grid = [HEADERS] + [row(r, r in ticked, tiers.get(r), r in build, changes) for r in rows]
+    if archive is None:
+        tabs, archive_text = '"Job Log" (sheetId 0) and "Status Guide" (1). There is no Archive tab yet', ""
+    else:
+        tabs = '"Job Log" (sheetId 0), "Status Guide" (1) and "Archive" (2)'
+        archived = [row(r, False, None, False, changes) + ["2026-09-01"] for r in archive]
+        archive_text = ("\nThe Archive starts as this grid (row 1 is the header; the Job Log's columns, then Archived On):\n"
+                        + json.dumps([HEADERS + ["Archived On"]] + archived, ensure_ascii=False) + "\n")
+    return SHEET_AGENT.format(sheet=SHEET, tabs=tabs, grid=json.dumps(grid, ensure_ascii=False), archive=archive_text)
+
+
+GMAIL_AGENT = """---
+type: agent
+---
+
+You play the Gmail API for one mailbox. These are all its messages (each is its own thread):
+{inbox}
+
+Treat every message as recent enough to match any date limit in a query (newer_than:, after:, older_than: and the like), and filter only on the other operators (from:, subject:, OR, -, ...).
+- search_threads: return {{"threads": [{{"id": <threadId>, "messages": [{{"id", "sender", "subject", "snippet" (first 120 characters of the body), "date"}}]}}]}} for the matching messages, or {{}} if none match.
+- get_thread: return {{"id": <threadId>, "messages": [{{"id", "sender", "subject", "date", "plaintext_body"}}]}} with the body exactly as given above.
+Reply with JSON only.
+"""
+
+
+def gmail_agent(inbox: str) -> str:
+    """A Gmail mock played by a small model, so search queries filter the fixture inbox."""
+    messages = json.loads((FIXTURES / inbox).read_text(encoding="utf-8"))
+    return GMAIL_AGENT.format(inbox=json.dumps(messages, ensure_ascii=False, indent=1))
 
 
 def drive_files(files: dict) -> dict[str, str]:
@@ -201,9 +273,15 @@ def build() -> dict[Path, str]:
     for case, spec in CASES.items():
         out[HERE / case / "gstub/.mcp.json"] = dumps(STUB)
         if "rows" in spec:
-            agent = sheet_agent(spec["rows"], spec["ticked"], spec.get("tier", {}), spec.get("build", []))
-            for tool in ("get_values", "update_values", "get_spreadsheet"):
+            agent = sheet_agent(spec["rows"], spec["ticked"], spec.get("tier", {}), spec.get("build", []),
+                                spec.get("changes"), spec.get("archive", ()))
+            for tool in ("get_values", "update_values", "get_spreadsheet", "update_formulas", "insert_dimension",
+                         "update_spreadsheet"):
                 out[HERE / case / f"mocks/gsheets/{tool}.md"] = agent
+        if "inbox" in spec:
+            agent = gmail_agent(spec["inbox"])
+            for tool in ("search_threads", "get_thread"):
+                out[HERE / case / f"mocks/gmail/{tool}.md"] = agent
         if "drive" in spec:
             files = {k: v for k, v in {**DRIVE, **spec["drive"]}.items() if v is not None}
             for name, text in drive_files(files).items():

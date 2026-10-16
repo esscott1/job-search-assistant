@@ -2,7 +2,7 @@
   "tools": [
     {
       "name": "get_spreadsheet",
-      "description": "Returns titles, sheet names and metadata for a spreadsheet.",
+      "description": "Returns titles, sheet names, sheet ids, the revisionId and other metadata for a spreadsheet; with includeGridData true, also the cell data for the given ranges (fields such as sheets.data.rowData.values.userEnteredValue).",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -103,6 +103,63 @@
         },
         "required": [
           "spreadsheetId"
+        ]
+      }
+    },
+    {
+      "name": "update_formulas",
+      "description": "Sets formulas in a range of a spreadsheet (e.g. =HYPERLINK(...)).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "range": {
+            "type": "string"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {}
+            }
+          }
+        },
+        "required": [
+          "spreadsheetId",
+          "range",
+          "formulas"
+        ]
+      }
+    },
+    {
+      "name": "update_spreadsheet",
+      "description": "Applies one or more updates to the spreadsheet (spreadsheets.batchUpdate): addSheet, insertDimension, deleteDimension, updateCells, updateSheetProperties and the other batchUpdate requests, applied in order. writeControl.requiredRevisionId makes the whole batch fail if the spreadsheet changed since that revision.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "spreadsheetId": {
+            "type": "string"
+          },
+          "requests": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "writeControl": {
+            "type": "object",
+            "properties": {
+              "requiredRevisionId": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "spreadsheetId",
+          "requests"
         ]
       }
     }
