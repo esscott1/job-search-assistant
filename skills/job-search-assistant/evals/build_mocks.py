@@ -170,10 +170,12 @@ WEB_TOOLS = {"tools": [{
                     "required": ["url"]},
 }]}
 
+# Each created file gets its own id, made from its title, so a run that creates a folder and then
+# files inside it doesn't see one id come back for all of them.
 CREATE_FILE = {
-    "id": "FILE_NEW_0001",
+    "id": "NEW_{{input.title}}",
     "title": "{{input.title}}",
-    "viewUrl": "https://drive.google.com/file/d/FILE_NEW_0001/view",
+    "viewUrl": "https://drive.google.com/file/d/NEW_{{input.title}}/view",
 }
 
 

@@ -65,6 +65,25 @@ Every deterministic check passed in every run: which rows were written, moved or
 
 Total: 24 runs, $11.53 of API-equivalent usage, about 12 minutes at `-j 3`. Every deterministic check passed in every run: render_resume.py ran with the style file, the style was read, nothing binary was uploaded, no invented skills, and the file landed in the synced folder. The two misses were single LLM-judge checks in one run each: "lists the gaps" (does-not-invent) and "nothing beyond the full resume" (pasted JD, a 2-1 split vote). Building a resume now takes about 2 minutes, down from 5-15.
 
+**Resume cases at 0.4.0** (adds a Google Doc of every tailored resume, made from `render_resume.py --html` and sent to Drive as text), run in WSL with `--scaffold`, 3 runs each, 2026-10-19:
+
+| Case | Score (3 runs) | Cost (3 runs) |
+|---|---|---|
+| `resume-tailors-pasted-jd` | 1.00 · 1.00 · 1.00 | $2.29 |
+| `resume-delivers-to-synced-folder` | 1.00 · 1.00 · 1.00 | $2.31 |
+| `resume-history-rules` | 1.00 · 1.00 · 1.00 | $2.62 |
+| `resume-honours-requested-page-limit` | 1.00 · 1.00 · 1.00 | $2.33 |
+| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $2.26 |
+| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | $1.06 |
+| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | $1.06 |
+| `resume-no-jd-asks-first` | 1.00 · 1.00 · 1.00 | $0.47 |
+
+The new `creates-google-doc` grader passed in every run of the five cases that build a resume: the Doc was created from HTML text, and nothing went to Drive as base64.
+
+The first pass scored `resume-tailors-pasted-jd` 0.89. Its `delivered` judge still said the reply mustn't claim to have uploaded the resume to Drive, which the Google Doc now correctly does; the judge was reworded. The same pass showed the Drive stub returning one id (`FILE_NEW_0001`) for every created file, so the folder, the Doc and the JD shared an id and the runs warned about it. Each created file now gets an id from its title. After both fixes, the two cases that deliver files were rerun (above), with `tier2-rescore-closes-gap` once as a check on the stub change: 1.00.
+
+The stub has no `read_file_content`, so these runs report the Doc as not verified; `check_doc_text.py` is covered by its unit tests.
+
 **Resume cases at 0.3.0** (3-page limit, the user's lower limit, no company descriptions, every role has a line, the 15-year rule, check_content.py), run in WSL with `--scaffold`, 3 runs each, 2026-10-16:
 
 | Case | Score (3 runs) | Cost (3 runs) |

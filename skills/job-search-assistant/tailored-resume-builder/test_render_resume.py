@@ -6,6 +6,7 @@ written to a temp folder. The over-length test needs LibreOffice and skips witho
 """
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -203,6 +204,62 @@ def test_every_role_needs_a_line(tmp_path):
     _, d = render(tmp_path, with_line("Accomplishments label", "Key Accomplishments:"), edited(summary_only))
     assert "Delivered synthetic projects." in texts(d)
     assert texts(d).count("Key Accomplishments:") == 1  # only the role with bullets gets the label
+
+
+# ---------------------------------------------------------------- Google Doc HTML
+
+
+def render_html(tmp_path, style=DEFAULT_STYLE, content=None):
+    out = tmp_path / "out.html"
+    r, _ = render(tmp_path, style, content, args=("--html", str(out)))
+    assert r.returncode == 0, r.stdout
+    assert json.loads(r.stdout)["html"] == str(out)
+    return out.read_text(encoding="utf-8")
+
+
+def test_html_uses_classes_and_the_style_margins(tmp_path):
+    h = render_html(tmp_path)
+    assert h.startswith("<html>") and ' style="' not in h  # styles are classes, to keep it short
+    # the default style's margins, in points, carried as the body's padding
+    assert "max-width:525.6pt;padding:36pt 43.2pt 36pt 43.2pt" in h
+    assert "font-family:'Calibri';font-size:20pt;font-weight:bold;text-transform:uppercase;color:#1F3864" in h
+    assert len(h) < 12000
+
+
+def test_html_has_every_line_of_the_content(tmp_path):
+    sys.path.insert(0, str(HERE))
+    from check_doc_text import check
+    h = render_html(tmp_path)
+    text = re.sub(r"<[^>]+>", " ", h).replace("&amp;", "&")
+    assert check(CONTENT, text)["ok"]
+
+
+def test_html_dates_shown_once_and_company_shares_a_table_with_its_first_role(tmp_path):
+    def single(c):
+        c["experience"].append({"company": "Sample Systems", "location": "Dayton, OH", "dates": "2012 - 2018",
+                                "roles": [{"title": "IT Project Manager", "location": "Dayton, OH",
+                                           "dates": "2012 - 2018", "bullets": ["Managed synthetic projects."]}]})
+    h = render_html(tmp_path, content=edited(single))
+    assert h.count("2012 - 2018") == 1 and h.count("Dayton, OH") == 1
+    tables = re.findall(r"<table.*?</table>", h)
+    first = next(t for t in tables if "Example Corp" in t)
+    assert "Director of IT" in first and "Program Manager" not in first
+
+
+def test_html_heading_rule_is_followed_by_a_spacer(tmp_path):
+    h = render_html(tmp_path)
+    assert h.count("<hr ") == 6  # every titled section; Summary has no title in the default style
+    assert all(re.match(r'<hr [^>]+><p class="c\d+">&nbsp;</p>', h[i:]) for i in [m.start() for m in re.finditer("<hr ", h)])
+    assert "<hr " not in render_html(tmp_path, with_line("Section headings", "Calibri, 11, bold"))
+
+
+def test_html_escapes_text_and_honours_inline_layouts(tmp_path):
+    style = with_line("Competencies", 'inline " | "')
+    style = with_line("Dates", "inline", style)
+    h = render_html(tmp_path, style, edited(lambda c: c["highlights"].append("Led R&D for <synthetic> teams.")))
+    assert "Led R&amp;D for &lt;synthetic&gt; teams." in h
+    assert " | ".join(CONTENT["competencies"]) in h
+    assert re.search(r"Director of IT</span><span [^>]+> \| </span><span [^>]+>2022 - Present", h)
 
 
 # ---------------------------------------------------------------- page limit and last-page fill
