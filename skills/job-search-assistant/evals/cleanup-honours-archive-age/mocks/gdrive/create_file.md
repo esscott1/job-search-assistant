@@ -1,5 +1,5 @@
 {
-  "id": "FILE_NEW_0001",
+  "id": "NEW_{{input.title}}",
   "title": "{{input.title}}",
-  "viewUrl": "https://drive.google.com/file/d/FILE_NEW_0001/view"
+  "viewUrl": "https://drive.google.com/file/d/NEW_{{input.title}}/view"
 }

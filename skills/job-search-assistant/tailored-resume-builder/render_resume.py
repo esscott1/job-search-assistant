@@ -2,6 +2,7 @@
 """Render a resume .docx (and PDF) from content.json and a resume style file.
 
 Usage: render_resume.py --style resume-style.md --content content.json --out out.docx [--pdf] [--max-pages N]
+                        [--html out.html]
 
 The style file (format: resume-style-format.md; example: default-style.md) is the user's look,
 as text: page, fonts, colours, section order and layout. The document is built from scratch, so
@@ -9,11 +10,14 @@ no Word template is needed. Prints JSON: {"out": ..., "pages": N or null, "max_p
 "last_page_fill": 0-1 or null, "warnings": [...]}. The page limit is 3 unless --max-pages lowers it,
 and a 3rd page must be at least half full. Exit 2, with {"error": ...}, on an invalid style file,
 content.json or --max-pages.
+
+--html also writes the resume as HTML for Google Drive to convert into a Google Doc (see HtmlResume).
 """
 
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import math
 import os
@@ -509,6 +513,149 @@ class Renderer:
         self.d.save(out)
 
 
+# ---------------------------------------------------------------- Google Doc (HTML)
+
+
+class HtmlResume:
+    """The same resume as HTML that Google Drive converts into a Google Doc (create_file with
+    contentMimeType text/html). Built for Drive's converter, tested through it:
+    - page margins go on the body's padding, the way Google's own HTML export carries them;
+    - dates sit in the right cell of a borderless two-column table, because Docs has no tab
+      stops (Docs caps an imported table at its default width, so the dates column can end a
+      little short of the right margin);
+    - a company line and its first role share one table, since Docs puts an empty paragraph
+      between two tables;
+    - a heading rule is an <hr> followed by a 1pt spacer, because an <hr> right before a list
+      becomes an empty bullet;
+    - styles are classes, which keeps the text short enough to pass through the connector."""
+
+    DATES_PT = 160
+
+    def __init__(self, st: Style):
+        self.st = st
+        self.classes: dict[str, str] = {}
+        self.text_pt = (PAGE_SIZES[st.size][0] - st.margins["left"] - st.margins["right"]) * 72
+
+    def cls(self, css: str) -> str:
+        self.classes.setdefault(css, f"c{len(self.classes)}")
+        return f'class="{self.classes[css]}"'
+
+    def font(self, role: str, **override) -> str:
+        t = replace(self.st.t(role), **override)
+        parts = [f"font-family:'{t.font}'", f"font-size:{t.size:g}pt"]
+        parts += ["font-weight:bold"] * t.bold + ["font-style:italic"] * t.italic
+        parts += ["text-transform:uppercase"] * t.caps + ["text-decoration:underline"] * t.underline
+        if t.color:
+            parts.append(f"color:#{t.color}")
+        return self.cls(";".join(parts))
+
+    def span(self, text: str, role: str, **override) -> str:
+        return f"<span {self.font(role, **override)}>{html.escape(text)}</span>" if text else ""
+
+    def p(self, inner: str, after: float = 0, before: float = 0, align: str | None = None) -> str:
+        css = f"margin:{before:g}pt 0 {after:g}pt 0" + (f";text-align:{align}" if align == "center" else "")
+        return f"<p {self.cls(css)}>{inner}</p>"
+
+    def bullets(self, items) -> str:
+        lis = "".join(f'<li {self.cls("margin:0 0 1pt 0")}>{self.span(i, "Body")}</li>' for i in items)
+        return f'<ul {self.cls("margin:0;padding-left:18pt")}>{lis}</ul>'
+
+    def heading(self, section: str) -> str:
+        title = self.st.titles.get(section, DEFAULT_TITLES[section])
+        if not title:
+            return ""
+        ts = self.st.t("Section headings")
+        out = self.p(self.span(title, "Section headings"), before=8, after=0 if ts.rule else self.st.space_heading,
+                     align=self.st.heading_align)
+        if ts.rule:
+            rule = f"border:none;border-top:1px solid #{ts.color or '000000'};margin:0"
+            out += f"<hr {self.cls(rule)}>"
+            out += f'<p {self.cls("margin:0;font-size:1pt;line-height:1pt")}>&nbsp;</p>'
+        return out
+
+    def dated_row(self, left: str, role: str, location: str, dates: str) -> str:
+        inner = self.span(left, role)
+        if location:
+            inner += self.span(", ", role, bold=False, italic=False, caps=False) + self.span(location, "Location")
+        left_w, right_w = self.text_pt - self.DATES_PT, self.DATES_PT
+        if self.st.dates == "inline" and dates:
+            inner += self.span(" | ", "Dates") + self.span(dates, "Dates")
+            dates = ""
+        return (f'<tr><td {self.cls(f"border:none;padding:0;width:{left_w:g}pt")}>{inner}</td>'
+                f'<td {self.cls(f"border:none;padding:0;width:{right_w:g}pt;text-align:right")}>'
+                f'{self.span(dates, "Dates")}</td></tr>')
+
+    def table(self, rows: list, before: float) -> str:
+        return f'<table {self.cls(f"width:{self.text_pt:g}pt;border-collapse:collapse;margin-top:{before:g}pt")}>' \
+               f'{"".join(rows)}</table>'
+
+    def section(self, name: str, c: dict) -> str:
+        st, out = self.st, []
+        if name == "summary" and c.get("summary"):
+            out += [self.heading("summary"), self.p(self.span(c["summary"], "Body"), after=2)]
+        elif name == "competencies" and c.get("competencies"):
+            out.append(self.heading("competencies"))
+            kind, arg = st.competencies
+            items = c["competencies"]
+            if kind == "inline":
+                out.append(self.p(self.span(arg.join(items), "Body"), after=2))
+            else:
+                cols = min(arg, len(items))
+                rows = math.ceil(len(items) / cols)
+                cells = "".join(f'<td {self.cls("border:none;padding:0;vertical-align:top")}>'
+                                f'{self.bullets(items[i * rows:(i + 1) * rows])}</td>' for i in range(cols))
+                out.append(f'<table {self.cls("width:100%;border-collapse:collapse")}><tr>{cells}</tr></table>')
+        elif name == "highlights" and c.get("highlights"):
+            out += [self.heading("highlights"), self.bullets(c["highlights"])]
+        elif name == "experience" and c.get("experience"):
+            out.append(self.heading("experience"))
+            for j, job in enumerate(c["experience"]):
+                rows = [self.dated_row(job["company"], "Company", job.get("location", ""), job["dates"])]
+                before = st.space_roles if j else 0
+                for role in job["roles"]:
+                    location = "" if same(role.get("location", ""), job.get("location", "")) else role.get("location", "")
+                    dates = "" if same(role["dates"], job["dates"]) else role["dates"]
+                    rows.append(self.dated_row(role["title"], "Role", location, dates))
+                    out.append(self.table(rows, before))
+                    rows, before = [], st.space_roles
+                    if role.get("summary"):
+                        out.append(self.p(self.span(role["summary"], "Body"), after=1))
+                    bullets = role.get("bullets") or []
+                    if bullets and st.acc_label:
+                        out.append(self.p(self.span(st.acc_label, "Body", bold=True)))
+                    if bullets:
+                        out.append(self.bullets(bullets))
+        elif name in ("education", "certifications") and c.get(name):
+            out.append(self.heading(name))
+            first, second = ("degree", "school") if name == "education" else ("name", "detail")
+            for it in c[name]:
+                rest = self.span(", " + it[second], "Body") if it.get(second) else ""
+                out.append(self.p(self.span(it[first], "Body", bold=True) + rest, after=1))
+        elif name == "additional" and c.get("additional"):
+            out.append(self.heading("additional"))
+            out += [self.p(self.span(line, "Body"), after=1) for line in c["additional"]]
+        return "".join(out)
+
+    def render(self, c: dict) -> str:
+        st = self.st
+        contact = st.contact_sep.join(x for x in c.get("contact", []) if x)
+        lines = {"name": (c["name"], "Name"), "headline": (c.get("headline"), "Headline"),
+                 "contact": (contact, "Contact")}
+        body = []
+        for part in st.header_order:
+            text, role = lines[part]
+            if text:
+                body.append(self.p(self.span(text, role), after=2, align=st.align))
+        body += [self.section(name, c) for name in st.order]
+        m = {k: v * 72 for k, v in st.margins.items()}
+        b = st.t("Body")
+        page = (f"body{{font-family:'{b.font}';font-size:{b.size:g}pt;max-width:{self.text_pt:g}pt;"
+                f"padding:{m['top']:g}pt {m['right']:g}pt {m['bottom']:g}pt {m['left']:g}pt}}")
+        rules = "".join(f".{name}{{{css}}}" for css, name in self.classes.items())
+        return (f'<html><head><meta charset="utf-8"><style>{page}{rules}</style></head>'
+                f'<body>{"".join(body)}</body></html>')
+
+
 def bbox_fill(bbox_html: str, margins: dict):
     """How far down the text area a page's last line reaches (0-1), from `pdftotext -bbox` output
     for that one page. Coordinates are points from the top of the page."""
@@ -566,6 +713,7 @@ def main() -> None:
     a.add_argument("--out", required=True)
     a.add_argument("--pdf", action="store_true")
     a.add_argument("--max-pages", type=int, default=MAX_PAGES)
+    a.add_argument("--html", help="also write Google Doc HTML here")
     a = a.parse_args()
     if not 1 <= a.max_pages <= MAX_PAGES:
         fail(f"max pages must be 1, 2 or {MAX_PAGES}")
@@ -580,12 +728,18 @@ def main() -> None:
     r = Renderer(st)
     r.render(c)
     r.save(a.out)
+    if a.html:
+        with open(a.html, "w", encoding="utf-8") as fh:
+            fh.write(HtmlResume(st).render(c))
     pages, pdf, fill = count_pages(a.out, st.margins)
     if a.pdf and pdf:
         with open(os.path.splitext(a.out)[0] + ".pdf", "wb") as fh:
             fh.write(pdf)
-    print(json.dumps({"out": a.out, "pages": pages, "max_pages": a.max_pages, "last_page_fill": fill,
-                      "warnings": page_warnings(pages, a.max_pages, fill)}))
+    result = {"out": a.out, "pages": pages, "max_pages": a.max_pages, "last_page_fill": fill,
+              "warnings": page_warnings(pages, a.max_pages, fill)}
+    if a.html:
+        result["html"] = a.html
+    print(json.dumps(result))
 
 
 if __name__ == "__main__":

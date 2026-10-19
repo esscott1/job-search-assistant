@@ -2,6 +2,14 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.4.0
+
+- `tailored-resume-builder`: every build also saves the resume as a **Google Doc** in the job's company folder in Drive, and the tracker's Tailored Resume cell links to it. It's there wherever the build ran: in the cloud, or on a computer that's been switched off since. Reinstall the plugin to pick it up.
+  - `render_resume.py --html` writes the resume as HTML that Drive converts into a Google Doc. It's text, so it goes through the Drive connector safely; the .docx and PDF still never do.
+  - New `check_doc_text.py` reads the Doc back and checks it holds every line of the resume, since the HTML passes through the model on its way to Drive.
+  - The .docx and PDF are unchanged and stay the page-checked versions: written to the synced folder with Google Drive for desktop, or handed over as downloads. Google lays out the Doc itself, so its page breaks can differ slightly, and a long date range can wrap.
+- `job-tracker`: Tailored Resume links to the Google Doc; the PDF link and the "(syncing to Drive)" and "(download; …)" notes remain only for when no Doc could be made.
+
 ## job-search-assistant 0.3.0
 
 - `tailored-resume-builder`: new rules for what a tailored resume shows. Reinstall the plugin to pick them up.
