@@ -8,12 +8,14 @@
     {
       "name": "job-search-assistant",
       "source": "./skills/job-search-assistant",
-      "description": "Job-search lead intake, fit scoring and tailored resumes."
+      "description": "Finds job openings, scores your fit against your resume, and builds tailored resumes.",
+      "category": "productivity"
     },
     {
       "name": "ai-governance",
       "source": "./skills/ai-governance",
-      "description": "Sally, the lifecycle manager for every skill in this repo."
+      "description": "Sally, the lifecycle manager for every skill in this repo.",
+      "category": "development"
     }
   ]
 }
