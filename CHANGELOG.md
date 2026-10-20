@@ -2,6 +2,17 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.4.1
+
+- `job-search-profile`: setup is brief and menu-driven, so it works on a phone. Reinstall the plugin to pick it up.
+  - Each message asks one thing in at most three short lines, with choices to tap (Claude Code's multiple-choice prompt) or numbers to reply with. Answers are suggested from the full resume, the folder's files and Gmail.
+  - A new order of 9 steps starts with the folder, and says it holds the tracker, profile, full resume, job descriptions and tailored resumes.
+  - The full resume can be attached or pasted (.md, .docx or .pdf). It's arranged in the format in the new `full-resume-format.md`, confirmed, and saved to the folder as text. Originals aren't copied to Drive.
+  - A style file (.md) can be attached as well as a Word template, and is checked with the renderer before it's saved.
+  - Later changes are confirmed as one before → after line, and reviews show a short overview.
+- `check_content.py --inventory` on its own lists the employers and roles a full resume's headings describe, or says it found none.
+- The profile's format is unchanged.
+
 ## job-search-assistant 0.4.0
 
 - `tailored-resume-builder`: every build also saves the resume as a **Google Doc** in the job's company folder in Drive, and the tracker's Tailored Resume cell links to it. It's there wherever the build ran: in the cloud, or on a computer that's been switched off since. Reinstall the plugin to pick it up.

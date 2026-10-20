@@ -65,6 +65,25 @@ Every deterministic check passed in every run: which rows were written, moved or
 
 Total: 24 runs, $11.53 of API-equivalent usage, about 12 minutes at `-j 3`. Every deterministic check passed in every run: render_resume.py ran with the style file, the style was read, nothing binary was uploaded, no invented skills, and the file landed in the synced folder. The two misses were single LLM-judge checks in one run each: "lists the gaps" (does-not-invent) and "nothing beyond the full resume" (pasted JD, a 2-1 split vote). Building a resume now takes about 2 minutes, down from 5-15.
 
+**Profile cases at 0.4.1** (brief, menu-driven setup), run in WSL, 3 runs each, 2026-10-20. Every case disallows `AskUserQuestion`, so the numbered-list menus are what's graded:
+
+| Case | Score (3 runs) | Cost (3 runs) |
+|---|---|---|
+| `profile-setup-starts-brief` (new) | 1.00 · 1.00 · 1.00 | $0.66 |
+| `profile-setup-prefills-from-resume` (new) | 1.00 · 1.00 · 1.00 | $0.97 |
+| `profile-setup-saves-pasted-resume` (new) | 1.00 · 1.00 · 1.00 | $0.85 |
+| `profile-setup-checks-style-file` (new) | 1.00 · 1.00 · 1.00 | $1.26 |
+| `profile-update-is-brief` (new) | 1.00 · 1.00 · 1.00 | $0.83 |
+| `profile-style-update` | 1.00 · 1.00 · 1.00 | $1.42 |
+| `profile-convert-template` | 1.00 · 1.00 · 1.00 | $1.35 |
+
+Getting there:
+- **`profile-style-update`:**
+  - **The judge fails a shortened line.** The first pass shortened the changed line with "…". The skill now shows the whole setting line before and after.
+  - **A missing stub tool.** The Drive stub had no `update_file` or `trash_file`, so the run couldn't follow the profile's replace-the-file steps and offered workarounds instead of "Save / Cancel". The stub now has both, as the real connector does.
+  - **An unasked-for choice.** The run then added a "make my name navy too" choice, which the judge read as a second change. The skill now offers only choices about what was asked.
+- **`profile-setup-saves-pasted-resume`:** a 1-2 judge split on a correct reply. The roles-in-order check is now a regex, with a lighter judge for "asks before saving, invents nothing".
+
 **Resume cases at 0.4.0** (adds a Google Doc of every tailored resume, made from `render_resume.py --html` and sent to Drive as text), run in WSL with `--scaffold`, 3 runs each, 2026-10-19:
 
 | Case | Score (3 runs) | Cost (3 runs) |

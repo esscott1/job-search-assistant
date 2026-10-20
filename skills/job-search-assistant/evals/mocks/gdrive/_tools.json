@@ -68,6 +68,39 @@
           "title"
         ]
       }
+    },
+    {
+      "name": "update_file",
+      "description": "Update a Drive file's metadata, for example rename it by setting a new title.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fileId"
+        ]
+      }
+    },
+    {
+      "name": "trash_file",
+      "description": "Move a Drive file to the trash. Drive keeps trashed files for 30 days.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fileId"
+        ]
+      }
     }
   ]
 }
