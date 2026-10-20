@@ -2,6 +2,10 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.4.2
+
+- Marketplace category set to Productivity (Development for `ai-governance`), and the plugin's description reworded to say "job openings" instead of "leads". No skill changes; update the plugin to see the new listing.
+
 ## job-search-assistant 0.4.1
 
 - `job-search-profile`: setup is brief and menu-driven, so it works on a phone. Reinstall the plugin to pick it up.
