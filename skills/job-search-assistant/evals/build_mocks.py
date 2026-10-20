@@ -101,6 +101,12 @@ CASES = {
     "resume-tailors-pasted-jd": {},
     "profile-convert-template": {},
     "profile-style-update": {},
+    # first-time setup: no profile yet, so the skill starts the interview
+    "profile-setup-starts-brief": {"drive": {"FILE_PROFILE_0001": None}},
+    "profile-setup-prefills-from-resume": {"drive": {"FILE_PROFILE_0001": None}},
+    "profile-setup-saves-pasted-resume": {"drive": {"FILE_PROFILE_0001": None, "FILE_RESUME_0001": None}},
+    "profile-setup-checks-style-file": {},
+    "profile-update-is-brief": {},
     "resume-does-not-invent": {},
     "resume-delivers-to-synced-folder": {
         "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-local.md", FOLDER, "text/markdown")},
@@ -177,6 +183,11 @@ CREATE_FILE = {
     "title": "{{input.title}}",
     "viewUrl": "https://drive.google.com/file/d/NEW_{{input.title}}/view",
 }
+
+# Renaming and trashing, which the profile skill uses to replace its own files. The real connector
+# has both, and without them a run can't follow the skill's write steps.
+UPDATE_FILE = {"id": "{{input.fileId}}", "title": "{{input.title}}"}
+TRASH_FILE = {"id": "{{input.fileId}}", "trashed": True}
 
 
 def dumps(obj) -> str:
@@ -279,6 +290,8 @@ def drive_files(files: dict) -> dict[str, str]:
         "search_files.md": dumps({"files": listing}),
         "download_file_content.md": "{{file:fixtures/{input.fileId}.json}}\n",
         "create_file.md": dumps(CREATE_FILE),
+        "update_file.md": dumps(UPDATE_FILE),
+        "trash_file.md": dumps(TRASH_FILE),
     }
     for fid, (_, source, _, mime) in files.items():
         path = FIXTURES / source

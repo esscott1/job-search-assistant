@@ -32,32 +32,23 @@ claude plugin install job-search-assistant@esscott
 
 ## 3. Set up your profile and tracker
 
-1. **Make a Google Drive folder** for your job search, for example `Job Search`. Upload your `Full-Resume.md` into it.
-2. **Start a new chat and say "set up my job search."** The `job-search-profile` skill interviews you one section at a time:
-   - **Candidate:**
-     - your name;
-     - the full-resume file name;
-     - **your resume style:** attach the Word resume whose look you want, or say no for the default. It converts the template, shows a preview with your own resume content, tells you anything it couldn't carry over (pictures, text boxes, columns), and saves `resume-style.md` once you confirm;
-     - a file-name prefix for tailored resumes, such as `Jane_Example_Resume` (it proposes one).
-   - **Tracker:** the Google Sheet's name (for example `Job_Search_Tracker`) and the Drive folder it's in. If the sheet doesn't exist yet, it offers to create it, with all the columns, checkboxes, a Status dropdown and a Status Guide tab. If you use Google Drive for desktop, it also asks where that folder appears on your computer.
-   - **Target roles:**
-     - the kinds of roles you want;
-     - the level;
-     - adjacent roles that count as a partial match;
-     - anything to always discard.
-   - **Location:**
-     - your home area;
-     - your **ZIP code**;
-     - your **maximum one-way commute in miles**;
-     - whether remote is fine;
-     - whether you'd relocate (no / yes / only to certain places).
-   - **Job sources:** where you want to find openings: job-alert email, specific companies' career sites, or both.
-     - **Email:** it checks that the Gmail connector is connected (and explains how to add it if not), then finds a recent example of each alert email, confirms the sender address with you, and notes how to read it.
-     - **Career sites:** name a company ("Acme") or paste its careers URL. It finds the official careers page, asks you to confirm it, and tests how it can be read from the cloud. If a site can't be read, it suggests that company's job-alert email instead.
-   - **Housekeeping:** how long before untouched rows are archived (30 days), how many rows to score per run (10), and how many new leads to log per career site per run (15). The defaults are fine.
-3. **Review the profile** it shows you and confirm. It saves **`job-search-profile.md`** to your folder.
+Start a new chat and say **"set up my job search."** Setup works well on a phone: each step is one short question with choices to tap (in Claude Code) or numbers to reply with, and answers are suggested from your resume. It takes 9 steps:
 
-Your settings live only in that file, in your own Drive. Change them any time in plain language ("add Indeed alerts", "I'd relocate to Austin now") and the skill shows each change before → after. You can also edit the file by hand.
+1. **Folder:** pick or create the Google Drive folder for your job search. It holds your tracker, profile, full resume, job descriptions and tailored resumes.
+2. **Full resume:** pick the Markdown file in that folder, or attach or paste your resume (.md, .docx or .pdf). Setup arranges it as `Full-Resume.md`, shows you the roles it found, and saves it to the folder once you confirm. Your original file stays with you; only the text version goes to Drive.
+3. **You:** your name, home area and a file-name prefix for tailored resumes, all suggested from the resume.
+4. **Tracker:** create the tracker sheet in the folder (with all the columns, checkboxes, a Status dropdown and a Status Guide tab), or pick an existing one. If Google Drive for desktop syncs the folder to your computer, give its path.
+5. **Target roles:** role families and seniority, suggested from your titles.
+6. **Location:** remote, maximum one-way commute, relocation, and your ZIP code.
+7. **Job sources:** job-alert email, company career sites, or both.
+   - **Email:** it checks the Gmail connector (and says how to add it if needed), then offers the job-alert senders it finds in your Gmail to pick from.
+   - **Career sites:** type company names or careers URLs. It finds each official careers page, asks you to confirm it, and tests how it can be read from the cloud. If a site can't be read, it suggests that company's job-alert email instead.
+8. **Resume style:** the default, a Word template (.docx) you attach, or a style file (.md) you already have. It shows a preview with your own content before saving `resume-style.md`.
+9. **Housekeeping:** the defaults are fine (archive after 30 days, 10 rows scored per run, 15 new leads per career site per run).
+
+It then shows a short summary and saves **`job-search-profile.md`** to your folder when you confirm.
+
+Your settings live only in that file, in your own Drive. Change them any time in plain language ("add Indeed alerts", "I'd relocate to Austin now"); each change is shown as one before → after line to confirm. You can also edit the file by hand.
 
 ## 4. Schedule the automatic parts
 

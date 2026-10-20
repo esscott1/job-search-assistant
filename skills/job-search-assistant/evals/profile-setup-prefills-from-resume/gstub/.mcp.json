@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "gdrive": {
+      "command": "python",
+      "args": [
+        "-c",
+        "raise SystemExit('eval stub: mocked only')"
+      ]
+    },
+    "gsheets": {
+      "command": "python",
+      "args": [
+        "-c",
+        "raise SystemExit('eval stub: mocked only')"
+      ]
+    },
+    "gmail": {
+      "command": "python",
+      "args": [
+        "-c",
+        "raise SystemExit('eval stub: mocked only')"
+      ]
+    },
+    "web": {
+      "command": "python",
+      "args": [
+        "-c",
+        "raise SystemExit('eval stub: mocked only')"
+      ]
+    }
+  }
+}

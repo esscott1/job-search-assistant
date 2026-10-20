@@ -5,6 +5,8 @@
 # From an Ubuntu terminal, inside the repo:
 #   bash scripts/run-evals-wsl.sh 'resume-*' --runs 1
 #
+# Quote the case glob ('resume-*'): when Claude Code runs this through `wsl -d Ubuntu --`, an
+# unquoted glob is expanded against the current folder before this script sees it.
 # Arguments: a case glob (default: every case; one pattern with *, no {a,b} or [..]), then any extra
 # `claude plugin eval` options, which override the defaults below. Set EVAL_PLUGIN to evaluate
 # another category (default: skills/job-search-assistant).

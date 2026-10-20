@@ -2,6 +2,13 @@
 """Check a tailored resume's content.json against the full resume before it's delivered.
 
 Usage: check_content.py --inventory Full-Resume.md --content content.json [--today YYYY-MM-DD] [--years 15]
+       check_content.py --inventory Full-Resume.md
+
+With --inventory alone, it only reads the full resume's work history and prints what it found,
+{"ok": bool, "employers": [{"name", "dates", "roles": [{"title", "dates"}]}], "warnings": [...]},
+where ok is false when no headings were found. job-search-profile uses this to check a full
+resume the user attaches during setup.
+
 
 Reads the full resume's work history from its headings, one employer per '### Employer | dates'
 and one role per '#### Title | dates' under it, and checks that:
@@ -12,8 +19,9 @@ and one role per '#### Title | dates' under it, and checks that:
   roles may be left out when they aren't relevant to the job; they're listed in
   "omitted_old_roles" so the leaving out can be reported.
 
-Prints JSON: {"ok": bool, "errors": [...], "warnings": [...], "omitted_old_roles": [...]}.
-Exit 0 when ok, 1 when there are errors, 2 when an input can't be read.
+With --content, prints JSON: {"ok": bool, "errors": [...], "warnings": [...], "omitted_old_roles": [...]}.
+Exit 0 when ok, 1 when there are errors (or, with --inventory alone, no headings), 2 when an input
+can't be read.
 """
 
 from __future__ import annotations
@@ -32,6 +40,7 @@ from render_resume import content_problems, normalize  # noqa: E402
 MONTHS = {m: i for i, m in enumerate(
     ("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"), 1)}
 ONGOING = ("present", "current", "now")
+NO_HEADINGS = "the full resume's work history isn't in '### Employer | dates' and '#### Title | dates' headings"
 
 
 @dataclass
@@ -92,8 +101,7 @@ def check(inventory: str, content: dict, today: dt.date, years: int) -> dict:
     omitted: list[dict] = []
     employers = parse_inventory(inventory)
     if not employers:
-        warnings.append("history checks skipped: the full resume's work history isn't in "
-                        "'### Employer | dates' and '#### Title | dates' headings")
+        warnings.append(f"history checks skipped: {NO_HEADINGS}")
         return dict(ok=not errors, errors=errors, warnings=warnings, omitted_old_roles=omitted)
 
     shown: set[tuple[int, int]] = set()  # (employer index, role index) on the resume
@@ -139,20 +147,30 @@ def check(inventory: str, content: dict, today: dt.date, years: int) -> dict:
     return dict(ok=not errors, errors=errors, warnings=warnings, omitted_old_roles=omitted)
 
 
+def outline(inventory: str) -> dict:
+    """The work history the headings describe, for checking a full resume on its own."""
+    employers = parse_inventory(inventory)
+    warnings = [] if employers else [NO_HEADINGS]
+    warnings += [f"{e.name} ({e.dates}): no '####' roles under it" for e in employers if not e.roles]
+    return dict(ok=bool(employers), warnings=warnings, employers=[
+        dict(name=e.name, dates=e.dates, roles=[dict(title=r.title, dates=r.dates) for r in e.roles])
+        for e in employers])
+
+
 def main() -> None:
     a = argparse.ArgumentParser()
     a.add_argument("--inventory", required=True)
-    a.add_argument("--content", required=True)
+    a.add_argument("--content")
     a.add_argument("--today", type=dt.date.fromisoformat, default=dt.date.today())
     a.add_argument("--years", type=int, default=15)
     a = a.parse_args()
     try:
         inventory = Path(a.inventory).read_text(encoding="utf-8")
-        content = json.loads(Path(a.content).read_text(encoding="utf-8"))
+        content = json.loads(Path(a.content).read_text(encoding="utf-8")) if a.content else None
     except (OSError, ValueError) as e:
         print(json.dumps({"error": str(e)}))
         sys.exit(2)
-    result = check(inventory, content, a.today, a.years)
+    result = outline(inventory) if content is None else check(inventory, content, a.today, a.years)
     print(json.dumps(result, ensure_ascii=False))
     sys.exit(0 if result["ok"] else 1)
 

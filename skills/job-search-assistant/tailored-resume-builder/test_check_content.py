@@ -113,6 +113,26 @@ def test_fifteen_year_boundary(dates, old):
     assert is_old(dates, TODAY, 15) is old
 
 
+def test_inventory_alone_prints_the_work_history(tmp_path):
+    inv = tmp_path / "inv.md"
+    inv.write_text(INVENTORY, encoding="utf-8")
+
+    def cli(path):
+        return subprocess.run([sys.executable, str(HERE / "check_content.py"), "--inventory", str(path)],
+                              capture_output=True, text=True, encoding="utf-8")
+    r = cli(inv)
+    res = json.loads(r.stdout)
+    assert r.returncode == 0 and res["ok"] and res["warnings"] == []
+    assert [e["name"] for e in res["employers"]][-1] == "Vandelay Example, Cincinnati, OH"
+    assert res["employers"][0]["roles"] == [
+        {"title": "Director, IT Program Delivery, Columbus, OH", "dates": "2021 - Present"},
+        {"title": "Senior IT Program Manager, Columbus, OH", "dates": "2018 - 2021"}]
+    inv.write_text("# JANE EXAMPLE\n\nDirector at Example Corp, 2018 to now.\n", encoding="utf-8")
+    r = cli(inv)
+    res = json.loads(r.stdout)
+    assert r.returncode == 1 and not res["ok"] and "isn't in '### Employer | dates'" in res["warnings"][0]
+
+
 def test_cli_exit_codes(tmp_path):
     inv, good, bad = tmp_path / "inv.md", tmp_path / "good.json", tmp_path / "bad.json"
     inv.write_text(INVENTORY, encoding="utf-8")
