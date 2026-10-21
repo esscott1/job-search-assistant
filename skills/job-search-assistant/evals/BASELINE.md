@@ -65,6 +65,24 @@ Every deterministic check passed in every run: which rows were written, moved or
 
 Total: 24 runs, $11.53 of API-equivalent usage, about 12 minutes at `-j 3`. Every deterministic check passed in every run: render_resume.py ran with the style file, the style was read, nothing binary was uploaded, no invented skills, and the file landed in the synced folder. The two misses were single LLM-judge checks in one run each: "lists the gaps" (does-not-invent) and "nothing beyond the full resume" (pasted JD, a 2-1 split vote). Building a resume now takes about 2 minutes, down from 5-15.
 
+**Cleanup and intake cases at 0.4.4** ("reset my job tracker"; Archive Reason), run in WSL, 3 runs each, 2026-10-20:
+
+| Case | Score (3 runs) | Cost (3 runs) |
+|---|---|---|
+| `cleanup-reset-asks-first` (new) | 1.00 · 1.00 · 1.00 | $0.91 |
+| `cleanup-reset-archives-everything` (new) | 1.00 · 1.00 · 1.00 | $2.02 |
+| `cleanup-archives-untouched-rows` | 1.00 · 1.00 · 1.00 | $1.38 |
+| `cleanup-creates-archive-tab` | 1.00 · 1.00 · 1.00 | $1.43 |
+| `cleanup-honours-archive-age` | 1.00 · 1.00 · 1.00 | $0.97 |
+| `cleanup-restores-a-row` | 1.00 · 1.00 · 1.00 | $1.25 |
+| `intake-after-reset` (new) | 1.00 · 1.00 · 1.00 | $2.09 |
+| `intake-banner-is-not-closed` | 1.00 · 1.00 · 1.00 | $2.28 |
+| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 | $1.80 |
+| `intake-nothing-to-scan` | 1.00 · 1.00 · 1.00 | $0.93 |
+| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 | $1.97 |
+
+Total $17.02. `cleanup-archives-untouched-rows` now also checks that the weekly cleanup writes Archive Reason `stale`, adding the column to an Archive that predates it. `intake-after-reset` checks the job archived by a reset is logged again as JS-006 onwards, the stale-archived one is still skipped, and the Gmail search uses the normal 7-day window.
+
 **Intake and Tier 2 cases at 0.4.3** (posting pages read with `read_posting.py`; closed only on hard evidence), run in WSL, 3 runs each, 2026-10-20:
 
 | Case | Score (3 runs) | Cost (3 runs) |

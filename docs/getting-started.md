@@ -74,7 +74,7 @@ The first intake run looks back 7 days. If runs were missed, it catches up as fa
 5. **If the description can't be reached** (Score Tier `T2-pending-manual`, usually a LinkedIn-only posting): at your computer, with Chrome signed in, say "run manual JD lookup". After that, rescores work from the cloud again.
 6. **Build the resume.** When the remaining gaps are real, tick **Build Resume** and say "build ticked resumes". You get a .docx and PDF of at most 3 pages (or fewer if you ask, such as "keep it to 2 pages"; a 3rd page is used only when it's at least half full) in your resume style (`_v2`, `_v3` if you rebuild, never overwritten). Every build saves a **Google Doc** of the resume straight into the job's folder in Drive, and the row links to it, wherever the build ran. The .docx and PDF are the page-checked versions: from the desktop app with Google Drive for desktop, they're written into the same folder; from the cloud, you download them and drop them in. The run ends with the gaps it couldn't cover.
 7. **Track your progress** with **Status** (Read and contemplating → Good fit / needs resume → Resume ready → Submitted → Interviewing → Rejected or Closed) and **Next Action / Notes**. The plugin never changes these.
-8. **Each week**, cleanup moves rows still "Need to review" 30 days after they were found to an **Archive** tab. Nothing is deleted, and an archived job is never logged again. Say "restore JS-123" to bring one back.
+8. **Each week**, cleanup moves rows still "Need to review" 30 days after they were found to an **Archive** tab. Nothing is deleted, and an archived job is never logged again. Say "restore JS-123" to bring one back. To start over with an empty Job Log, say "reset my job tracker"; jobs archived that way can be logged again if they turn up in a later alert.
 
 ## 6. What to say
 
@@ -89,6 +89,7 @@ The first intake run looks back 7 days. If runs were missed, it catches up as fa
 | "run manual JD lookup" | Read unreachable job descriptions in your own browser |
 | "build ticked resumes" / "build a resume for JS-123" | Build tailored resumes |
 | "clean up the tracker now" / "restore JS-123" | Archive stale rows now / bring an archived row back |
+| "reset my job tracker" | Start fresh: after you confirm, every row moves to the Archive. Nothing is deleted, your profile and files stay, and jobs still in your alerts can be logged again |
 
 ## 7. Reading the tracker
 

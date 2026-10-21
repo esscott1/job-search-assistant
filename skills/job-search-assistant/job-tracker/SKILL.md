@@ -38,7 +38,7 @@ Everything specific to a user (their name, files, tracker, target roles, locatio
   - No result: stop and report it. Never create a tracker here; `job-search-profile` does that with the user's agreement.
 - **The full resume** is the file named in **Candidate → Full resume**, in the profile's tracker folder: `title = '<Full resume>' and parentId = '<Folder ID>'`. Read it as **Reading Markdown files** below describes. If it isn't found, stop and say so.
 - **Reading Markdown files** (the profile, the full resume, saved JDs and fit reports): use the Drive connector's `download_file_content` and base64-decode the result. `read_file_content` can return an empty result for a Markdown file created in the last few minutes, which is exactly when a rescore or a resume build reads a JD file another run just wrote.
-- Tabs: "Job Log" (one row per active job), "Status Guide" (status meanings, the scoring legend, and `COUNTIF` totals), and "Archive" (stale rows moved out of the Job Log by job-tracker-cleanup; created on its first run).
+- Tabs: "Job Log" (one row per active job), "Status Guide" (status meanings, the scoring legend, and `COUNTIF` totals), and "Archive" (rows moved out of the Job Log by job-tracker-cleanup, stale ones or all of them on a reset; created on its first run).
 
 ## Columns
 Find every column by its header text on each run, never by letter: the user may add, move or hide columns. If a column a skill needs is missing, stop and report `Tracker is missing the "<header>" column`. Don't create it or write the value somewhere else.
@@ -186,13 +186,13 @@ New rows go at the **top** of the Job Log, newest first, so the latest leads are
 If the Job Log has no data rows yet, insert under the header the same way and set the Status dropdown and the checkbox validation on the new rows yourself.
 
 ## Dedup
-Before adding a lead, check it against the Job Log, the Archive tab (if there is one), and the leads already accepted in this run. A job that was archived stays archived; it isn't logged again.
+Before adding a lead, check it against the Job Log, the Archive tab (if there is one), and the leads already accepted in this run. A job archived as stale stays archived; it isn't logged again. The exception is an Archive row whose **Archive Reason** is `reset`: the user asked to start fresh, so leave those rows out of the check, and the same job is logged again as a new row with a new ID.
 1. Run `canonical_url.py` on the lead's posting link. If the result isn't `""` and matches an existing **Canonical URL**, it's a duplicate.
 2. Otherwise, the same company and substantially the same title is a duplicate. A truncated title such as `Senior Projec...` matches any title it's the start of. Rows logged before the Canonical URL column existed are caught this way, and so is the same job reached two ways (an alert email's link and the company's career site).
 
 ## The Archive tab
-Rows the user never acted on are moved here by job-tracker-cleanup after the profile's **Archive after days** (30 by default), so the Job Log stays reviewable.
-- **Columns:** the Job Log's headers, then **Archived On** (`YYYY-MM-DD`). Columns are matched **by header text**, never by position, because the Job Log can gain columns after the Archive was made. A header the Job Log has and the Archive lacks is added to the Archive before **Archived On**; Archive columns are never removed or reordered.
+Rows the user never acted on are moved here by job-tracker-cleanup after the profile's **Archive after days** (30 by default), so the Job Log stays reviewable. When the user resets the tracker to start fresh, job-tracker-cleanup moves every row here.
+- **Columns:** the Job Log's headers, then **Archived On** (`YYYY-MM-DD`) and **Archive Reason**: `stale` for the weekly cleanup, `reset` for a reset. A blank Archive Reason (rows archived before the column existed) means `stale`. Columns are matched **by header text**, never by position, because the Job Log can gain columns after the Archive was made. A header the Job Log has and the Archive lacks is added to the Archive before **Archived On**, and an Archive without **Archive Reason** gets it added at the end; Archive columns are never removed or reordered.
 - **Order:** most recently archived at the top, under the header.
 - **Moving rows:** only job-tracker-cleanup moves rows between the tabs, always in one `update_spreadsheet` batch tied to the revision it read (`writeControl.requiredRevisionId`), so a row is never lost or duplicated halfway.
 - **Read-only for everything else:** other skills read the Archive for dedup and ID numbering, and never write to it. A skill asked to score or build a resume for an archived row says it's archived and suggests restoring it.

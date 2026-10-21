@@ -10,7 +10,7 @@ The `job-search-assistant` plugin: skills that find job leads in your email, log
 | [`job-lead-manual-jd-lookup`](job-lead-manual-jd-lookup/SKILL.md) | On demand, at your computer, for rows Tier 2 marked `T2-pending-manual` | Your signed-in Chrome (for LinkedIn) or the desktop app's built-in browser, plus the Sheets connector |
 | [`job-fit-rubric`](job-fit-rubric/SKILL.md) | Never on its own; loaded whenever a skill sets a Fit Score | Python 3 for `score.py` |
 | [`job-tracker`](job-tracker/SKILL.md) | Never on its own; loaded by every skill that reads or writes the tracker | Python 3 for `canonical_url.py` and `read_posting.py` |
-| [`job-tracker-cleanup`](job-tracker-cleanup/SKILL.md) | A weekly schedule; or on demand to clean up now or restore a row | Google Sheets connector only. Runs in the cloud |
+| [`job-tracker-cleanup`](job-tracker-cleanup/SKILL.md) | A weekly schedule; or on demand to clean up now, restore a row, or reset the tracker | Google Sheets connector only. Runs in the cloud |
 | [`tailored-resume-builder`](tailored-resume-builder/SKILL.md) | On demand only: "build ticked resumes" for rows ticked in **Build Resume**, a named row, or a pasted job description | Your full resume and your resume style (`resume-style.md`, or the default) in Drive, plus Python (`python-docx`; LibreOffice for the PDF and page count) |
 
 ## Getting started
@@ -50,6 +50,7 @@ If Tier 2 can't reach a job description (Score Tier `T2-pending-manual`, usually
 | "build ticked resumes" | Builds a tailored resume for every row ticked in Build Resume, then unticks it |
 | "clean up the tracker now" | Archives stale rows without waiting for the weekly run |
 | "restore JS-123" | Moves an archived row back to the top of the Job Log |
+| "reset my job tracker" | Starts fresh: after you confirm, moves every row to the Archive. Nothing is deleted, your profile and job files stay, and jobs still in your alerts can be logged again with new IDs |
 | "build a resume for JS-123" | Builds one for that row, ticked or not. Needs a saved job description, so run Tier 2 first |
 
 To make Tier 2 fetch a job description again (for example, the posting changed), trash that row's `<ID>_JD.md` in Drive and tick **Run Tier 2**.
@@ -59,7 +60,7 @@ To make Tier 2 fetch a job description again (for example, the posting changed),
 Everything lives in one Google Drive folder, the one you named for your tracker in your profile:
 
 - **`job-search-profile.md`**: your settings (see Getting started).
-- **The tracker**: a Google Sheet (named in your profile, `Job_Search_Tracker` by default). **Job Log** and **Status Guide** come with it; **Archive** is added by the first cleanup run. **Job Log** has one row per job, with new leads added at the top, newest first; **Status Guide** explains the statuses and the scoring and counts rows by status. **Archive** holds rows moved out of the Job Log by cleanup, with the date they were archived; it still counts for dedup, so an archived job isn't logged again. The full column list, and which skill writes each column, is in [`job-tracker`](job-tracker/SKILL.md#columns). Columns that only you change: **Status**, **Next Action / Notes**, and the two checkboxes, **Run Tier 2** and **Build Resume**.
+- **The tracker**: a Google Sheet (named in your profile, `Job_Search_Tracker` by default). **Job Log** and **Status Guide** come with it; **Archive** is added by the first cleanup run. **Job Log** has one row per job, with new leads added at the top, newest first; **Status Guide** explains the statuses and the scoring and counts rows by status. **Archive** holds rows moved out of the Job Log by cleanup, with the date and the reason they were archived (`stale`, or `reset` when you started fresh). A stale archived job still counts for dedup, so it isn't logged again; a job archived by a reset can come back as a new row. The full column list, and which skill writes each column, is in [`job-tracker`](job-tracker/SKILL.md#columns). Columns that only you change: **Status**, **Next Action / Notes**, and the two checkboxes, **Run Tier 2** and **Build Resume**.
 - **Your full resume**: a Markdown file holding your whole career history, not a two-page selection. It's the only evidence the skills score against or build resumes from, and only you edit it.
 - **`resume-style.md`**: the look of your tailored resumes, as a short text file (fonts, sizes, colours, margins, layout). Setup makes it once from a Word template you attach, or you use the plugin's default. Change it in plain language ("make my resume headings navy") or by hand.
 - **One folder per company** (for example `Acme_Corp/`), created the first time a job there gets a full read. It holds `<ID>_JD.md` (the saved job description), one `<ID>_fit_r<n>_<date>.md` per scoring run, and any tailored resumes as .pdf and .docx, versioned `_v2`, `_v3` rather than overwritten.
