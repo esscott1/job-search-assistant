@@ -52,7 +52,10 @@ ARRANGEMENT_LABEL = {
     "relocation_required": "Relocation required",
 }
 # Evidence tables written under rubric v1.0 are reused on a rescore; read their names.
-ARRANGEMENT_ALIASES = {"colorado_onsite": "commutable_onsite", "colorado_hybrid": "commutable_hybrid"}
+ARRANGEMENT_ALIASES = {
+    "colorado_onsite": "commutable_onsite",
+    "colorado_hybrid": "commutable_hybrid",
+}
 
 RELOCATION_CAP = 3  # hard ceiling for any job that needs a move the user won't make
 LOW_REQUIRED_COVERAGE = 0.5  # below this share of required items met...
@@ -83,7 +86,9 @@ def score(evidence: dict) -> dict:
     mode = _pick(evidence.get("mode"), {"tier1": 0, "tier2": 0}, "mode")
     title = _pick(evidence.get("title_seniority"), TITLE_CREDIT, "title_seniority")
     arrangement = evidence.get("work_arrangement")
-    arrangement = _pick(ARRANGEMENT_ALIASES.get(arrangement, arrangement), ARRANGEMENT_CREDIT, "work_arrangement")
+    arrangement = _pick(
+        ARRANGEMENT_ALIASES.get(arrangement, arrangement), ARRANGEMENT_CREDIT, "work_arrangement"
+    )
 
     parts: list[str] = []
     caps: list[str] = []
@@ -94,8 +99,12 @@ def score(evidence: dict) -> dict:
             raise EvidenceError("tier2 needs a non-empty 'requirements' list")
         req_earned = req_total = pref_earned = pref_total = 0.0
         for i, item in enumerate(items):
-            kind = _pick(item.get("type"), {"required": 0, "preferred": 0}, f"requirements[{i}].type")
-            credit = EVIDENCE_CREDIT[_pick(item.get("evidence"), EVIDENCE_CREDIT, f"requirements[{i}].evidence")]
+            kind = _pick(
+                item.get("type"), {"required": 0, "preferred": 0}, f"requirements[{i}].type"
+            )
+            credit = EVIDENCE_CREDIT[
+                _pick(item.get("evidence"), EVIDENCE_CREDIT, f"requirements[{i}].evidence")
+            ]
             if not str(item.get("text", "")).strip():
                 raise EvidenceError(f"requirements[{i}].text is empty; quote the JD")
             if kind == "required":

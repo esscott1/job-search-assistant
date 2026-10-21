@@ -2,6 +2,10 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.4.5
+
+- `job-fit-rubric`: `score.py` is reformatted to 100 columns, with no change to how it scores; its unit tests pass unchanged. The repository's code-defined pipeline now keeps an identical copy, checked by a test ([ADR 0003](docs/adr/0003-shared-rubric.md)). Updating the installed plugin is optional.
+
 ## job-search-assistant 0.4.4
 
 - **"reset my job tracker"** (`job-tracker-cleanup`): start fresh with an empty Job Log. After you confirm, every row moves to the Archive, whatever its status. Nothing is deleted: saved job descriptions, fit reports and tailored resumes stay in their Drive folders, your profile and full resume aren't touched, and any row can be restored. Reinstall the plugin to pick it up.

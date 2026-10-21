@@ -1,6 +1,6 @@
 {
   "name": "job-search-assistant",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "JobSearchAssistant: finds job openings in your job-alert email and on company career sites you choose, tracks them in a Google Sheet, scores your fit against your full resume with a deterministic rubric and a gap report, rescores as you update your resume, and builds tailored resumes in your own style.",
   "author": {
     "name": "Eric Scott"

@@ -93,6 +93,44 @@ class FitResult(BaseModel):
     rationale: str
 
 
+class Requirement(BaseModel):
+    """One qualification from the JD, judged against the full resume."""
+
+    text: Annotated[str, Field(min_length=1)]  # quoted from the JD
+    type: Literal["required", "preferred"]
+    evidence: Literal["strong", "partial", "none"]
+    resume_evidence: str = ""
+
+
+class EvidenceTable(BaseModel):
+    """What the model judges; `scoring.score_evidence` turns it into a score.
+
+    The Literal values mirror the rubric's credit tables; test_rubric.py checks they agree.
+    """
+
+    mode: Literal["tier1", "tier2"]
+    title_seniority: Literal["strong", "partial", "weak"]
+    work_arrangement: Literal[
+        "remote",
+        "commutable_onsite",
+        "commutable_hybrid",
+        "unknown",
+        "relocation_acceptable",
+        "relocation_required",
+    ]
+    requirements: list[Requirement] = []
+
+
+class RubricScore(BaseModel):
+    """The rubric's output: the final score, the raw score, caps and a readable breakdown."""
+
+    score: Annotated[int, Field(ge=1, le=10)]
+    raw: float
+    caps_applied: list[str]
+    breakdown: str
+    rubric_version: str
+
+
 ScoringTier = Literal["tier1_alert_only", "full_jd"]
 
 
