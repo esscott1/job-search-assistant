@@ -30,13 +30,13 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
 - **B:** `core` (domain, ports, policy, adapters) and the evaluate graph (`fetch_jd → score → tailor → review`), with a CLI, a demo and unit tests on fakes.
 - **Decisions:** [ADR 0001](adr/0001-orchestration-approach.md) (why a code-defined orchestration) and [ADR 0002](adr/0002-tracker-is-system-of-record.md) (the tracker is the system of record).
 
-### 2. One rubric · shared core
+### 2. One rubric · shared core ✅ done
 
 - **Goal:** both A and B turn an evidence table into a score with the same code.
 - **Deliverables:**
   - `core/src/job_search_core/rubric.py`: an exact copy of `job-fit-rubric/score.py`, with a typed `EvidenceTable`;
   - a test that fails if the two copies differ (the skill keeps its own copy, because skills must be self-contained folders);
-  - ADR 0003: how the rubric is shared.
+  - [ADR 0003](adr/0003-shared-rubric.md): how the rubric is shared.
 - **Done when:** the same evidence table gives the same score and breakdown in both, and CI enforces it. No behaviour change in either approach.
 
 ### 3. B scores like A · LangGraph
@@ -121,8 +121,8 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
 | Milestone | Status |
 |---|---|
 | 1. Foundations | ✅ Done |
-| 2. One rubric | Next; planned |
-| 3. B scores like A | Planned; needs D1 |
+| 2. One rubric | ✅ Done ([ADR 0003](adr/0003-shared-rubric.md)) |
+| 3. B scores like A | Next; needs D1 |
 | 4. Local MCP server | Proposed; can start any time |
 | 5. Measured comparison | Waiting on 2 and 3 |
 | 6. B to parity | Waiting on 5 |

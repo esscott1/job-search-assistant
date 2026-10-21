@@ -73,8 +73,10 @@ flowchart LR
 orchestration/job-search/
 ├── core/                       job_search_core — the business logic
 │   ├── src/job_search_core/
-│   │   ├── domain.py           Job, FitResult, Status, legal transitions
+│   │   ├── domain.py           Job, FitResult, EvidenceTable, RubricScore, Status, transitions
 │   │   ├── policy.py           FIT_THRESHOLD, should_tailor, is_resume_stale, ...
+│   │   ├── rubric.py           the fit rubric: an exact copy of the plugin's score.py (ADR 0003)
+│   │   ├── scoring.py          score_evidence: EvidenceTable → RubricScore via the rubric
 │   │   ├── steps.py            fetch_jd, score_fit, tailor_resume
 │   │   ├── usecases.py         record each result in the tracker
 │   │   ├── ports.py            interfaces the steps depend on

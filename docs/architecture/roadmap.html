@@ -127,7 +127,7 @@
     <h2>What depends on what</h2>
     <figure>
       <div class="scroll">
-        <svg viewBox="0 0 1000 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core, which leads to milestone 3, LangGraph scoring like the plugin, and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison. Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
+        <svg viewBox="0 0 1000 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin, and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison. Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
           <defs>
             <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-muted"/></marker>
             <marker id="af" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-fg"/></marker>
@@ -154,17 +154,17 @@
           <text x="218" y="226" text-anchor="middle" class="t-node-sub">ADR 0001, 0002</text>
 
           <!-- A lane -->
-          <rect x="302" y="54" width="116" height="52" rx="7" class="n-a"/>
+          <rect x="302" y="54" width="116" height="52" rx="7" class="n-done"/>
           <text x="360" y="76" text-anchor="middle" class="t-node">rubric copy</text>
-          <text x="360" y="93" text-anchor="middle" class="t-node-sub">+ drift test</text>
+          <text x="360" y="93" text-anchor="middle" class="t-done">✓ drift test</text>
           <rect x="572" y="54" width="116" height="52" rx="7" class="n-a"/>
           <text x="630" y="76" text-anchor="middle" class="t-node">Tier 2 evals</text>
           <text x="630" y="93" text-anchor="middle" class="t-node-sub">as the yardstick</text>
 
           <!-- Shared lane -->
-          <rect x="302" y="149" width="116" height="52" rx="7" class="n-s"/>
+          <rect x="302" y="149" width="116" height="52" rx="7" class="n-done"/>
           <text x="360" y="171" text-anchor="middle" class="t-node">2 One rubric</text>
-          <text x="360" y="188" text-anchor="middle" class="t-node-sub">core/rubric.py</text>
+          <text x="360" y="188" text-anchor="middle" class="t-done">✓ done</text>
           <rect x="572" y="149" width="116" height="52" rx="7" class="n-s"/>
           <text x="630" y="171" text-anchor="middle" class="t-node">5 Measured</text>
           <text x="630" y="188" text-anchor="middle" class="t-node-sub">comparison</text>
@@ -238,7 +238,7 @@
       </article>
 
       <article class="card s">
-        <div class="card-head"><span class="num">2</span><div><h3>One rubric</h3><div class="meta">Shared core · <span class="pill next">next</span></div></div></div>
+        <div class="card-head"><span class="num">2</span><div><h3>One rubric</h3><div class="meta">Shared core · <span class="pill done">done</span></div></div></div>
         <p>Both approaches turn an evidence table into a score with the same code.</p>
         <ul>
           <li><code>core/rubric.py</code>, an exact copy of <code>score.py</code>, with a typed <code>EvidenceTable</code></li>
@@ -249,7 +249,7 @@
       </article>
 
       <article class="card b">
-        <div class="card-head"><span class="num">3</span><div><h3>B scores like A</h3><div class="meta">LangGraph · after 2 · <span class="pill">needs D1</span></div></div></div>
+        <div class="card-head"><span class="num">3</span><div><h3>B scores like A</h3><div class="meta">LangGraph · <span class="pill next">next</span> · <span class="pill">needs D1</span></div></div></div>
         <p>The model fills in evidence; the rubric computes the score.</p>
         <ul>
           <li><code>assess_fit</code> (model) and <code>score</code> (rubric) nodes</li>

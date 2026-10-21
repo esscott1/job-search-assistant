@@ -87,7 +87,7 @@ The tracker has one **Gaps** column, right next to Fit Score, so the user can se
 - Tier 1 rows (no JD read): `• JD not read yet`, plus any gap the alert email itself makes obvious (e.g. relocation).
 
 ## Changing the rubric
-Weights and caps live only in `score.py`. Change them there and in the table above in the same PR, bump `RUBRIC_VERSION`, and run the tests. Scores already in the tracker keep the version they were scored under (it's in their Score Breakdown); rescoring old rows is a separate, explicit request.
+Weights and caps live only in `score.py`. Change them there and in the table above in the same PR, bump `RUBRIC_VERSION`, and run the tests. The repository's code-defined pipeline keeps an identical copy of `score.py`; the same PR updates it, and a test fails until it does. Scores already in the tracker keep the version they were scored under (it's in their Score Breakdown); rescoring old rows is a separate, explicit request.
 
 ## Known constraints
 - Scores against the full resume only. Experience that isn't in the full resume isn't evidence until the user adds it there.
