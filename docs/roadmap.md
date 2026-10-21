@@ -16,7 +16,7 @@ The same problem (find job leads, score fit against a full resume, show the gaps
 
 - **Business rules live once.** The fit rubric, the tracker rules and the routing policy belong to `core` (and the `job-tracker` skill for A). A new approach is a new front end, never a rewrite of the rules.
 - **Same inputs, same tests.** Every approach is measured against the same synthetic persona, job descriptions and gold scores.
-- **Measure, don't assert.** Claims about cost, accuracy or reliability come with eval results committed to the repo.
+- **Measure, don't assert.** Claims about token use, accuracy or reliability come with eval results committed to the repo.
 - **Each approach stays usable on its own.** A never depends on B or C being installed or running.
 - **Public repo hygiene.** Synthetic data only; nothing personal in code, docs, fixtures or results.
 
@@ -75,7 +75,7 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
   - a results table in the repo, with:
     - score agreement (within ±1);
     - requirement-list overlap (at least 80%);
-    - cost per job;
+    - tokens per job;
     - run time;
     - failure modes;
   - the numbers added to [the comparison page](architecture/three-approaches.html).
