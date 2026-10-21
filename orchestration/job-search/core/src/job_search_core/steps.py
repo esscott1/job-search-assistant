@@ -115,7 +115,7 @@ def tailor_resume(jd_text: str, resume_text: str, fit: FitResult, llm: LLMPort) 
     _, system = prompts.load("tailor_resume")
     gaps = "\n".join(f"- {g}" for g in fit.top_gaps)
     prompt = (
-        f"<master_resume>\n{resume_text}\n</master_resume>\n\n"
+        f"<full_resume>\n{resume_text}\n</full_resume>\n\n"
         f"<job_description>\n{jd_text}\n</job_description>\n\n"
         f"<known_gaps>\n{gaps}\n</known_gaps>\n\n"
         "Write the tailored resume."

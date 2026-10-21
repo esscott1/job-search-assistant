@@ -3,6 +3,10 @@
 Used only for evals, alongside persona_resume.md. Same format as the plugin's
 job-search-profile.md; only Target roles and Location reach the scoring prompt.
 
+## Candidate
+- Name: Jordan Rivera
+- Full resume: persona_resume.md
+
 ## Target roles
 - Role families: enterprise architecture, AI enablement, solutions architecture
 - Seniority: senior, principal, lead

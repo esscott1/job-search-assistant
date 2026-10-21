@@ -11,8 +11,8 @@ uv sync --all-packages && uv run jobs demo     # see it work with fakes, no keys
 ## What it does
 
 1. **Intake:** find job leads in Gmail and screen them quickly. *(roadmap M2)*
-2. **Evaluate:** fetch the full job description; the model fills an evidence table (each requirement judged against the master resume, plus title fit and work arrangement against the job-search profile), and the shared rubric computes the 1–10 score with a readable breakdown ([ADR 0003](../../docs/adr/0003-shared-rubric.md)). Also names up to three gaps.
-3. **Tailor:** for scores of 7 or more, draft a tailored resume and pause for my review. Re-tailor unsubmitted resumes when the master resume changes. *(tailor + review: this PR; refresh: M5)*
+2. **Evaluate:** fetch the full job description; the model fills an evidence table (each requirement judged against the full resume, plus title fit and work arrangement against the job-search profile), and the shared rubric computes the 1–10 score with a readable breakdown ([ADR 0003](../../docs/adr/0003-shared-rubric.md)). Also names up to three gaps.
+3. **Tailor:** for scores of 7 or more, draft a tailored resume and pause for my review. Re-tailor unsubmitted resumes when the full resume changes. *(tailor + review: this PR; refresh: M5)*
 4. **Track:** follow each job through submission, interviews, and outcome, and notice when postings close. *(manual commands: this PR; automated sweep: M3)*
 
 ## Architecture
@@ -102,7 +102,7 @@ The repository's north star is [`docs/roadmap.md`](../../docs/roadmap.md), which
 | M2 | Intake graph (Gmail), read-only import of the Excel tracker, **shadow mode** alongside the Claude skills | next |
 | M3 | Status sweep: posting-closed checks, classify recruiter emails (confirmation, interview, rejection) | |
 | M4 | `.docx` resume rendering, scheduled runs, per-call LLM tracing | |
-| M5 | Refresh graph: re-tailor unsubmitted resumes when the master resume changes | |
+| M5 | Refresh graph: re-tailor unsubmitted resumes when the full resume changes | |
 | Later | Second approach as a spike (orchestrator–worker) against the same core and evals | |
 
 ## Development

@@ -48,7 +48,7 @@ class LLMPort(Protocol):
 
 class ResumeSourcePort(Protocol):
     def read(self) -> str:
-        """The master resume as text."""
+        """The full resume as text: the whole career history, not a tailored selection."""
         ...
 
     def content_hash(self) -> str: ...

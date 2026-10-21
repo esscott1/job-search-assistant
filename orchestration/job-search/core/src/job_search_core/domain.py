@@ -33,7 +33,7 @@ TERMINAL: frozenset[Status] = frozenset(
 )
 
 # Statuses where the resume has not gone to the employer yet, so it may be re-scored
-# or re-tailored (for example after the master resume changes).
+# or re-tailored (for example after the full resume changes).
 PRE_SUBMISSION: frozenset[Status] = frozenset(
     {
         Status.NEW,
@@ -180,7 +180,7 @@ class Job(BaseModel):
     fit: FitResult | None = None
     scoring_tier: ScoringTier | None = None
     resume_path: str | None = None
-    resume_source_hash: str | None = None  # master-resume hash the tailored resume was built from
+    resume_source_hash: str | None = None  # full-resume hash the tailored resume was built from
     notes: str | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)

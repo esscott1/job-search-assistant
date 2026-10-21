@@ -32,12 +32,12 @@ def can_evaluate(job: Job) -> bool:
     return job.status in PRE_SUBMISSION
 
 
-def is_resume_stale(job: Job, current_master_hash: str) -> bool:
-    """True when a tailored, not-yet-submitted resume was built from an older master resume."""
+def is_resume_stale(job: Job, current_resume_hash: str) -> bool:
+    """True when a tailored, not-yet-submitted resume was built from an older full resume."""
     return (
         job.status in {Status.RESUME_DRAFTED, Status.NEEDS_EDIT, Status.RESUME_READY}
         and job.resume_source_hash is not None
-        and job.resume_source_hash != current_master_hash
+        and job.resume_source_hash != current_resume_hash
     )
 
 

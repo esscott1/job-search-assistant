@@ -78,7 +78,7 @@ class FakeLLM:
 
 
 class InMemoryResumeSource:
-    def __init__(self, text: str = "Synthetic master resume"):
+    def __init__(self, text: str = "Synthetic full resume"):
         self.text_value = text
 
     def read(self) -> str:
@@ -89,6 +89,10 @@ class InMemoryResumeSource:
 
 
 SYNTHETIC_PROFILE = """# Job search profile
+
+## Candidate
+- Name: Jordan Example
+- Full resume: Full-Resume.md
 
 ## Target roles
 - Role families: enterprise architecture, AI enablement

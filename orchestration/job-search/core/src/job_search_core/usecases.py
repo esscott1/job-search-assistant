@@ -61,12 +61,12 @@ def record_tailored_resume(
     docs: DocumentStorePort,
     job_id: str,
     content: str,
-    master_hash: str,
+    resume_hash: str,
 ) -> Job:
     path = docs.save_resume(job_id, content)
     job = tracker.get(job_id)
     job.resume_path = path
-    job.resume_source_hash = master_hash
+    job.resume_source_hash = resume_hash
     tracker.save(job)
     return tracker.transition(job_id, Status.RESUME_DRAFTED, "pipeline", path)
 
