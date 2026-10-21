@@ -35,6 +35,7 @@ Skills are one way to run a workflow. [`orchestration/`](orchestration/job-searc
 |---|---|
 | [`orchestration/job-search/`](orchestration/job-search/README.md) | The job-search workflow as a LangGraph state graph. Business logic lives in a framework-free `core` package, and each orchestration approach is a sibling under `approaches/` |
 | [`docs/adr/`](docs/adr/) | Architecture decision records: why LangGraph here, why the tracker is the system of record |
+| [`docs/roadmap.md`](docs/roadmap.md) | The north star: milestones that turn the skills plugin, the LangGraph pipeline and a local MCP server into three measured approaches to the same problem (pictured in [`docs/architecture/`](docs/architecture/)) |
 | [`docs/setup/`](docs/setup/job-search-langgraph.md) | Setup guide, including Google OAuth for a personal account |
 
 The skills version can keep running while the orchestrated version runs alongside it in shadow mode. Each part is cut over once its evals match ([ADR 0001](docs/adr/0001-orchestration-approach.md)).
