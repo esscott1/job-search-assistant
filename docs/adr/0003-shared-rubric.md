@@ -31,3 +31,12 @@ So a difference between the two scores could come from the model's judgment or f
 - A rubric change is one edit to `score.py`, copied to `core` in the same PR. The tests fail until the copy is made.
 - `score.py` follows the orchestration workspace's formatting (ruff, 100 columns), so the copy passes the workspace's format check unchanged.
 - The rubric version (`RUBRIC_VERSION`, v1.1 today) appears in every score breakdown in both approaches, so a score always says which arithmetic produced it.
+
+## Update, 2026-10-21: implemented in LangGraph
+
+Roadmap milestone 3. The evaluate graph scores through the rubric:
+
+- **`assess_fit`** calls the model, which returns a `FitAssessment`: the evidence table and up to three gaps. The schema has no score field, so the model can't give a number.
+- **`score`** builds the Tier 2 evidence table and calls `scoring.score_evidence`. A checkpoint sits between the two, so a failure after the model call resumes without calling it again.
+- **On a rescore**, `compute_fit` keeps the previous run's requirement wording, and `assess_fit` retries once if the model returns a different number of requirements. The plugin *asks* the model to keep the list; the pipeline *enforces* it.
+- **The prompt** (`fit-scoring/2.0`) is adapted from the rubric skill's evidence instructions. `test_prompt_names_every_rubric_category` fails if the rubric gains a category the prompt doesn't define.

@@ -81,7 +81,7 @@ Signed in. Gmail: you@gmail.com  Drive: you@gmail.com
 
 From then on the pipeline refreshes access silently. **`token.json` is a credential.** It's gitignored and created with owner-only permissions. You can revoke it anytime at [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
 
-## 4. Your master resume
+## 4. Your master resume and job-search profile
 
 Scoring and tailoring read your master resume as Markdown from `data/master_resume.md`. It's gitignored, so it never reaches the public repo. To convert your existing `.docx` with [pandoc](https://pandoc.org/installing.html):
 
@@ -89,7 +89,9 @@ Scoring and tailoring read your master resume as Markdown from `data/master_resu
 pandoc path/to/your_master_resume.docx -t gfm -o data/master_resume.md
 ```
 
-Skim the result: tables and text boxes sometimes convert awkwardly, and the model can only score what it can read. When you later edit the master resume, the refresh graph (roadmap M5) detects the change by content hash and re-tailors unsubmitted resumes.
+Skim the result: tables and text boxes sometimes convert awkwardly, and the model can only score what it can read.
+
+Scoring also reads your **job-search profile**, `data/job-search-profile.md`. It's the same file the Claude plugin's `job-search-profile` skill writes to your tracker folder in Google Drive, so copy that file into `data/`. Only its **Target roles** and **Location** sections are used: title and seniority are judged against the first, and work arrangement against the second. Without the file, `jobs evaluate` stops and says where to put it. To keep it elsewhere, set `JOBS_PROFILE` in `.env`. When you later edit the master resume, the refresh graph (roadmap M5) detects the change by content hash and re-tailors unsubmitted resumes.
 
 ## 5. Evaluate your first job
 

@@ -1,8 +1,9 @@
 """LLM adapter using the Anthropic SDK directly (no orchestration framework needed).
 
-Structured output uses a forced tool call whose input schema is the Pydantic model's JSON
-schema, then validates the result with Pydantic — so a malformed answer fails loudly here
-instead of corrupting the tracker downstream.
+Structured output uses the API's structured outputs (`messages.parse` with an output format
+built from the Pydantic model), then the SDK validates the answer against that model, so a
+malformed answer fails loudly here instead of corrupting the tracker downstream. (Forcing a
+tool call with `tool_choice` isn't supported on current models.)
 """
 
 from __future__ import annotations
@@ -10,15 +11,19 @@ from __future__ import annotations
 import os
 from typing import TypeVar
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
 
 DEFAULT_MODEL = "claude-sonnet-5-5"
 
 
+class ModelRefused(RuntimeError):
+    """The model declined the request. Not retried: the same request would be declined again."""
+
+
 class AnthropicLLM:
-    def __init__(self, model: str | None = None, max_tokens: int = 4096, max_attempts: int = 2):
+    def __init__(self, model: str | None = None, max_tokens: int = 16000, max_attempts: int = 2):
         self.model = model or os.environ.get("JOBS_MODEL", DEFAULT_MODEL)
         self.max_tokens = max_tokens
         self.max_attempts = max_attempts
@@ -33,29 +38,25 @@ class AnthropicLLM:
         return self._client
 
     def structured(self, *, system: str, prompt: str, schema: type[T]) -> T:
-        tool = {
-            "name": "submit",
-            "description": f"Submit the {schema.__name__}.",
-            "input_schema": schema.model_json_schema(),
-        }
         last: Exception | None = None
         for _ in range(self.max_attempts):
-            msg = self.client.messages.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                system=system,
-                tools=[tool],
-                tool_choice={"type": "tool", "name": "submit"},
-                messages=[{"role": "user", "content": prompt}],
-            )
-            block = next((b for b in msg.content if b.type == "tool_use"), None)
-            if block is None:
-                last = RuntimeError("model returned no tool call")
-                continue
             try:
-                return schema.model_validate(block.input)
-            except ValidationError as exc:
+                msg = self.client.messages.parse(
+                    model=self.model,
+                    max_tokens=self.max_tokens,
+                    system=system,
+                    messages=[{"role": "user", "content": prompt}],
+                    output_format=schema,
+                )
+            except ValueError as exc:  # the answer didn't validate against the schema
                 last = exc
+                continue
+            if msg.stop_reason == "refusal":
+                raise ModelRefused(f"{self.model} declined: {getattr(msg, 'stop_details', None)}")
+            if msg.parsed_output is None:
+                last = RuntimeError(f"no structured output (stop_reason {msg.stop_reason})")
+                continue
+            return msg.parsed_output
         raise RuntimeError(f"structured output failed after {self.max_attempts} attempts") from last
 
     def text(self, *, system: str, prompt: str) -> str:
@@ -65,4 +66,6 @@ class AnthropicLLM:
             system=system,
             messages=[{"role": "user", "content": prompt}],
         )
+        if msg.stop_reason == "refusal":
+            raise ModelRefused(f"{self.model} declined: {getattr(msg, 'stop_details', None)}")
         return "".join(b.text for b in msg.content if b.type == "text")

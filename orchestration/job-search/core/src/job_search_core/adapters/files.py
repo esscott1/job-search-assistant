@@ -1,4 +1,4 @@
-"""File-based adapters: master resume source and tailored-resume store."""
+"""File-based adapters: master resume, job-search profile and tailored-resume store."""
 
 from __future__ import annotations
 
@@ -22,6 +22,21 @@ class FileResumeSource:
 
     def content_hash(self) -> str:
         return hashlib.sha256(self.read().encode("utf-8")).hexdigest()[:16]
+
+
+class FileProfileSource:
+    """Reads the job-search profile, the Markdown file the plugin's profile skill writes."""
+
+    def __init__(self, path: str | Path):
+        self.path = Path(path)
+
+    def read(self) -> str:
+        if not self.path.exists():
+            raise FileNotFoundError(
+                f"Job-search profile not found at {self.path}. Copy job-search-profile.md "
+                "from your tracker folder into data/ (docs/setup/job-search-langgraph.md, step 4)."
+            )
+        return self.path.read_text(encoding="utf-8")
 
 
 class FileDocumentStore:

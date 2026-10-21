@@ -54,6 +54,12 @@ class ResumeSourcePort(Protocol):
     def content_hash(self) -> str: ...
 
 
+class ProfileSourcePort(Protocol):
+    def read(self) -> str:
+        """The job-search profile as Markdown: the same file the plugin's profile skill writes."""
+        ...
+
+
 class DocumentStorePort(Protocol):
     def save_resume(self, job_id: str, content: str) -> str:
         """Store a tailored resume; return its path or URI."""

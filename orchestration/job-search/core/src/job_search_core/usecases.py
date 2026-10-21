@@ -6,7 +6,7 @@ Orchestrator nodes should be thin: load state, call a step, call one of these, r
 from __future__ import annotations
 
 from . import policy
-from .domain import FitResult, Job, Status
+from .domain import FitResult, Job, ScoringTier, Status
 from .ports import DocumentStorePort, TrackerPort
 
 
@@ -25,6 +25,9 @@ def record_needs_manual_jd(tracker: TrackerPort, job_id: str, reason: str) -> Jo
     job = tracker.get(job_id)
     if job.status != Status.NEEDS_MANUAL_JD:
         job = tracker.transition(job_id, Status.NEEDS_MANUAL_JD, "pipeline", reason)
+    if job.scoring_tier != "T2-pending-manual":
+        job.scoring_tier = "T2-pending-manual"
+        job = tracker.save(job)
     return job
 
 
@@ -34,10 +37,13 @@ def record_jd(tracker: TrackerPort, job_id: str, jd_text: str) -> Job:
     return tracker.save(job)
 
 
-def record_score(tracker: TrackerPort, job_id: str, fit: FitResult) -> Job:
+def record_score(
+    tracker: TrackerPort, job_id: str, fit: FitResult, tier: ScoringTier = "T2"
+) -> Job:
+    """Record a rubric score. `tier` says where the JD came from: T2 fetched, T2-manual pasted."""
     job = tracker.get(job_id)
     job.fit = fit
-    job.scoring_tier = "full_jd"
+    job.scoring_tier = tier
     tracker.save(job)
     if job.status != Status.SCORED:  # idempotent on re-run after a crash
         job = tracker.transition(job_id, Status.SCORED, "pipeline", f"fit {fit.score}/10")

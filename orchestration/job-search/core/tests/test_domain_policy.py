@@ -39,11 +39,20 @@ def test_illegal_transitions_raise(current, target):
         check_transition("JS-1", current, target)
 
 
-def test_fit_result_requires_exactly_three_gaps_and_score_in_range():
+def test_fit_result_allows_up_to_three_gaps_and_score_in_range():
+    FitResult(score=8, top_gaps=[], rationale="r")
     with pytest.raises(ValidationError):
-        FitResult(score=8, top_gaps=["a", "b"], rationale="r")
+        FitResult(score=8, top_gaps=["a", "b", "c", "d"], rationale="r")
     with pytest.raises(ValidationError):
         FitResult(score=11, top_gaps=["a", "b", "c"], rationale="r")
+
+
+def test_rows_saved_with_old_tier_names_still_load():
+    old = Job(id="JS-1", company="Acme", title="Architect").model_dump(mode="json")
+    old["scoring_tier"] = "full_jd"
+    assert Job.model_validate(old).scoring_tier == "T2"
+    old["scoring_tier"] = "tier1_alert_only"
+    assert Job.model_validate(old).scoring_tier == "T1"
 
 
 @pytest.mark.parametrize("score,expected", [(6, False), (7, True), (10, True)])

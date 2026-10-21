@@ -1,7 +1,12 @@
 """Evaluate graph: one job in, a scored (and possibly tailored + reviewed) job out.
 
-    START → load → fetch_jd ─(got JD)──────────────→ score ─(policy.should_tailor)→ tailor → review → END
-                       └─(NeedsHuman)→ manual_jd ──↗        └──────────────────────→ below → END
+    START → load → fetch_jd ─(got JD)──────────────→ assess_fit → score ─(policy.should_tailor)→ tailor → review → END
+                       └─(NeedsHuman)→ manual_jd ──↗                    └──────────────────────→ below → END
+
+`assess_fit` is the only model call before the score: the model fills an evidence table.
+`score` is deterministic: the shared rubric (core/rubric.py, ADR 0003) turns that table into
+the score. The split puts a checkpoint between the paid call and the arithmetic, so a failure
+in scoring or recording resumes without calling the model again.
 
 Each node is thin: call a core step, record the result through a core use case, return a
 small state update. Routing asks core.policy — no business rule lives in this file.
@@ -17,7 +22,7 @@ from __future__ import annotations
 from typing import Literal, TypedDict
 
 from job_search_core import policy, steps, usecases
-from job_search_core.domain import FitResult, NeedsHuman
+from job_search_core.domain import FitAssessment, FitResult, NeedsHuman
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import interrupt
 
@@ -27,25 +32,34 @@ from .deps import Deps
 class EvalState(TypedDict, total=False):
     job_id: str
     jd_text: str | None
+    jd_source: Literal["fetched", "manual"] | None  # sets the Score Tier: T2 or T2-manual
     needs_human: dict | None  # NeedsHuman payload when the JD couldn't be fetched
+    assessment: dict | None  # FitAssessment from the model, before any score exists
     fit: dict | None  # FitResult as a plain dict (keeps checkpoints JSON-friendly)
     resume_path: str | None
     outcome: str | None  # final status, for the caller
 
 
 def build_evaluate_graph(deps: Deps, checkpointer=None):
+    def previous_evidence(job_id: str):
+        """The last run's evidence table, so a rescore judges the same requirements."""
+        job = deps.tracker.get(job_id)
+        return job.fit.evidence if job.fit else None
+
     def load(state: EvalState) -> EvalState:
         job = usecases.begin_evaluation(deps.tracker, state["job_id"])
         return {"jd_text": job.jd_text, "needs_human": None}
 
     def fetch_jd(state: EvalState) -> EvalState:
         job = deps.tracker.get(state["job_id"])
+        pasted_before = bool(job.jd_text) and job.scoring_tier in {"T2-manual", "T2-pending-manual"}
         result = steps.fetch_jd(job, deps.jd_fetcher)
         if isinstance(result, NeedsHuman):
             usecases.record_needs_manual_jd(deps.tracker, job.id, result.reason)
             return {"needs_human": result.model_dump()}
         usecases.record_jd(deps.tracker, job.id, result)
-        return {"jd_text": result, "needs_human": None}
+        source = "manual" if pasted_before else "fetched"
+        return {"jd_text": result, "jd_source": source, "needs_human": None}
 
     def manual_jd(state: EvalState) -> EvalState:
         ask = dict(state["needs_human"])
@@ -53,11 +67,23 @@ def build_evaluate_graph(deps: Deps, checkpointer=None):
         while not policy.looks_like_real_jd(text):
             text = interrupt({**ask, "reason": "That text is too short to be a job description"})
         usecases.record_jd(deps.tracker, state["job_id"], text)
-        return {"jd_text": text, "needs_human": None}
+        return {"jd_text": text, "jd_source": "manual", "needs_human": None}
+
+    def assess_fit(state: EvalState) -> EvalState:
+        assessment = steps.assess_fit(
+            state["jd_text"],
+            deps.resume.read(),
+            deps.profile.read(),
+            deps.llm,
+            previous=previous_evidence(state["job_id"]),
+        )
+        return {"assessment": assessment.model_dump()}
 
     def score(state: EvalState) -> EvalState:
-        fit = steps.score_fit(state["jd_text"], deps.resume.read(), deps.llm)
-        usecases.record_score(deps.tracker, state["job_id"], fit)
+        assessment = FitAssessment(**state["assessment"])
+        fit = steps.compute_fit(assessment, previous=previous_evidence(state["job_id"]))
+        tier = "T2-manual" if state.get("jd_source") == "manual" else "T2"
+        usecases.record_score(deps.tracker, state["job_id"], fit, tier)
         return {"fit": fit.model_dump()}
 
     def below(state: EvalState) -> EvalState:
@@ -86,8 +112,8 @@ def build_evaluate_graph(deps: Deps, checkpointer=None):
         )
         return {"outcome": job.status.value}
 
-    def after_fetch(state: EvalState) -> Literal["manual_jd", "score"]:
-        return "manual_jd" if state.get("needs_human") else "score"
+    def after_fetch(state: EvalState) -> Literal["manual_jd", "assess_fit"]:
+        return "manual_jd" if state.get("needs_human") else "assess_fit"
 
     def after_score(state: EvalState) -> Literal["tailor", "below"]:
         return "tailor" if policy.should_tailor(FitResult(**state["fit"])) else "below"
@@ -97,6 +123,7 @@ def build_evaluate_graph(deps: Deps, checkpointer=None):
         ("load", load),
         ("fetch_jd", fetch_jd),
         ("manual_jd", manual_jd),
+        ("assess_fit", assess_fit),
         ("score", score),
         ("below", below),
         ("tailor", tailor),
@@ -106,7 +133,8 @@ def build_evaluate_graph(deps: Deps, checkpointer=None):
     g.add_edge(START, "load")
     g.add_edge("load", "fetch_jd")
     g.add_conditional_edges("fetch_jd", after_fetch)
-    g.add_edge("manual_jd", "score")
+    g.add_edge("manual_jd", "assess_fit")
+    g.add_edge("assess_fit", "score")
     g.add_conditional_edges("score", after_score)
     g.add_edge("below", END)
     g.add_edge("tailor", "review")
@@ -119,7 +147,9 @@ def fresh_input(job_id: str) -> EvalState:
     return {
         "job_id": job_id,
         "jd_text": None,
+        "jd_source": None,
         "needs_human": None,
+        "assessment": None,
         "fit": None,
         "resume_path": None,
         "outcome": None,

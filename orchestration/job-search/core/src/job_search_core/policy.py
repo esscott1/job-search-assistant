@@ -9,7 +9,11 @@ from __future__ import annotations
 from .domain import PRE_SUBMISSION, FitResult, Job, Status
 
 FIT_THRESHOLD = 7
-"""Jobs scoring at or above this get a tailored resume."""
+"""Jobs scoring at or above this get a tailored resume.
+
+This is the pipeline's own gate. The plugin has no automatic threshold: there, the user
+ticks Build Resume. Both compare against the same rubric score.
+"""
 
 MIN_JD_CHARS = 400
 """Fetched text shorter than this is treated as 'no real job description found'."""
