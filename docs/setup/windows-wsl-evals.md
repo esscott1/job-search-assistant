@@ -58,7 +58,7 @@ bash scripts/run-evals-wsl.sh resume-history-rules --runs 1   # one case, one ru
 bash scripts/run-evals-wsl.sh                          # the whole suite
 ```
 
-The first argument is a case glob, and anything after it is passed to `claude plugin eval`. The script runs with the plugin only (`--ablation none`), gives cases a shell (`--allow-tools Bash Write`), runs scaffold scripts (`--scaffold`, which the synced-folder cases need), and writes results to `~/eval-runs/<timestamp>`, outside the plugin. A run of all eight resume cases takes about 15 minutes and $12-13 of usage.
+The first argument is a case glob, and anything after it is passed to `claude plugin eval`. The script runs with the plugin only (`--ablation none`), gives cases a shell (`--allow-tools Bash Write`), runs scaffold scripts (`--scaffold`, which the synced-folder cases need), and writes results to `~/eval-runs/<timestamp>`, outside the plugin. A run of all eight resume cases takes about 15 minutes.
 
 **Reading results.** A table at the end gives each case's score: 1.00 means every grader passed in every run. The full report is `report.html` in the output folder; from Windows, open `\\wsl$\Ubuntu\home\<your Linux username>\eval-runs\` in File Explorer. Add `--keep-temp` to keep each run's sandbox and `trace.jsonl` for debugging.
 

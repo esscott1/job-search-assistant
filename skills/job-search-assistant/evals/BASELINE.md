@@ -9,42 +9,42 @@ claude plugin eval skills/job-search-assistant --runs 3 --ablation none --allow-
   --trust-plugin --no-publish --output-dir ~/eval-runs/<date>
 ```
 
-| Case | Gold | Score (3 runs) | Cost per run | What the runs did |
-|---|---|---|---|---|
-| `tier2-gold-strong-fit` | 10 | 1.00 · 1.00 · 1.00 | $0.68-0.69 | Score in the 9-10 band; PMP the gap; AWS and budget met |
-| `tier2-gold-partial-fit` | 7 | 1.00 · 1.00 · 1.00 | $0.68-0.69 | Evidence table matched gold exactly in the traced run (score 7) |
-| `tier2-gold-relocation-mismatch` | 1 | 1.00 · 1.00 · 1.00 | $0.64-0.66 | `relocation_required`, title `weak`, Rust gap |
-| `tier2-rescore-closes-gap` | 7 → 8 | 1.00 (see note) | $0.67-0.81 | r2 written with r1's nine requirements unchanged; Kubernetes none → strong; score 8, "was 7" |
-| `tier2-nothing-ticked` | n/a | 1.00 · 1.00 · 1.00 | $0.25-0.31 | Reported nothing ticked; no resume download, search or writes |
-| `resume-no-jd-asks-first` | n/a | 1.00 · 1.00 · 1.00 | $0.15-0.16 | Asked for the job description; wrote nothing |
+| Case | Gold | Score (3 runs) | What the runs did |
+|---|---|---|---|
+| `tier2-gold-strong-fit` | 10 | 1.00 · 1.00 · 1.00 | Score in the 9-10 band; PMP the gap; AWS and budget met |
+| `tier2-gold-partial-fit` | 7 | 1.00 · 1.00 · 1.00 | Evidence table matched gold exactly in the traced run (score 7) |
+| `tier2-gold-relocation-mismatch` | 1 | 1.00 · 1.00 · 1.00 | `relocation_required`, title `weak`, Rust gap |
+| `tier2-rescore-closes-gap` | 7 → 8 | 1.00 (see note) | r2 written with r1's nine requirements unchanged; Kubernetes none → strong; score 8, "was 7" |
+| `tier2-nothing-ticked` | n/a | 1.00 · 1.00 · 1.00 | Reported nothing ticked; no resume download, search or writes |
+| `resume-no-jd-asks-first` | n/a | 1.00 · 1.00 · 1.00 | Asked for the job description; wrote nothing |
 
-Total: 18 runs, $9.51, about 10 minutes at `-j 3`.
+Total: 18 runs, about 10 minutes at `-j 3`.
 
 **Added 2026-10-15 (plugin 0.1.4), resume cases that need no shell, run on Windows:**
 
-| Case | Score (3 runs) | Cost per run | What the runs did |
-|---|---|---|---|
-| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | $0.23 | Said Full-Resume.md wasn't found; never read the older Word resume; built nothing |
-| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | $0.26 | Skipped JS-002 for lack of a saved JD, left Build Resume ticked, said to run Tier 2 first |
+| Case | Score (3 runs) | What the runs did |
+|---|---|---|
+| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | Said Full-Resume.md wasn't found; never read the older Word resume; built nothing |
+| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | Skipped JS-002 for lack of a saved JD, left Build Resume ticked, said to run Tier 2 first |
 
 **Added 2026-10-15 (plugin 0.1.5), resume cases that build a real resume, run in WSL:**
 
-| Case | Score (3 runs) | Usage per run (API-equivalent) | What the runs did |
-|---|---|---|---|
-| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $1.34-1.64 | Built the resume with vendor management featured; no Kubernetes, CKA or Rust anywhere; listed both as gaps |
-| `resume-tailors-pasted-jd` | 1.00 · 0.78 · 0.56 | $1.17-1.58 | Content was right in every run. The two partial runs failed on moving files, not on judgement (see below) |
+| Case | Score (3 runs) | What the runs did |
+|---|---|---|
+| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | Built the resume with vendor management featured; no Kubernetes, CKA or Rust anywhere; listed both as gaps |
+| `resume-tailors-pasted-jd` | 1.00 · 0.78 · 0.56 | Content was right in every run. The two partial runs failed on moving files, not on judgement (see below) |
 
 **Intake and cleanup cases**, 3 runs each, 2026-10-16. Intake runs needing a shell were in WSL (with `--allow-tools Bash Write`); cleanup and nothing-to-scan ran on Windows. `intake-scans-career-site` was rerun 3 times after its feed moved from a GitHub URL to the stub `web` server (1.00 each):
 
-| Case | Score (3 runs) | Usage per run (API-equivalent) |
-|---|---|---|
-| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 | $0.56-0.59 |
-| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 | $0.60-0.65 |
-| `intake-nothing-to-scan` | 1.00 · 1.00 · 0.83 | $0.22-0.26 |
-| `cleanup-archives-untouched-rows` | 0.95 · 0.95 · 0.95 | $0.45-0.51 |
-| `cleanup-creates-archive-tab` | 1.00 · 1.00 · 1.00 | $0.37-0.50 |
-| `cleanup-honours-archive-age` | 1.00 · 1.00 · 1.00 | $0.22 |
-| `cleanup-restores-a-row` | 1.00 · 1.00 · 1.00 | $0.36-0.37 |
+| Case | Score (3 runs) |
+|---|---|
+| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 |
+| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 |
+| `intake-nothing-to-scan` | 1.00 · 1.00 · 0.83 |
+| `cleanup-archives-untouched-rows` | 0.95 · 0.95 · 0.95 |
+| `cleanup-creates-archive-tab` | 1.00 · 1.00 · 1.00 |
+| `cleanup-honours-archive-age` | 1.00 · 1.00 · 1.00 |
+| `cleanup-restores-a-row` | 1.00 · 1.00 · 1.00 |
 
 Every deterministic check passed in every run: which rows were written, moved or skipped, one revision-checked batch, inserts at the top, canonical links, no sign-in tokens, and score.py and canonical_url.py actually run. The misses were LLM-judge checks on the final summary:
 - In `cleanup-archives-untouched-rows`, the simulated spreadsheet (a small model playing Sheets) miscounted the Job Log's rows (7 instead of 8) and lost the last row when applying the batch. The skill's read-back check caught it and reported it honestly without repairing anything, as the skill says to. The Sheets mock now states each tab's exact row count. After that, the case scored 1.00 in 3 of 3 runs, and every cleanup case scored 1.00 in a further single pass. The summary judge also accepts an honest mismatch report, since that's the right behaviour if the sheet really changes.
@@ -52,64 +52,64 @@ Every deterministic check passed in every run: which rows were written, moved or
 
 **Resume and profile cases at 0.2.0** (style file, no Word files through the connector), run in WSL with `--scaffold`, 3 runs each, 2026-10-15:
 
-| Case | Score (3 runs) | Usage per run (API-equivalent) |
-|---|---|---|
-| `resume-tailors-pasted-jd` | 1.00 · 1.00 · 0.92 | $0.64-0.76 |
-| `resume-does-not-invent` | 1.00 · 0.87 · 1.00 | $0.65-0.74 |
-| `resume-delivers-to-synced-folder` | 1.00 · 1.00 · 1.00 | $0.70-0.72 |
-| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | $0.32-0.35 |
-| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | $0.33-0.34 |
-| `resume-no-jd-asks-first` | 1.00 · 1.00 · 1.00 | $0.16 |
-| `profile-convert-template` | 1.00 · 1.00 · 1.00 | $0.41-0.57 |
-| `profile-style-update` | 1.00 · 1.00 · 1.00 | $0.41-0.51 |
+| Case | Score (3 runs) |
+|---|---|
+| `resume-tailors-pasted-jd` | 1.00 · 1.00 · 0.92 |
+| `resume-does-not-invent` | 1.00 · 0.87 · 1.00 |
+| `resume-delivers-to-synced-folder` | 1.00 · 1.00 · 1.00 |
+| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 |
+| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 |
+| `resume-no-jd-asks-first` | 1.00 · 1.00 · 1.00 |
+| `profile-convert-template` | 1.00 · 1.00 · 1.00 |
+| `profile-style-update` | 1.00 · 1.00 · 1.00 |
 
-Total: 24 runs, $11.53 of API-equivalent usage, about 12 minutes at `-j 3`. Every deterministic check passed in every run: render_resume.py ran with the style file, the style was read, nothing binary was uploaded, no invented skills, and the file landed in the synced folder. The two misses were single LLM-judge checks in one run each: "lists the gaps" (does-not-invent) and "nothing beyond the full resume" (pasted JD, a 2-1 split vote). Building a resume now takes about 2 minutes, down from 5-15.
+Total: 24 runs, about 12 minutes at `-j 3`. Every deterministic check passed in every run: render_resume.py ran with the style file, the style was read, nothing binary was uploaded, no invented skills, and the file landed in the synced folder. The two misses were single LLM-judge checks in one run each: "lists the gaps" (does-not-invent) and "nothing beyond the full resume" (pasted JD, a 2-1 split vote). Building a resume now takes about 2 minutes, down from 5-15.
 
 **Cleanup and intake cases at 0.4.4** ("reset my job tracker"; Archive Reason), run in WSL, 3 runs each, 2026-10-20:
 
-| Case | Score (3 runs) | Cost (3 runs) |
-|---|---|---|
-| `cleanup-reset-asks-first` (new) | 1.00 · 1.00 · 1.00 | $0.91 |
-| `cleanup-reset-archives-everything` (new) | 1.00 · 1.00 · 1.00 | $2.02 |
-| `cleanup-archives-untouched-rows` | 1.00 · 1.00 · 1.00 | $1.38 |
-| `cleanup-creates-archive-tab` | 1.00 · 1.00 · 1.00 | $1.43 |
-| `cleanup-honours-archive-age` | 1.00 · 1.00 · 1.00 | $0.97 |
-| `cleanup-restores-a-row` | 1.00 · 1.00 · 1.00 | $1.25 |
-| `intake-after-reset` (new) | 1.00 · 1.00 · 1.00 | $2.09 |
-| `intake-banner-is-not-closed` | 1.00 · 1.00 · 1.00 | $2.28 |
-| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 | $1.80 |
-| `intake-nothing-to-scan` | 1.00 · 1.00 · 1.00 | $0.93 |
-| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 | $1.97 |
+| Case | Score (3 runs) |
+|---|---|
+| `cleanup-reset-asks-first` (new) | 1.00 · 1.00 · 1.00 |
+| `cleanup-reset-archives-everything` (new) | 1.00 · 1.00 · 1.00 |
+| `cleanup-archives-untouched-rows` | 1.00 · 1.00 · 1.00 |
+| `cleanup-creates-archive-tab` | 1.00 · 1.00 · 1.00 |
+| `cleanup-honours-archive-age` | 1.00 · 1.00 · 1.00 |
+| `cleanup-restores-a-row` | 1.00 · 1.00 · 1.00 |
+| `intake-after-reset` (new) | 1.00 · 1.00 · 1.00 |
+| `intake-banner-is-not-closed` | 1.00 · 1.00 · 1.00 |
+| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 |
+| `intake-nothing-to-scan` | 1.00 · 1.00 · 1.00 |
+| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 |
 
-Total $17.02. `cleanup-archives-untouched-rows` now also checks that the weekly cleanup writes Archive Reason `stale`, adding the column to an Archive that predates it. `intake-after-reset` checks the job archived by a reset is logged again as JS-006 onwards, the stale-archived one is still skipped, and the Gmail search uses the normal 7-day window.
+`cleanup-archives-untouched-rows` now also checks that the weekly cleanup writes Archive Reason `stale`, adding the column to an Archive that predates it. `intake-after-reset` checks the job archived by a reset is logged again as JS-006 onwards, the stale-archived one is still skipped, and the Gmail search uses the normal 7-day window.
 
 **Intake and Tier 2 cases at 0.4.3** (posting pages read with `read_posting.py`; closed only on hard evidence), run in WSL, 3 runs each, 2026-10-20:
 
-| Case | Score (3 runs) | Cost (3 runs) |
-|---|---|---|
-| `intake-banner-is-not-closed` (new) | 1.00 · 1.00 · 1.00 | $2.37 |
-| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 | $1.81 |
-| `intake-nothing-to-scan` | 1.00 · 1.00 · 1.00 | $0.92 |
-| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 | $1.95 |
-| `tier2-gold-strong-fit` | 1.00 · 1.00 · 1.00 | $2.17 |
-| `tier2-gold-partial-fit` | 1.00 · 1.00 · 1.00 | in the $9.52 total |
-| `tier2-gold-relocation-mismatch` | 1.00 · 1.00 · 1.00 | $2.02 |
-| `tier2-rescore-closes-gap` | 1.00 · 1.00 · 1.00 | $2.30 |
-| `tier2-nothing-ticked` | 1.00 · 1.00 · 1.00 | $0.92 |
+| Case | Score (3 runs) |
+|---|---|
+| `intake-banner-is-not-closed` (new) | 1.00 · 1.00 · 1.00 |
+| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 |
+| `intake-nothing-to-scan` | 1.00 · 1.00 · 1.00 |
+| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 |
+| `tier2-gold-strong-fit` | 1.00 · 1.00 · 1.00 |
+| `tier2-gold-partial-fit` | 1.00 · 1.00 · 1.00 |
+| `tier2-gold-relocation-mismatch` | 1.00 · 1.00 · 1.00 |
+| `tier2-rescore-closes-gap` | 1.00 · 1.00 · 1.00 |
+| `tier2-nothing-ticked` | 1.00 · 1.00 · 1.00 |
 
 In every run of the new case, `read_posting.py` was tried first and reported the fictional host unreachable, the skill fell back to the stub fetch, and both open jobs were logged: the banner-only one at Tier 1, the one with the boilerplate line at Tier 2. One run also skipped a third posting whose page returned 404, with that evidence in the summary. The first pass of the case scored 0.89: the judge failed two correct replies for quoting the banner or adding "check the posting yourself". The judge now grades what the reply does with the leads, not whether it repeats the banner. No scoring case moved.
 
 **Profile cases at 0.4.1** (brief, menu-driven setup), run in WSL, 3 runs each, 2026-10-20. Every case disallows `AskUserQuestion`, so the numbered-list menus are what's graded:
 
-| Case | Score (3 runs) | Cost (3 runs) |
-|---|---|---|
-| `profile-setup-starts-brief` (new) | 1.00 · 1.00 · 1.00 | $0.66 |
-| `profile-setup-prefills-from-resume` (new) | 1.00 · 1.00 · 1.00 | $0.97 |
-| `profile-setup-saves-pasted-resume` (new) | 1.00 · 1.00 · 1.00 | $0.85 |
-| `profile-setup-checks-style-file` (new) | 1.00 · 1.00 · 1.00 | $1.26 |
-| `profile-update-is-brief` (new) | 1.00 · 1.00 · 1.00 | $0.83 |
-| `profile-style-update` | 1.00 · 1.00 · 1.00 | $1.42 |
-| `profile-convert-template` | 1.00 · 1.00 · 1.00 | $1.35 |
+| Case | Score (3 runs) |
+|---|---|
+| `profile-setup-starts-brief` (new) | 1.00 · 1.00 · 1.00 |
+| `profile-setup-prefills-from-resume` (new) | 1.00 · 1.00 · 1.00 |
+| `profile-setup-saves-pasted-resume` (new) | 1.00 · 1.00 · 1.00 |
+| `profile-setup-checks-style-file` (new) | 1.00 · 1.00 · 1.00 |
+| `profile-update-is-brief` (new) | 1.00 · 1.00 · 1.00 |
+| `profile-style-update` | 1.00 · 1.00 · 1.00 |
+| `profile-convert-template` | 1.00 · 1.00 · 1.00 |
 
 Getting there:
 - **`profile-style-update`:**
@@ -120,16 +120,16 @@ Getting there:
 
 **Resume cases at 0.4.0** (adds a Google Doc of every tailored resume, made from `render_resume.py --html` and sent to Drive as text), run in WSL with `--scaffold`, 3 runs each, 2026-10-19:
 
-| Case | Score (3 runs) | Cost (3 runs) |
-|---|---|---|
-| `resume-tailors-pasted-jd` | 1.00 · 1.00 · 1.00 | $2.29 |
-| `resume-delivers-to-synced-folder` | 1.00 · 1.00 · 1.00 | $2.31 |
-| `resume-history-rules` | 1.00 · 1.00 · 1.00 | $2.62 |
-| `resume-honours-requested-page-limit` | 1.00 · 1.00 · 1.00 | $2.33 |
-| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $2.26 |
-| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | $1.06 |
-| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | $1.06 |
-| `resume-no-jd-asks-first` | 1.00 · 1.00 · 1.00 | $0.47 |
+| Case | Score (3 runs) |
+|---|---|
+| `resume-tailors-pasted-jd` | 1.00 · 1.00 · 1.00 |
+| `resume-delivers-to-synced-folder` | 1.00 · 1.00 · 1.00 |
+| `resume-history-rules` | 1.00 · 1.00 · 1.00 |
+| `resume-honours-requested-page-limit` | 1.00 · 1.00 · 1.00 |
+| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 |
+| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 |
+| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 |
+| `resume-no-jd-asks-first` | 1.00 · 1.00 · 1.00 |
 
 The new `creates-google-doc` grader passed in every run of the five cases that build a resume: the Doc was created from HTML text, and nothing went to Drive as base64.
 
@@ -139,16 +139,16 @@ The stub has no `read_file_content`, so these runs report the Doc as not verifie
 
 **Resume cases at 0.3.0** (3-page limit, the user's lower limit, no company descriptions, every role has a line, the 15-year rule, check_content.py), run in WSL with `--scaffold`, 3 runs each, 2026-10-16:
 
-| Case | Score (3 runs) | Cost (3 runs) |
-|---|---|---|
-| `resume-history-rules` (new) | 1.00 · 1.00 · 1.00 | $2.17 |
-| `resume-honours-requested-page-limit` (new) | 1.00 · 1.00 · 1.00 | $2.19 |
-| `resume-tailors-pasted-jd` | 1.00 · 1.00 · 0.94 | $2.05 |
-| `resume-delivers-to-synced-folder` | 1.00 · 1.00 · 1.00 | $2.07 |
-| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 | $1.90 |
-| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 | $1.05 |
-| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 | $1.06 |
-| `resume-no-jd-asks-first` | 1.00 · 1.00 · 1.00 | $0.50 |
+| Case | Score (3 runs) |
+|---|---|
+| `resume-history-rules` (new) | 1.00 · 1.00 · 1.00 |
+| `resume-honours-requested-page-limit` (new) | 1.00 · 1.00 · 1.00 |
+| `resume-tailors-pasted-jd` | 1.00 · 1.00 · 0.94 |
+| `resume-delivers-to-synced-folder` | 1.00 · 1.00 · 1.00 |
+| `resume-does-not-invent` | 1.00 · 1.00 · 1.00 |
+| `resume-full-resume-missing` | 1.00 · 1.00 · 1.00 |
+| `resume-ticked-row-needs-jd` | 1.00 · 1.00 · 1.00 |
+| `resume-no-jd-asks-first` | 1.00 · 1.00 · 1.00 |
 
 Every deterministic check passed in every run:
 - `check_content.py` ran and reported ok.
