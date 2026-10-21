@@ -1,0 +1,240 @@
+<meta charset="utf-8">
+<title>One Problem, Three Architectures</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: one reading column; figure and table each scroll sideways on their own at phone width. */
+  :root {
+    --bg: #f5f7f9;
+    --surface: #ffffff;
+    --fg: #18212c;
+    --muted: #586474;
+    --line: #c5cdd8;
+    --anth: #e6eaf0;
+    --a: #4b5b72;
+    --b: #8a4b0f;
+    --b-bg: #f6e7d6;
+    --c: #0e7268;
+    --c-bg: #dcf1ed;
+    --font-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151c; --surface: #161d26; --fg: #e5e9ef; --muted: #9ba6b5; --line: #3a4554; --anth: #1f2833;
+      --a: #a9b8cc; --b: #f0a35e; --b-bg: #3a2614; --c: #3cc9b5; --c-bg: #12312d; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10151c; --surface: #161d26; --fg: #e5e9ef; --muted: #9ba6b5; --line: #3a4554; --anth: #1f2833;
+    --a: #a9b8cc; --b: #f0a35e; --b-bg: #3a2614; --c: #3cc9b5; --c-bg: #12312d; color-scheme: dark;
+  }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 32px 48px;
+  }
+  main { max-width: 1060px; margin: 0 auto; display: grid; gap: 40px; }
+  header { display: grid; gap: 8px; max-width: 70ch; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h1 { font-size: clamp(26px, 4vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+  h2 { font-size: 19px; margin: 0; text-wrap: balance; }
+  p { margin: 0; max-width: 72ch; }
+  .lede { color: var(--muted); }
+  code { font-family: var(--font-mono); font-size: .88em; }
+  section { display: grid; gap: 14px; }
+  figure { margin: 0; display: grid; gap: 12px; }
+  .scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .scroll svg { display: block; width: 100%; min-width: 820px; height: auto; color: var(--fg); font-family: var(--font-body); }
+  figcaption { color: var(--muted); font-size: 14px; max-width: 74ch; }
+
+  .b-a { fill: var(--anth); stroke: var(--a); stroke-width: 1.75; }
+  .b-b { fill: var(--b-bg); stroke: var(--b); stroke-width: 1.75; }
+  .b-c { fill: var(--c-bg); stroke: var(--c); stroke-width: 1.75; }
+  .b-panel { fill: var(--bg); stroke: var(--line); stroke-width: 1.25; }
+  .b-plain { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  .b-shared { fill: var(--surface); stroke: var(--fg); stroke-width: 1.5; }
+  .node-b { fill: var(--surface); stroke: var(--b); stroke-width: 1.5; }
+  .t-title { font-size: 14px; font-weight: 700; fill: var(--fg); }
+  .t-sub { font-size: 12px; fill: var(--muted); }
+  .t-label { font-size: 12px; fill: var(--fg); }
+  .t-head { font-size: 11.5px; font-weight: 600; fill: var(--muted); letter-spacing: .06em; }
+  .t-mono { font-size: 11px; font-family: var(--font-mono); fill: var(--fg); }
+  .t-badge { font-size: 12px; font-weight: 700; fill: var(--surface); }
+  .t-use-a { font-size: 12px; font-weight: 700; fill: var(--a); }
+  .t-use-b { font-size: 12px; font-weight: 700; fill: var(--b); }
+  .t-use-c { font-size: 12px; font-weight: 700; fill: var(--c); }
+  .badge-a { fill: var(--a); } .badge-b { fill: var(--b); } .badge-c { fill: var(--c); }
+  .a { fill: none; stroke: var(--fg); stroke-width: 1.5; }
+  .a-b { fill: none; stroke: var(--b); stroke-width: 1.5; }
+  .a-c { fill: none; stroke: var(--c); stroke-width: 1.75; }
+  .m-fg { fill: var(--fg); } .m-b { fill: var(--b); } .m-c { fill: var(--c); }
+  .model { fill: var(--b); }
+
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  thead th { font-size: 13px; }
+  tbody th { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; width: 16%; }
+  .k { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; color: var(--surface); font-size: 12px; font-weight: 700; margin-right: 8px; vertical-align: -4px; }
+  .k.a { background: var(--a); } .k.b { background: var(--b); } .k.c { background: var(--c); }
+  .status { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+  a { color: var(--c); }
+  ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 74ch; }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">job-search-assistant · portfolio</div>
+    <h1>One job search, three ways to orchestrate it</h1>
+    <p class="lede">The same problem (find leads, score fit against the full resume, show the gaps, tailor a resume) solved three ways. What changes between them is who decides the next step. What stays fixed is the data, the scoring rubric, the tracker rules and the evals, which is what lets you compare them fairly.</p>
+  </header>
+
+  <section>
+    <h2>Who decides the next step, and what they share</h2>
+    <figure>
+      <div class="scroll">
+        <svg viewBox="0 0 1000 450" role="img" aria-label="Three approaches side by side. A, the Claude skills plugin: Claude follows SKILL.md steps and calls generic connectors. B, the LangGraph pipeline: code routes a job through fetch_jd, score, tailor and a review pause, and the model is called only to score and tailor. C, the local MCP server: Claude picks a tool and the server answers in code. All three use the same Gmail and Drive data, the same fit rubric, tracker rules and synthetic-persona evals; A writes the Google Sheet tracker and B writes a SQLite tracker.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-fg"/></marker>
+            <marker id="ah-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-b"/></marker>
+            <marker id="ah-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-c"/></marker>
+          </defs>
+
+          <!-- Column headers -->
+          <rect x="30" y="20" width="290" height="58" rx="8" class="b-a"/>
+          <circle cx="54" cy="49" r="12" class="badge-a"/><text x="54" y="53" text-anchor="middle" class="t-badge">A</text>
+          <text x="76" y="45" class="t-title">Claude skills plugin</text>
+          <text x="76" y="64" class="t-sub">exists · released, 0.4.x</text>
+
+          <rect x="355" y="20" width="290" height="58" rx="8" class="b-b"/>
+          <circle cx="379" cy="49" r="12" class="badge-b"/><text x="379" y="53" text-anchor="middle" class="t-badge">B</text>
+          <text x="401" y="45" class="t-title">LangGraph pipeline</text>
+          <text x="401" y="64" class="t-sub">exists · first milestone</text>
+
+          <rect x="680" y="20" width="290" height="58" rx="8" class="b-c"/>
+          <circle cx="704" cy="49" r="12" class="badge-c"/><text x="704" y="53" text-anchor="middle" class="t-badge">C</text>
+          <text x="726" y="45" class="t-title">job-search-local MCP</text>
+          <text x="726" y="64" class="t-sub">proposed</text>
+
+          <text x="30" y="106" class="t-head">WHO DECIDES THE NEXT STEP</text>
+
+          <!-- A mechanism -->
+          <rect x="30" y="116" width="290" height="110" rx="8" class="b-panel"/>
+          <rect x="46" y="132" width="110" height="48" rx="6" class="b-a"/>
+          <text x="101" y="152" text-anchor="middle" class="t-title">Claude</text>
+          <text x="101" y="170" text-anchor="middle" class="t-sub">reads SKILL.md</text>
+          <line x1="156" y1="156" x2="190" y2="156" class="a" marker-end="url(#ah)"/>
+          <rect x="194" y="132" width="110" height="48" rx="6" class="b-plain"/>
+          <text x="249" y="152" text-anchor="middle" class="t-title">connectors</text>
+          <text x="249" y="170" text-anchor="middle" class="t-sub">generic tools</text>
+          <text x="175" y="208" text-anchor="middle" class="t-label">The model works through steps in prose.</text>
+
+          <!-- B mechanism -->
+          <rect x="355" y="116" width="290" height="110" rx="8" class="b-panel"/>
+          <rect x="363" y="136" width="58" height="32" rx="5" class="node-b"/>
+          <text x="392" y="156" text-anchor="middle" class="t-mono">fetch_jd</text>
+          <rect x="435" y="136" width="58" height="32" rx="5" class="node-b"/>
+          <text x="464" y="156" text-anchor="middle" class="t-mono">score</text>
+          <circle cx="488" cy="141" r="4" class="model"/>
+          <rect x="507" y="136" width="58" height="32" rx="5" class="node-b"/>
+          <text x="536" y="156" text-anchor="middle" class="t-mono">tailor</text>
+          <circle cx="560" cy="141" r="4" class="model"/>
+          <rect x="579" y="136" width="58" height="32" rx="5" class="node-b"/>
+          <text x="608" y="156" text-anchor="middle" class="t-mono">review ⏸</text>
+          <line x1="421" y1="152" x2="433" y2="152" class="a-b" marker-end="url(#ah-b)"/>
+          <line x1="493" y1="152" x2="505" y2="152" class="a-b" marker-end="url(#ah-b)"/>
+          <line x1="565" y1="152" x2="577" y2="152" class="a-b" marker-end="url(#ah-b)"/>
+          <polyline points="464,168 464,182 478,182" class="a-b" marker-end="url(#ah-b)"/>
+          <text x="482" y="186" class="t-sub">below 7 → stop</text>
+          <circle cx="371" cy="207" r="4" class="model"/>
+          <text x="381" y="211" class="t-label">model call · code routes everything else</text>
+
+          <!-- C mechanism -->
+          <rect x="680" y="116" width="290" height="110" rx="8" class="b-panel"/>
+          <rect x="696" y="132" width="110" height="48" rx="6" class="b-a"/>
+          <text x="751" y="152" text-anchor="middle" class="t-title">Claude</text>
+          <text x="751" y="170" text-anchor="middle" class="t-sub">picks a tool</text>
+          <line x1="806" y1="156" x2="840" y2="156" class="a-c" marker-end="url(#ah-c)"/>
+          <rect x="844" y="132" width="110" height="48" rx="6" class="b-c"/>
+          <text x="899" y="152" text-anchor="middle" class="t-title">local server</text>
+          <text x="899" y="170" text-anchor="middle" class="t-sub">counts in code</text>
+          <text x="825" y="208" text-anchor="middle" class="t-label">The model asks; code answers.</text>
+
+          <!-- Same data -->
+          <text x="30" y="256" class="t-head">SAME DATA</text>
+          <rect x="30" y="266" width="220" height="56" rx="7" class="b-shared"/>
+          <text x="140" y="288" text-anchor="middle" class="t-title">Gmail alerts</text>
+          <text x="96" y="309" class="t-use-a">A</text><text x="108" y="309" class="t-sub">connector</text>
+          <text x="166" y="309" class="t-use-b">B</text><text x="178" y="309" class="t-sub">own OAuth</text>
+
+          <rect x="270" y="266" width="220" height="56" rx="7" class="b-shared"/>
+          <text x="380" y="288" text-anchor="middle" class="t-title">Drive job folder</text>
+          <text x="298" y="309" class="t-use-a">A</text><text x="312" y="309" class="t-use-b">B</text>
+          <text x="326" y="309" class="t-use-c">C</text><text x="340" y="309" class="t-sub">(C via the synced disk)</text>
+
+          <rect x="510" y="266" width="220" height="56" rx="7" class="b-shared"/>
+          <text x="620" y="288" text-anchor="middle" class="t-title">Google Sheet tracker</text>
+          <text x="566" y="309" class="t-use-a">A</text><text x="580" y="309" class="t-sub">reads and writes</text>
+
+          <rect x="750" y="266" width="220" height="56" rx="7" class="b-shared"/>
+          <text x="860" y="288" text-anchor="middle" class="t-title">SQLite tracker.db</text>
+          <text x="800" y="309" class="t-use-b">B</text><text x="814" y="309" class="t-sub">its own record (ADR 0002)</text>
+
+          <!-- Same rules and tests -->
+          <text x="30" y="352" class="t-head">SAME RULES AND TESTS</text>
+          <rect x="30" y="362" width="290" height="62" rx="7" class="b-shared"/>
+          <text x="175" y="386" text-anchor="middle" class="t-title">Fit rubric</text>
+          <text x="175" y="406" text-anchor="middle" class="t-sub">score.py; a core copy is planned</text>
+
+          <rect x="355" y="362" width="290" height="62" rx="7" class="b-shared"/>
+          <text x="500" y="386" text-anchor="middle" class="t-title">Tracker rules</text>
+          <text x="500" y="406" text-anchor="middle" class="t-sub">job-tracker skill · core.domain transitions</text>
+
+          <rect x="680" y="362" width="290" height="62" rx="7" class="b-shared"/>
+          <text x="825" y="386" text-anchor="middle" class="t-title">Synthetic persona + evals</text>
+          <text x="825" y="406" text-anchor="middle" class="t-sub">same job descriptions, same gold scores</text>
+        </svg>
+      </div>
+      <figcaption>The top band is the only thing that differs: in A the model follows written steps, in B code moves each job through a fixed graph and calls the model only at the dots, and in C the model asks questions that code answers. The two bands below are held constant, so any difference in a score, a cost or a failure comes from the architecture, not the task.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Side by side</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th><span class="k a">A</span>Claude skills plugin<span class="status">exists · released, version 0.4.x</span></th>
+            <th><span class="k b">B</span>LangGraph pipeline<span class="status">exists · evaluate graph only, tested with fakes</span></th>
+            <th><span class="k c">C</span>job-search-local MCP<span class="status">proposed</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th>Pattern</th><td>Static workflow, written as prose</td><td>Static workflow, written as code</td><td>Tools an agent calls on demand</td></tr>
+          <tr><th>Started by</th><td>A schedule, or asking in chat</td><td>The <code>jobs</code> command (a scheduler later)</td><td>A question in Claude Code</td></tr>
+          <tr><th>Runs on</th><td>claude.ai's cloud; your computer can be off</td><td>Your computer, or a server you run</td><td>Your computer, during a session</td></tr>
+          <tr><th>Waits for you</th><td>Checkboxes in the Sheet</td><td><code>interrupt()</code>, resumed by <code>jobs provide-jd</code> or <code>jobs review</code></td><td>You're already in the chat</td></tr>
+          <tr><th>Writes to</th><td>Google Sheet and Drive</td><td>SQLite <code>tracker.db</code></td><td>Nothing in the tracker; reads the synced folder</td></tr>
+          <tr><th>Paid by</th><td>Your Claude plan</td><td>An API key, per token</td><td>Your Claude plan</td></tr>
+          <tr><th>Strongest at</th><td>No operations work; runs unattended anywhere</td><td>Same input, same path; pauses and resumes; unit-testable routing</td><td>Exact answers across all your files, cheaply</td></tr>
+          <tr><th>Weakest at</th><td>Its control flow is only as reliable as the model's reading of the steps</td><td>You own the Google sign-in, scheduling and hosting</td><td>Only works at your computer; read-mostly</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the comparison shows a reader</h2>
+    <ul>
+      <li><strong>Choosing who holds control.</strong> A puts it in the model, B in code, C splits it: the model decides what to ask, code computes the answer. The ADRs say why each fits its job.</li>
+      <li><strong>Keeping the business rules in one place.</strong> The rubric and tracker rules are shared, so a new approach is a new front end, not a rewrite.</li>
+      <li><strong>Measuring instead of asserting.</strong> The same synthetic persona and gold scores can run against each approach, and the eval results go in the repo.</li>
+    </ul>
+    <p>Two pieces would make the comparison real rather than drawn: the shared rubric in <code>core</code>, and running the job-fit evals against both A and B. B's live-model path also needs its <code>tool_choice</code> fix before it can be measured. The milestones that get there are in <a href="roadmap.html">the roadmap</a> (<code>docs/roadmap.md</code>).</p>
+  </section>
+</main>
