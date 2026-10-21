@@ -49,6 +49,7 @@ This is a uv workspace with one framework-free package (`core/`) and one package
 - **Nodes stay thin:** call a `core` step, record the result with a `core.usecases` function, return a small state update. A node that calls `interrupt()` does nothing with side effects before the interrupt, because LangGraph re-runs the node on resume.
 - **A new orchestration approach** is a new folder under `approaches/` that depends on `job-search-core`, with a README stating its maturity (`spike` or `production`). Nothing in `core` should need to move.
 - **Changing a prompt** (`core/src/job_search_core/prompts/`): bump its `version:` line, run the evals, and commit `evals/job-fit/results/latest.json` so the PR shows the effect.
+- **The measured comparison** (`evals/comparison/`) runs A and B on the plugin's gold Tier 2 cases; its README has the three commands. Rerun it when a change could move scoring in either approach (the fit prompt, the Tier 2 skill, the rubric), and commit `results/`. It records tokens, never prices.
 
 Before opening a PR that touches this folder:
 

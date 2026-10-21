@@ -64,6 +64,7 @@ class FakeLLM:
     def __init__(self, assessment_for: Callable[[str], FitAssessment] | None = None):
         self.assessment_for = assessment_for or (lambda jd: STRONG_FIT)
         self.calls: list[str] = []
+        self.usage: list[dict] = []  # same shape as AnthropicLLM.usage; a fake spends nothing
 
     def structured(self, *, system: str, prompt: str, schema: type[BaseModel]):
         self.calls.append("structured")

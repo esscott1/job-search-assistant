@@ -210,7 +210,7 @@
           <tr>
             <th></th>
             <th><span class="k a">A</span>Claude skills plugin<span class="status">exists · released, version 0.4.x</span></th>
-            <th><span class="k b">B</span>LangGraph pipeline<span class="status">exists · evaluate graph only, tested with fakes</span></th>
+            <th><span class="k b">B</span>LangGraph pipeline<span class="status">exists · evaluate graph, scoring through the shared rubric</span></th>
             <th><span class="k c">C</span>job-search-local MCP<span class="status">proposed</span></th>
           </tr>
         </thead>
@@ -229,12 +229,38 @@
   </section>
 
   <section>
+    <h2>Measured: scoring one job</h2>
+    <p>A and B scored the same three job descriptions against the same synthetic resume and profile, on the same model (<code>claude-sonnet-5-5</code>), three runs each. Each job has a hand-written gold evidence table, so both are measured against a known right answer as well as against each other. Medians per job:</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th><span class="k a">A</span>Claude skills plugin<span class="status">the whole Tier 2 run</span></th>
+            <th><span class="k b">B</span>LangGraph pipeline<span class="status">the scoring call</span></th>
+            <th><span class="k c">C</span>job-search-local MCP<span class="status">not built</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th>Score = gold</th><td>9 of 9 runs</td><td>9 of 9 runs</td><td>n/a</td></tr>
+          <tr><th>Evidence = gold</th><td>Every requirement and every strong / partial / none call</td><td>Every requirement and every strong / partial / none call</td><td>n/a</td></tr>
+          <tr><th>Model calls</th><td>12</td><td>1</td><td>n/a</td></tr>
+          <tr><th>Tokens</th><td>About 436,000, about 90% of them cache reads</td><td>About 4,000</td><td>n/a</td></tr>
+          <tr><th>Time</th><td>79 seconds</td><td>5 seconds</td><td>n/a</td></tr>
+          <tr><th>Failures</th><td>None</td><td>None</td><td>n/a</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>On these jobs the two approaches judged identically, so the difference is the work around the judgment. A's run loads its skills, reads the profile, tracker and resume through the connectors, writes a fit report and updates the row; B is handed the job description and resume. A run that scores several rows loads the skills once, so A's figure per job falls as the batch grows. The three jobs were written to be unambiguous; borderline jobs, where judgment is more likely to differ, are next. Method, commands and full results: <code>orchestration/job-search/evals/comparison/</code>.</p>
+  </section>
+
+  <section>
     <h2>What the comparison shows a reader</h2>
     <ul>
       <li><strong>Choosing who holds control.</strong> A puts it in the model, B in code, C splits it: the model decides what to ask, code computes the answer. The ADRs say why each fits its job.</li>
       <li><strong>Keeping the business rules in one place.</strong> The rubric and tracker rules are shared, so a new approach is a new front end, not a rewrite.</li>
-      <li><strong>Measuring instead of asserting.</strong> The same synthetic persona and gold scores can run against each approach, and the eval results go in the repo.</li>
+      <li><strong>Measuring instead of asserting.</strong> The same synthetic persona and gold scores run against each approach, and the results are in the repo.</li>
     </ul>
-    <p>Two pieces would make the comparison real rather than drawn: the shared rubric in <code>core</code>, and running the job-fit evals against both A and B. B's live-model path also needs its <code>tool_choice</code> fix before it can be measured. The milestones that get there are in <a href="roadmap.html">the roadmap</a> (<code>docs/roadmap.md</code>).</p>
+    <p>What's left is in <a href="roadmap.html">the roadmap</a> (<code>docs/roadmap.md</code>): borderline cases for the comparison, B to parity with A, and the local MCP server.</p>
   </section>
 </main>
