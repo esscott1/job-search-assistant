@@ -7,13 +7,18 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from job_search_core.adapters.anthropic_llm import AnthropicLLM
-from job_search_core.adapters.files import FileDocumentStore, FileResumeSource
+from job_search_core.adapters.files import (
+    FileDocumentStore,
+    FileProfileSource,
+    ProfileResumeSource,
+)
 from job_search_core.adapters.http_jd_fetcher import HttpJDFetcher
 from job_search_core.adapters.sqlite_tracker import SqliteTracker
 from job_search_core.ports import (
     DocumentStorePort,
     JDFetcherPort,
     LLMPort,
+    ProfileSourcePort,
     ResumeSourcePort,
     TrackerPort,
 )
@@ -26,6 +31,7 @@ class Deps:
     llm: LLMPort
     resume: ResumeSourcePort
     docs: DocumentStorePort
+    profile: ProfileSourcePort
 
 
 def data_dir() -> Path:
@@ -34,10 +40,13 @@ def data_dir() -> Path:
 
 def real_deps() -> Deps:
     d = data_dir()
+    # The profile names the full resume, which sits in the same folder (Candidate → Full resume).
+    profile = FileProfileSource(os.environ.get("JOBS_PROFILE", d / "job-search-profile.md"))
     return Deps(
         tracker=SqliteTracker(d / "tracker.db"),
         jd_fetcher=HttpJDFetcher(),
         llm=AnthropicLLM(),
-        resume=FileResumeSource(os.environ.get("JOBS_MASTER_RESUME", d / "master_resume.md")),
+        resume=ProfileResumeSource(profile),
         docs=FileDocumentStore(d / "resumes"),
+        profile=profile,
     )

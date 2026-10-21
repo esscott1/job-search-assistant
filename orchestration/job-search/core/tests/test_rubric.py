@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 from job_search_core import rubric
-from job_search_core.domain import EvidenceTable, Requirement
+from job_search_core.domain import EvidenceTable, FitAssessment, Requirement
 from job_search_core.scoring import EvidenceError, score_evidence
 
 REPO = Path(__file__).resolve().parents[4]
@@ -43,6 +43,9 @@ def test_schema_matches_rubric_constants():
     assert _literal(EvidenceTable, "title_seniority") == set(rubric.TITLE_CREDIT)
     assert _literal(EvidenceTable, "work_arrangement") == set(rubric.ARRANGEMENT_CREDIT)
     assert _literal(Requirement, "evidence") == set(rubric.EVIDENCE_CREDIT)
+    # The model's answer schema offers exactly the same categories.
+    for field in ("title_seniority", "work_arrangement"):
+        assert _literal(FitAssessment, field) == _literal(EvidenceTable, field)
 
 
 def test_there_are_gold_tables():

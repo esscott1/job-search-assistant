@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Status(StrEnum):
@@ -33,7 +33,7 @@ TERMINAL: frozenset[Status] = frozenset(
 )
 
 # Statuses where the resume has not gone to the employer yet, so it may be re-scored
-# or re-tailored (for example after the master resume changes).
+# or re-tailored (for example after the full resume changes).
 PRE_SUBMISSION: frozenset[Status] = frozenset(
     {
         Status.NEW,
@@ -85,14 +85,6 @@ def now() -> datetime:
     return datetime.now(UTC)
 
 
-class FitResult(BaseModel):
-    """Output of the fit-scoring step. Exactly three gaps, score 1-10."""
-
-    score: Annotated[int, Field(ge=1, le=10)]
-    top_gaps: Annotated[list[str], Field(min_length=3, max_length=3)]
-    rationale: str
-
-
 class Requirement(BaseModel):
     """One qualification from the JD, judged against the full resume."""
 
@@ -131,7 +123,48 @@ class RubricScore(BaseModel):
     rubric_version: str
 
 
-ScoringTier = Literal["tier1_alert_only", "full_jd"]
+class FitAssessment(BaseModel):
+    """What the model returns after reading a JD: judgments only, never a score.
+
+    There is no score field, so the model can't express one; `steps.compute_fit` builds
+    the evidence table from this and the rubric computes the score.
+    """
+
+    title_seniority: Literal["strong", "partial", "weak"]
+    work_arrangement: Literal[
+        "remote",
+        "commutable_onsite",
+        "commutable_hybrid",
+        "unknown",
+        "relocation_acceptable",
+        "relocation_required",
+    ]
+    requirements: Annotated[list[Requirement], Field(min_length=1)]
+    top_gaps: Annotated[list[str], Field(max_length=3)]  # Gaps-cell phrases, biggest first
+    rationale: str
+
+
+class FitResult(BaseModel):
+    """The recorded result of scoring a job: the rubric's score plus what produced it.
+
+    `score` always comes from the rubric (`steps.compute_fit`), never from the model. The
+    fields after `rationale` default to empty so rows saved before they existed still load.
+    """
+
+    score: Annotated[int, Field(ge=1, le=10)]
+    top_gaps: Annotated[list[str], Field(max_length=3)]
+    rationale: str
+    breakdown: str = ""  # the rubric's breakdown line
+    rubric_version: str | None = None
+    prompt_version: str | None = None
+    evidence: EvidenceTable | None = None  # kept so a rescore can reuse the requirement list
+
+
+# The tracker's Score Tier values (skills/job-search-assistant/job-tracker/SKILL.md). The
+# pipeline sets T2, T2-manual and T2-pending-manual; the others belong to stages it doesn't
+# have yet (intake, a status sweep) but keep the vocabulary complete.
+ScoringTier = Literal["T1", "T2", "T2-manual", "T2-pending-manual", "T2-no-jd", "T2-closed"]
+_LEGACY_TIERS = {"full_jd": "T2", "tier1_alert_only": "T1"}
 
 
 class Job(BaseModel):
@@ -147,10 +180,16 @@ class Job(BaseModel):
     fit: FitResult | None = None
     scoring_tier: ScoringTier | None = None
     resume_path: str | None = None
-    resume_source_hash: str | None = None  # master-resume hash the tailored resume was built from
+    resume_source_hash: str | None = None  # full-resume hash the tailored resume was built from
     notes: str | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
+
+    @field_validator("scoring_tier", mode="before")
+    @classmethod
+    def _read_legacy_tier(cls, value: object) -> object:
+        """Rows saved before the tracker's tier names were adopted still load."""
+        return _LEGACY_TIERS.get(value, value) if isinstance(value, str) else value
 
 
 class StatusChange(BaseModel):

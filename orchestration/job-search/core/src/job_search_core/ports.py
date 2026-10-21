@@ -48,10 +48,16 @@ class LLMPort(Protocol):
 
 class ResumeSourcePort(Protocol):
     def read(self) -> str:
-        """The master resume as text."""
+        """The full resume as text: the whole career history, not a tailored selection."""
         ...
 
     def content_hash(self) -> str: ...
+
+
+class ProfileSourcePort(Protocol):
+    def read(self) -> str:
+        """The job-search profile as Markdown: the same file the plugin's profile skill writes."""
+        ...
 
 
 class DocumentStorePort(Protocol):

@@ -7,7 +7,7 @@ This guide takes you from a fresh clone to evaluating a real job posting with yo
 | 1 | Install tools and run the demo | Everything (no keys needed) |
 | 2 | Add an Anthropic API key | Scoring and tailoring |
 | 3 | Google Cloud OAuth app | Gmail intake (M2), Drive tracker import (M2) |
-| 4 | Your master resume | Scoring and tailoring |
+| 4 | Your job-search profile and full resume | Scoring and tailoring |
 | 5 | Evaluate your first job | — |
 | 6 | Optional: tracing and Studio | Debugging, screenshots |
 
@@ -81,15 +81,25 @@ Signed in. Gmail: you@gmail.com  Drive: you@gmail.com
 
 From then on the pipeline refreshes access silently. **`token.json` is a credential.** It's gitignored and created with owner-only permissions. You can revoke it anytime at [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
 
-## 4. Your master resume
+## 4. Your job-search profile and full resume
 
-Scoring and tailoring read your master resume as Markdown from `data/master_resume.md`. It's gitignored, so it never reaches the public repo. To convert your existing `.docx` with [pandoc](https://pandoc.org/installing.html):
+The pipeline reads two files, the same two the Claude plugin uses:
+
+- **`job-search-profile.md`**, the profile the plugin's `job-search-profile` skill writes to your job-search folder in Google Drive. Scoring judges title and seniority against its **Target roles**, and work arrangement against its **Location**.
+- **Your full resume**: your whole career history as Markdown, not a two-page selection. Its file name comes from the profile's **Candidate → Full resume** line (the plugin's setup saves it as `Full-Resume.md`), and it must be in **the same folder as the profile**.
+
+Choose where they live:
+
+- **Copy them into `data/`.** Put `job-search-profile.md` and the resume it names into `orchestration/job-search/data/`. That's the default (`JOBS_PROFILE=./data/job-search-profile.md`), and `data/` is gitignored.
+- **Or use them where they are.** If Google Drive for desktop syncs your job-search folder to this computer, set `JOBS_PROFILE` in `.env` to the profile in that folder. The pipeline then reads the plugin's own files, so there's nothing to copy or keep in step.
+
+No full resume yet? The plugin's setup ("set up my job search") makes one from a resume you attach. Or convert a Word file with [pandoc](https://pandoc.org/installing.html), save it under the name your profile gives, and skim the result: tables and text boxes sometimes convert awkwardly, and the model can only score what it can read.
 
 ```bash
-pandoc path/to/your_master_resume.docx -t gfm -o data/master_resume.md
+pandoc path/to/your_resume.docx -t gfm -o data/Full-Resume.md
 ```
 
-Skim the result: tables and text boxes sometimes convert awkwardly, and the model can only score what it can read. When you later edit the master resume, the refresh graph (roadmap M5) detects the change by content hash and re-tailors unsubmitted resumes.
+If either file is missing, `jobs evaluate` stops and says which one and where it looked. When you later edit the full resume, the refresh graph (roadmap M5) detects the change by content hash and re-tailors unsubmitted resumes.
 
 ## 5. Evaluate your first job
 
@@ -151,6 +161,6 @@ To run evals in GitHub Actions on pull requests that change prompts, add `ANTHRO
 | `Google refresh token was rejected` about once a week | OAuth app still in **Testing** | Step 3c, then `jobs auth google` once more |
 | `invalid_grant` right after setup | Signed in with a different Google account than the one you meant | Revoke at myaccount.google.com/permissions, rerun `jobs auth google` |
 | `Access blocked: app has not completed verification` with no Advanced link | Scopes changed after publishing, or a Workspace admin policy | Re-check 3b; for Workspace accounts ask the admin to trust the client |
-| `Master resume not found` | Step 4 not done, or `JOBS_MASTER_RESUME` points elsewhere | Check `.env` |
+| `Full resume '…' not found` or `Job-search profile not found` | Step 4 not done, or `JOBS_PROFILE` points elsewhere | The resume must be in the profile's folder, under the name on its "Full resume" line |
 | `needs_manual_jd` for a site that works in your browser | Site blocks non-browser requests | Paste the JD with `provide-jd`; the job continues from where it paused |
 | `This job is paused waiting on you` | You ran `evaluate` on a paused job | Answer the pending step, or `jobs evaluate ID --restart` |

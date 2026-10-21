@@ -4,7 +4,8 @@ Everything in this folder except this README is ignored by git. It holds your pe
 
 | Path | What |
 |---|---|
-| `master_resume.md` | Your master resume in Markdown — the source of truth for scoring and tailoring |
+| `job-search-profile.md` | Your job-search profile, the plugin's file. It names your full resume, and scoring reads its Target roles and Location |
+| `Full-Resume.md` (the name your profile gives) | Your full resume in Markdown, your whole career history: the source of truth for scoring and tailoring |
 | `tracker.db` | SQLite tracker (system of record for job status) |
 | `checkpoints.db` | LangGraph checkpoints (one thread per job) |
 | `resumes/` | Tailored resumes, one per job |

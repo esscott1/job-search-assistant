@@ -4,6 +4,7 @@ from job_search_core.adapters.fakes import (
     FakeJDFetcher,
     FakeLLM,
     InMemoryDocumentStore,
+    InMemoryProfileSource,
     InMemoryResumeSource,
 )
 from job_search_core.adapters.http_jd_fetcher import HttpJDFetcher, html_to_text
@@ -51,11 +52,12 @@ def test_record_score_is_idempotent(tracker):
 
 
 def test_full_happy_path_through_usecases(tracker):
-    llm, docs, resume = FakeLLM(lambda jd: 9), InMemoryDocumentStore(), InMemoryResumeSource()
+    llm, docs, resume = FakeLLM(), InMemoryDocumentStore(), InMemoryResumeSource()
     job = usecases.begin_evaluation(tracker, "JS-1")
     jd = steps.fetch_jd(job, FakeJDFetcher({"JS-1": LONG_JD}))
     usecases.record_jd(tracker, "JS-1", jd)
-    fit = steps.score_fit(jd, resume.read(), llm)
+    assessment = steps.assess_fit(jd, resume.read(), InMemoryProfileSource().read(), llm)
+    fit = steps.compute_fit(assessment)
     usecases.record_score(tracker, "JS-1", fit)
     content = steps.tailor_resume(jd, resume.read(), fit, llm)
     usecases.record_tailored_resume(tracker, docs, "JS-1", content, resume.content_hash())

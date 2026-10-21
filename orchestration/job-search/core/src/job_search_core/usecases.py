@@ -6,7 +6,7 @@ Orchestrator nodes should be thin: load state, call a step, call one of these, r
 from __future__ import annotations
 
 from . import policy
-from .domain import FitResult, Job, Status
+from .domain import FitResult, Job, ScoringTier, Status
 from .ports import DocumentStorePort, TrackerPort
 
 
@@ -25,6 +25,9 @@ def record_needs_manual_jd(tracker: TrackerPort, job_id: str, reason: str) -> Jo
     job = tracker.get(job_id)
     if job.status != Status.NEEDS_MANUAL_JD:
         job = tracker.transition(job_id, Status.NEEDS_MANUAL_JD, "pipeline", reason)
+    if job.scoring_tier != "T2-pending-manual":
+        job.scoring_tier = "T2-pending-manual"
+        job = tracker.save(job)
     return job
 
 
@@ -34,10 +37,13 @@ def record_jd(tracker: TrackerPort, job_id: str, jd_text: str) -> Job:
     return tracker.save(job)
 
 
-def record_score(tracker: TrackerPort, job_id: str, fit: FitResult) -> Job:
+def record_score(
+    tracker: TrackerPort, job_id: str, fit: FitResult, tier: ScoringTier = "T2"
+) -> Job:
+    """Record a rubric score. `tier` says where the JD came from: T2 fetched, T2-manual pasted."""
     job = tracker.get(job_id)
     job.fit = fit
-    job.scoring_tier = "full_jd"
+    job.scoring_tier = tier
     tracker.save(job)
     if job.status != Status.SCORED:  # idempotent on re-run after a crash
         job = tracker.transition(job_id, Status.SCORED, "pipeline", f"fit {fit.score}/10")
@@ -55,12 +61,12 @@ def record_tailored_resume(
     docs: DocumentStorePort,
     job_id: str,
     content: str,
-    master_hash: str,
+    resume_hash: str,
 ) -> Job:
     path = docs.save_resume(job_id, content)
     job = tracker.get(job_id)
     job.resume_path = path
-    job.resume_source_hash = master_hash
+    job.resume_source_hash = resume_hash
     tracker.save(job)
     return tracker.transition(job_id, Status.RESUME_DRAFTED, "pipeline", path)
 

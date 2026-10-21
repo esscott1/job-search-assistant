@@ -15,8 +15,8 @@
   },
   {
     "id": "pmo-director",
-    "note": "Good fit on PMO history but the PMO role is 6+ years back.",
-    "expected_score": [6, 9],
+    "note": "Good fit on PMO history but the PMO role is 6+ years back. Band moved from 6-9 to 5-8 for rubric v1.1 (fit-scoring/2.0): PMP/PgMP and Jira Align/Planview are required items, which count 3x, and two runs both rated the job at raw 5.4-5.5.",
+    "expected_score": [5, 8],
     "gap_keywords_any": ["recent", "director", "budget", "PMP", "people"],
     "jd": "Director, Enterprise PMO. Lead a team of 12 project and program managers delivering a $60M annual IT portfolio. Own portfolio governance, intake, capacity planning, executive status reporting and benefits realization. Requirements: 10+ years of program or portfolio management with 5+ years leading a PMO; PMP or PgMP required; direct people-management experience including hiring and performance reviews; experience with Jira Align or Planview."
   },

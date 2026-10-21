@@ -1,10 +1,14 @@
 """Graph tests: routing, interrupts and resume — all with fakes, no network or API key."""
 
 import pytest
+from job_search_core import usecases
 from job_search_core.adapters.fakes import (
+    STRONG_FIT,
+    WEAK_FIT,
     FakeJDFetcher,
     FakeLLM,
     InMemoryDocumentStore,
+    InMemoryProfileSource,
     InMemoryResumeSource,
 )
 from job_search_core.adapters.sqlite_tracker import SqliteTracker
@@ -31,9 +35,9 @@ def env():
         Job(id="J3", company="Initech", title="Architect", url="https://linkedin.com/jobs/view/3")
     )
     fetcher = FakeJDFetcher({"J1": STRONG, "J2": WEAK})
-    llm = FakeLLM(lambda jd: 3 if "Retail" in jd else 8)
+    llm = FakeLLM(lambda jd: WEAK_FIT if "Retail" in jd else STRONG_FIT)
     docs = InMemoryDocumentStore()
-    deps = Deps(tracker, fetcher, llm, InMemoryResumeSource(), docs)
+    deps = Deps(tracker, fetcher, llm, InMemoryResumeSource(), docs, InMemoryProfileSource())
     graph = build_evaluate_graph(deps, checkpointer=InMemorySaver())
     return graph, deps
 
@@ -99,3 +103,50 @@ def test_submitted_job_cannot_be_reevaluated(env):
     deps.tracker.transition("J1", Status.SUBMITTED, "user")
     with pytest.raises(Exception, match="already submitted"):
         run(graph, "J1", fresh_input("J1"))
+
+
+def test_fetched_jd_is_scored_by_the_rubric_and_recorded_as_t2(env):
+    graph, deps = env
+    result = run(graph, "J1", fresh_input("J1"))
+    assert result["assessment"]["requirements"]  # the evidence table, before any score
+    job = deps.tracker.get("J1")
+    assert job.scoring_tier == "T2"
+    assert job.fit.breakdown.startswith("Rubric v")
+    assert job.fit.evidence.mode == "tier2"
+
+
+def test_pasted_jd_is_recorded_as_t2_manual(env):
+    graph, deps = env
+    run(graph, "J3", fresh_input("J3"))
+    assert deps.tracker.get("J3").scoring_tier == "T2-pending-manual"
+    run(graph, "J3", Command(resume=STRONG))
+    assert deps.tracker.get("J3").scoring_tier == "T2-manual"
+
+
+def test_relocation_cap_routes_below_threshold(env):
+    graph, deps = env
+    run(graph, "J2", fresh_input("J2"))
+    fit = deps.tracker.get("J2").fit
+    assert fit.score == 3 and "relocation max 3" in fit.breakdown
+    assert deps.tracker.get("J2").status == Status.BELOW_THRESHOLD
+
+
+def test_failure_after_the_model_call_resumes_without_calling_it_again(env, monkeypatch):
+    graph, deps = env
+    real_record = usecases.record_score
+    failures = iter([RuntimeError("tracker unavailable")])
+
+    def flaky(*args, **kwargs):
+        error = next(failures, None)
+        if error:
+            raise error
+        return real_record(*args, **kwargs)
+
+    monkeypatch.setattr(usecases, "record_score", flaky)
+    with pytest.raises(RuntimeError, match="tracker unavailable"):
+        run(graph, "J1", fresh_input("J1"))
+    assert deps.llm.calls == ["structured"]
+
+    run(graph, "J1", None)  # resume from the checkpoint after assess_fit
+    assert deps.llm.calls == ["structured", "text"]  # scored and tailored; no second assessment
+    assert deps.tracker.get("J1").status == Status.RESUME_DRAFTED

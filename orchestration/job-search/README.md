@@ -11,8 +11,8 @@ uv sync --all-packages && uv run jobs demo     # see it work with fakes, no keys
 ## What it does
 
 1. **Intake:** find job leads in Gmail and screen them quickly. *(roadmap M2)*
-2. **Evaluate:** fetch the full job description, score fit 1–10 against my master resume, and name the top three gaps. *(this PR)*
-3. **Tailor:** for scores of 7 or more, draft a tailored resume and pause for my review. Re-tailor unsubmitted resumes when the master resume changes. *(tailor + review: this PR; refresh: M5)*
+2. **Evaluate:** fetch the full job description; the model fills an evidence table (each requirement judged against the full resume, plus title fit and work arrangement against the job-search profile), and the shared rubric computes the 1–10 score with a readable breakdown ([ADR 0003](../../docs/adr/0003-shared-rubric.md)). Also names up to three gaps.
+3. **Tailor:** for scores of 7 or more, draft a tailored resume and pause for my review. Re-tailor unsubmitted resumes when the full resume changes. *(tailor + review: this PR; refresh: M5)*
 4. **Track:** follow each job through submission, interviews, and outcome, and notice when postings close. *(manual commands: this PR; automated sweep: M3)*
 
 ## Architecture
@@ -25,7 +25,8 @@ flowchart LR
     end
     subgraph core["core/ — no framework imports"]
         P["policy<br/>threshold · rules"]
-        S["steps<br/>fetch_jd · score_fit · tailor"]
+        S["steps<br/>fetch_jd · assess_fit · compute_fit · tailor"]
+        RB["rubric · scoring<br/>shared with the plugin"]
         U["usecases<br/>record results"]
         D["domain<br/>Status · transitions"]
         PR["prompts<br/>versioned"]
@@ -40,21 +41,22 @@ flowchart LR
     end
     LG --> P & S & U
     NEXT -.-> P & S & U
-    S --> PR
+    S --> PR & RB
     S & U --> PORTS
     U --> D
     PORTS --> T & G & H & A & F
     classDef future stroke-dasharray: 4 4
 ```
 
-**The evaluate graph.** Each job runs on its own checkpointed thread (`thread_id = job_id`):
+**The evaluate graph.** Each job runs on its own checkpointed thread (`thread_id = job_id`). The model never produces the score: `assess_fit` returns judgments only, and `score` computes the number with the rubric, so a checkpoint sits between the paid call and the arithmetic:
 
 ```mermaid
 flowchart LR
     START((start)) --> load --> fetch_jd
-    fetch_jd -- JD found --> score
+    fetch_jd -- JD found --> assess_fit["assess_fit<br/>model: evidence table"]
     fetch_jd -- can't fetch --> manual_jd{{"⏸ manual_jd<br/>you paste the JD"}}
-    manual_jd --> score
+    manual_jd --> assess_fit
+    assess_fit --> score["score<br/>code: shared rubric"]
     score -- "policy.should_tailor" --> tailor --> review{{"⏸ review<br/>approve / reject"}} --> END((end))
     score -- below threshold --> below --> END
 ```
@@ -77,7 +79,8 @@ orchestration/job-search/
 │   │   ├── policy.py           FIT_THRESHOLD, should_tailor, is_resume_stale, ...
 │   │   ├── rubric.py           the fit rubric: an exact copy of the plugin's score.py (ADR 0003)
 │   │   ├── scoring.py          score_evidence: EvidenceTable → RubricScore via the rubric
-│   │   ├── steps.py            fetch_jd, score_fit, tailor_resume
+│   │   ├── steps.py            fetch_jd, assess_fit (model), compute_fit (rubric), tailor_resume
+│   │   ├── profile.py          the job-search profile sections that scoring reads
 │   │   ├── usecases.py         record each result in the tracker
 │   │   ├── ports.py            interfaces the steps depend on
 │   │   ├── prompts/            versioned prompt files
@@ -85,11 +88,13 @@ orchestration/job-search/
 │   └── tests/
 ├── approaches/
 │   └── langgraph/              job_search_langgraph — graphs, CLI (`jobs`), Studio entry
-├── evals/job-fit/              synthetic persona + 8 labeled JDs; scoring-band checks
-└── data/                       gitignored: your resume, tracker.db, checkpoints, OAuth token
+├── evals/job-fit/              synthetic persona (resume + profile), 8 labeled JDs, results/latest.json
+└── data/                       gitignored: your resume and profile, tracker.db, checkpoints, OAuth token
 ```
 
 ## Roadmap
+
+The repository's north star is [`docs/roadmap.md`](../../docs/roadmap.md), which compares this pipeline with the Claude skills plugin and a local MCP server. Its milestone 3, scoring through the shared rubric, is done. The table below is the pipeline's own feature list.
 
 | Milestone | Scope | Status |
 |---|---|---|
@@ -97,7 +102,7 @@ orchestration/job-search/
 | M2 | Intake graph (Gmail), read-only import of the Excel tracker, **shadow mode** alongside the Claude skills | next |
 | M3 | Status sweep: posting-closed checks, classify recruiter emails (confirmation, interview, rejection) | |
 | M4 | `.docx` resume rendering, scheduled runs, per-call LLM tracing | |
-| M5 | Refresh graph: re-tailor unsubmitted resumes when the master resume changes | |
+| M5 | Refresh graph: re-tailor unsubmitted resumes when the full resume changes | |
 | Later | Second approach as a spike (orchestrator–worker) against the same core and evals | |
 
 ## Development

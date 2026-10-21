@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from job_search_core.adapters.fakes import (
+    STRONG_FIT,
+    WEAK_FIT,
     FakeJDFetcher,
     FakeLLM,
     InMemoryDocumentStore,
+    InMemoryProfileSource,
     InMemoryResumeSource,
 )
 from job_search_core.adapters.sqlite_tracker import SqliteTracker
@@ -42,23 +45,29 @@ def run_demo() -> None:
     deps = Deps(
         tracker=tracker,
         jd_fetcher=FakeJDFetcher({"DEMO-1": STRONG, "DEMO-2": WEAK}),
-        llm=FakeLLM(lambda jd: 3 if "Retail" in jd else 8),
+        llm=FakeLLM(lambda jd: WEAK_FIT if "Retail" in jd else STRONG_FIT),
         resume=InMemoryResumeSource(),
         docs=InMemoryDocumentStore(),
+        profile=InMemoryProfileSource(),
     )
     graph = build_evaluate_graph(deps, checkpointer=InMemorySaver())
 
     def run(job_id, payload):
         graph.invoke(payload, {"configurable": {"thread_id": job_id}})
         waiting = pending_interrupt(graph, job_id)
-        status = tracker.get(job_id).status.value
-        print(f"  {job_id}: {status}" + (f"  (paused: {waiting['kind']})" if waiting else ""))
+        job = tracker.get(job_id)
+        print(
+            f"  {job_id}: {job.status.value}"
+            + (f"  (paused: {waiting['kind']})" if waiting else "")
+        )
+        if job.fit and not waiting:
+            print(f"      {job.scoring_tier} · {job.fit.breakdown}")
 
     print("1) Strong fit → tailored → paused for your review → approved")
     run("DEMO-1", fresh_input("DEMO-1"))
     run("DEMO-1", Command(resume={"approved": True}))
 
-    print("2) Weak fit → below threshold, no resume generated")
+    print("2) Strong on paper, but needs a move you won't make → capped at 3 → below threshold")
     run("DEMO-2", fresh_input("DEMO-2"))
 
     print("3) LinkedIn posting → paused for a manual JD → you paste it → scored and tailored")

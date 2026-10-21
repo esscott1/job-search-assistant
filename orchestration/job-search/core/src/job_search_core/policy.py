@@ -9,7 +9,11 @@ from __future__ import annotations
 from .domain import PRE_SUBMISSION, FitResult, Job, Status
 
 FIT_THRESHOLD = 7
-"""Jobs scoring at or above this get a tailored resume."""
+"""Jobs scoring at or above this get a tailored resume.
+
+This is the pipeline's own gate. The plugin has no automatic threshold: there, the user
+ticks Build Resume. Both compare against the same rubric score.
+"""
 
 MIN_JD_CHARS = 400
 """Fetched text shorter than this is treated as 'no real job description found'."""
@@ -28,12 +32,12 @@ def can_evaluate(job: Job) -> bool:
     return job.status in PRE_SUBMISSION
 
 
-def is_resume_stale(job: Job, current_master_hash: str) -> bool:
-    """True when a tailored, not-yet-submitted resume was built from an older master resume."""
+def is_resume_stale(job: Job, current_resume_hash: str) -> bool:
+    """True when a tailored, not-yet-submitted resume was built from an older full resume."""
     return (
         job.status in {Status.RESUME_DRAFTED, Status.NEEDS_EDIT, Status.RESUME_READY}
         and job.resume_source_hash is not None
-        and job.resume_source_hash != current_master_hash
+        and job.resume_source_hash != current_resume_hash
     )
 
 

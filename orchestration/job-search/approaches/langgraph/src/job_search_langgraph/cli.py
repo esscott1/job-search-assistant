@@ -45,8 +45,11 @@ def _cfg(job_id: str) -> dict:
 def _report(graph, deps: Deps, job_id: str) -> None:
     job = deps.tracker.get(job_id)
     fit = f" fit {job.fit.score}/10" if job.fit else ""
-    print(f"{job_id}: {job.status.value}{fit}")
+    tier = f" ({job.scoring_tier})" if job.scoring_tier else ""
+    print(f"{job_id}: {job.status.value}{fit}{tier}")
     if job.fit:
+        if job.fit.breakdown:
+            print(f"  {job.fit.breakdown}")
         for gap in job.fit.top_gaps:
             print(f"  gap: {gap}")
     waiting = pending_interrupt(graph, job_id)

@@ -39,7 +39,7 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
   - [ADR 0003](adr/0003-shared-rubric.md): how the rubric is shared.
 - **Done when:** the same evidence table gives the same score and breakdown in both, and CI enforces it. No behaviour change in either approach.
 
-### 3. B scores like A · LangGraph
+### 3. B scores like A · LangGraph ✅ done
 
 - **Goal:** B produces an evidence table with the model and scores it with the shared rubric, instead of asking the model for a number.
 - **Deliverables:**
@@ -111,7 +111,7 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
 
 | # | Decision | Needed by | Current lean |
 |---|---|---|---|
-| D1 | An Anthropic API key for B's live evals (billed per token, separate from a Claude plan) | 3 | A small prepaid credit and a local `.env` key |
+| D1 | An Anthropic API key for B's live evals (billed per token, separate from a Claude plan) | 3 | ✅ Decided: a local `.env` key; not a GitHub secret |
 | D2 | B's tracker: SQLite (ADR 0002 today) or the Google Sheet through `SheetsTracker` | 6 | The Sheet, with SQLite kept for tests and the offline demo |
 | D3 | Whether the Claude desktop app starts plugin-declared MCP servers and sends Roots | 4b | Settled by the 4a probe; Claude Code is the target either way |
 | D4 | Whether to host an MCP server | Later | Not until 4c shows it's worth it |
@@ -122,8 +122,8 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
 |---|---|
 | 1. Foundations | ✅ Done |
 | 2. One rubric | ✅ Done ([ADR 0003](adr/0003-shared-rubric.md)) |
-| 3. B scores like A | Next; needs D1 |
+| 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
-| 5. Measured comparison | Waiting on 2 and 3 |
+| 5. Measured comparison | Next; 2 and 3 are done |
 | 6. B to parity | Waiting on 5 |
 | 7. Packaging | Waiting on 5 |

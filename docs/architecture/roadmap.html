@@ -127,7 +127,7 @@
     <h2>What depends on what</h2>
     <figure>
       <div class="scroll">
-        <svg viewBox="0 0 1000 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin, and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison. Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
+        <svg viewBox="0 0 1000 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin (done), and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison. Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
           <defs>
             <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-muted"/></marker>
             <marker id="af" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-fg"/></marker>
@@ -173,9 +173,9 @@
           <text x="912" y="188" text-anchor="middle" class="t-node-sub">README · case study</text>
 
           <!-- B lane -->
-          <rect x="437" y="244" width="116" height="52" rx="7" class="n-b"/>
+          <rect x="437" y="244" width="116" height="52" rx="7" class="n-done"/>
           <text x="495" y="266" text-anchor="middle" class="t-node">3 B scores like A</text>
-          <text x="495" y="283" text-anchor="middle" class="t-node-sub">assess_fit + score</text>
+          <text x="495" y="283" text-anchor="middle" class="t-done">✓ done</text>
           <rect x="707" y="244" width="116" height="52" rx="7" class="n-b"/>
           <text x="765" y="266" text-anchor="middle" class="t-node">6 B to parity</text>
           <text x="765" y="283" text-anchor="middle" class="t-node-sub">intake · Sheets</text>
@@ -249,7 +249,7 @@
       </article>
 
       <article class="card b">
-        <div class="card-head"><span class="num">3</span><div><h3>B scores like A</h3><div class="meta">LangGraph · <span class="pill next">next</span> · <span class="pill">needs D1</span></div></div></div>
+        <div class="card-head"><span class="num">3</span><div><h3>B scores like A</h3><div class="meta">LangGraph · <span class="pill done">done</span></div></div></div>
         <p>The model fills in evidence; the rubric computes the score.</p>
         <ul>
           <li><code>assess_fit</code> (model) and <code>score</code> (rubric) nodes</li>
@@ -271,7 +271,7 @@
       </article>
 
       <article class="card s">
-        <div class="card-head"><span class="num">5</span><div><h3>Measured comparison</h3><div class="meta">Shared evals · after 2 and 3</div></div></div>
+        <div class="card-head"><span class="num">5</span><div><h3>Measured comparison</h3><div class="meta">Shared evals · <span class="pill next">next</span></div></div></div>
         <p>The comparison page's claims become numbers.</p>
         <ul>
           <li>The same job descriptions and resume through A's Tier 2 cases and B's graph</li>
@@ -317,7 +317,7 @@
       <table>
         <thead><tr><th>#</th><th>Decision</th><th>Needed by</th><th>Current lean</th></tr></thead>
         <tbody>
-          <tr><td>D1</td><td>An Anthropic API key for B's live evals, billed per token</td><td>3</td><td>A small prepaid credit and a local <code>.env</code> key</td></tr>
+          <tr><td>D1</td><td>An Anthropic API key for B's live evals, billed per token</td><td>3</td><td>✓ Decided: a local <code>.env</code> key, not a GitHub secret</td></tr>
           <tr><td>D2</td><td>B's tracker: SQLite, as ADR 0002 says today, or the Google Sheet</td><td>6</td><td>The Sheet, with SQLite kept for tests and the offline demo</td></tr>
           <tr><td>D3</td><td>Whether the Claude desktop app starts plugin servers and sends Roots</td><td>4b</td><td>Settled by the 4a probe; Claude Code is the target either way</td></tr>
           <tr><td>D4</td><td>Whether to host an MCP server</td><td>Later</td><td>Not until 4c shows it's worth it</td></tr>
