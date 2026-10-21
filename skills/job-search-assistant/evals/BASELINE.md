@@ -65,6 +65,22 @@ Every deterministic check passed in every run: which rows were written, moved or
 
 Total: 24 runs, $11.53 of API-equivalent usage, about 12 minutes at `-j 3`. Every deterministic check passed in every run: render_resume.py ran with the style file, the style was read, nothing binary was uploaded, no invented skills, and the file landed in the synced folder. The two misses were single LLM-judge checks in one run each: "lists the gaps" (does-not-invent) and "nothing beyond the full resume" (pasted JD, a 2-1 split vote). Building a resume now takes about 2 minutes, down from 5-15.
 
+**Intake and Tier 2 cases at 0.4.3** (posting pages read with `read_posting.py`; closed only on hard evidence), run in WSL, 3 runs each, 2026-10-20:
+
+| Case | Score (3 runs) | Cost (3 runs) |
+|---|---|---|
+| `intake-banner-is-not-closed` (new) | 1.00 · 1.00 · 1.00 | $2.37 |
+| `intake-logs-new-leads` | 1.00 · 1.00 · 1.00 | $1.81 |
+| `intake-nothing-to-scan` | 1.00 · 1.00 · 1.00 | $0.92 |
+| `intake-scans-career-site` | 1.00 · 1.00 · 1.00 | $1.95 |
+| `tier2-gold-strong-fit` | 1.00 · 1.00 · 1.00 | $2.17 |
+| `tier2-gold-partial-fit` | 1.00 · 1.00 · 1.00 | in the $9.52 total |
+| `tier2-gold-relocation-mismatch` | 1.00 · 1.00 · 1.00 | $2.02 |
+| `tier2-rescore-closes-gap` | 1.00 · 1.00 · 1.00 | $2.30 |
+| `tier2-nothing-ticked` | 1.00 · 1.00 · 1.00 | $0.92 |
+
+In every run of the new case, `read_posting.py` was tried first and reported the fictional host unreachable, the skill fell back to the stub fetch, and both open jobs were logged: the banner-only one at Tier 1, the one with the boilerplate line at Tier 2. One run also skipped a third posting whose page returned 404, with that evidence in the summary. The first pass of the case scored 0.89: the judge failed two correct replies for quoting the banner or adding "check the posting yourself". The judge now grades what the reply does with the leads, not whether it repeats the banner. No scoring case moved.
+
 **Profile cases at 0.4.1** (brief, menu-driven setup), run in WSL, 3 runs each, 2026-10-20. Every case disallows `AskUserQuestion`, so the numbered-list menus are what's graded:
 
 | Case | Score (3 runs) | Cost (3 runs) |

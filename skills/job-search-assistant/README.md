@@ -9,7 +9,7 @@ The `job-search-assistant` plugin: skills that find job leads in your email, log
 | [`job-lead-tier2-scoring`](job-lead-tier2-scoring/SKILL.md) | A schedule every 2-4 hours, scoring only rows ticked in **Run Tier 2**; or on demand for named rows | Web search and fetch, Google Drive and Google Sheets connectors. Cloud only, never LinkedIn |
 | [`job-lead-manual-jd-lookup`](job-lead-manual-jd-lookup/SKILL.md) | On demand, at your computer, for rows Tier 2 marked `T2-pending-manual` | Your signed-in Chrome (for LinkedIn) or the desktop app's built-in browser, plus the Sheets connector |
 | [`job-fit-rubric`](job-fit-rubric/SKILL.md) | Never on its own; loaded whenever a skill sets a Fit Score | Python 3 for `score.py` |
-| [`job-tracker`](job-tracker/SKILL.md) | Never on its own; loaded by every skill that reads or writes the tracker | Python 3 for `canonical_url.py` |
+| [`job-tracker`](job-tracker/SKILL.md) | Never on its own; loaded by every skill that reads or writes the tracker | Python 3 for `canonical_url.py` and `read_posting.py` |
 | [`job-tracker-cleanup`](job-tracker-cleanup/SKILL.md) | A weekly schedule; or on demand to clean up now or restore a row | Google Sheets connector only. Runs in the cloud |
 | [`tailored-resume-builder`](tailored-resume-builder/SKILL.md) | On demand only: "build ticked resumes" for rows ticked in **Build Resume**, a named row, or a pasted job description | Your full resume and your resume style (`resume-style.md`, or the default) in Drive, plus Python (`python-docx`; LibreOffice for the PDF and page count) |
 

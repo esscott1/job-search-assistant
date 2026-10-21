@@ -50,7 +50,8 @@ Then:
 From the email or listing alone (title, company, location, salary if shown), judge plausible fit against the profile's **Target roles** (Role families, Seniority, Adjacent roles). Discard leads that match **Never interested** or are plainly outside the target roles, without adding them to the tracker. When unsure, err toward including it.
 
 - **LinkedIn and click-tracker leads:** score from the alert content only (Tier 1: title and company, not a real JD read). Never try to open the posting here. LinkedIn blocks WebFetch through robots.txt and needs a signed-in browser this skill doesn't have. Finding the real JD is `job-lead-tier2-scoring`'s job once the user ticks the row.
-- **Direct company or ATS links** (Greenhouse, Lever, iCIMS, Workday, company career pages, often from recruiters): these don't need the user's browser, so you may fetch the JD with WebFetch and score those with a full JD read. If the site blocks WebFetch, leave the row at Tier 1; the user can tick it for Tier 2.
+- **Direct company or ATS links** (Greenhouse, Lever, iCIMS, Workday, company career pages, often from recruiters): these don't need the user's browser, so you may read the JD and score those with a full JD read. Read every posting page, from an email link or a career site, as **Reading a posting page** in `job-tracker` describes: `read_posting.py` first, then a plain fetch if it can't reach the page. If there's still no usable JD (the site blocks it, or shows only a banner and no description), leave the row at Tier 1; the user can tick it for Tier 2.
+- **Closed postings:** don't log a lead whose posting is closed on the evidence `job-tracker` accepts (a 404, a redirect away from the posting, an expired `validThrough`, gone from the feed it came from). A "filled" banner on a page with no description, or a line such as "will remain active until the position is filled", is never that evidence: log the lead as usual. List each lead skipped as closed in the summary with its evidence.
 
 **Setting the Fit Score.** Every score comes from the `job-fit-rubric` skill; never estimate one by feel.
 - Tier 1 rows: build the evidence table in `tier1` mode (title/seniority and work arrangement from the alert email) and run its `score.py`.
@@ -81,6 +82,7 @@ Always end with a short summary, never silence:
 - New rows per source, including each career site, and any career site that couldn't be read or had leads held back by the cap.
 - How many new rows were added, as a one-line list with their Fit Scores, strongest first.
 - How many leads were screened out at Tier 1 and roughly why, and how many were skipped as duplicates.
+- Each lead skipped because its posting is closed, one line each with the evidence (`Northwind, Program Manager: closed, HTTP 404`).
 - Anything that couldn't be processed, including any profile setting that was blank.
 If nothing new was found, say so explicitly.
 
