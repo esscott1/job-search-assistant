@@ -135,6 +135,15 @@ CASES = {
         "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-archive-never.md", FOLDER, "text/markdown")},
     },
     "cleanup-restores-a-row": {"rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"]},
+    # Reset: every Job Log row moves to the Archive, whatever the user has done to it, once confirmed.
+    "cleanup-reset-asks-first": {"rows": CLEANUP_ROWS, "ticked": [], "changes": CLEANUP_CHANGES, "archive": ["JS-005"]},
+    "cleanup-reset-archives-everything": {"rows": CLEANUP_ROWS, "ticked": [], "changes": CLEANUP_CHANGES,
+                                          "archive": ["JS-005"]},
+    # The first intake after a reset: an empty Job Log; JS-001's job (in the inbox again) was archived by
+    # the reset, so it's logged again, while JS-005's (also in the inbox) was archived as stale.
+    "intake-after-reset": {"rows": [], "ticked": [], "archive": ["JS-002", "JS-001", "JS-005"],
+                           "archive_reasons": {"JS-002": "reset", "JS-001": "reset", "JS-005": "stale"},
+                           "inbox": "inbox.json"},
     "intake-logs-new-leads": {"rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"], "inbox": "inbox.json"},
     "intake-scans-career-site": {
         "rows": ["JS-101", "JS-002"], "ticked": [], "archive": ["JS-005"], "web": "web/northwind-feed.json",
@@ -252,11 +261,12 @@ Reply with JSON only.
 
 
 def sheet_agent(rows: list[str], ticked: list[str], tiers: dict, build: list[str] = (), changes: dict | None = None,
-                archive: list[str] | None = ()) -> str:
+                archive: list[str] | None = (), archive_reasons: dict | None = None) -> str:
     """A Sheets mock played by a small model, so a read after a write sees the write.
 
     Skills re-find a row before writing and may read it back afterwards; a fixed mock would
-    return the old row and make a correct run look like a failed write.
+    return the old row and make a correct run look like a failed write. Without archive_reasons
+    the Archive predates the Archive Reason column, as an older tracker's does.
     """
     grid = [HEADERS] + [row(r, r in ticked, tiers.get(r), r in build, changes) for r in rows]
     if archive is None:
@@ -265,9 +275,13 @@ def sheet_agent(rows: list[str], ticked: list[str], tiers: dict, build: list[str
         tabs = '"Job Log" (sheetId 0), "Status Guide" (1) and "Archive" (2)'
         old = {r: {"Date Found": OLD, "Last Updated": OLD, "Email Received": OLD} for r in archive}
         archived = [row(r, False, None, False, {**old, **(changes or {})}) + ["2025-09-15"] for r in archive]
-        archive_text = (f"\nThe Archive starts as this grid (row 1 is the header; the Job Log's columns, then Archived On). "
-                        f"It has {len(archived) + 1} rows: the header plus {len(archived)} data rows:\n"
-                        + json.dumps([HEADERS + ["Archived On"]] + archived, ensure_ascii=False) + "\n")
+        extra = ["Archived On"]
+        if archive_reasons is not None:
+            extra.append("Archive Reason")
+            archived = [cells + [archive_reasons.get(r, "")] for r, cells in zip(archive, archived)]
+        archive_text = (f"\nThe Archive starts as this grid (row 1 is the header; the Job Log's columns, then "
+                        f"{' and '.join(extra)}). It has {len(archived) + 1} rows: the header plus {len(archived)} data rows:\n"
+                        + json.dumps([HEADERS + extra] + archived, ensure_ascii=False) + "\n")
     return SHEET_AGENT.format(sheet=SHEET, tabs=tabs, grid=json.dumps(grid, ensure_ascii=False), archive=archive_text,
                               log_rows=len(grid), log_data=len(grid) - 1)
 
@@ -344,7 +358,7 @@ def build() -> dict[Path, str]:
         out[HERE / case / "gstub/.mcp.json"] = dumps(STUB)
         if "rows" in spec:
             agent = sheet_agent(spec["rows"], spec["ticked"], spec.get("tier", {}), spec.get("build", []),
-                                spec.get("changes"), spec.get("archive", ()))
+                                spec.get("changes"), spec.get("archive", ()), spec.get("archive_reasons"))
             for tool in ("get_values", "update_values", "get_spreadsheet", "update_formulas", "insert_dimension",
                          "update_spreadsheet"):
                 out[HERE / case / f"mocks/gsheets/{tool}.md"] = agent

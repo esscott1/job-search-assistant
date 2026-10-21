@@ -17,7 +17,7 @@ Runs daily on a schedule, entirely through the Gmail, Google Drive and Google Sh
 ## 1. Choose the email search window
 This window applies to email only. Career sites (step 3) are read as they are now on each run, and dedup skips what's already logged.
 - Normally search a trailing 7-day window (`newer_than:7d`), whatever the schedule. If the schedule is ever widened, a fixed 7-day lookback still won't miss anything; it just reprocesses a few emails, which dedup handles.
-- **Catch-up after a gap:** read the newest **Email Received** in the tracker (rows from career sites have none). If it's more than 7 days ago (runs failed or were paused), search from that date instead (`after:YYYY/MM/DD`), up to 30 days back. Work through the emails oldest first. If the run can't finish, write the rows found so far; the next run picks up from the new newest Email Received. Say in the summary that this was a catch-up run, with the window.
+- **Catch-up after a gap:** read the newest **Email Received** in the Job Log (rows from career sites have none; archived rows don't count). If there's none (a new tracker, or the first run after a reset), use the normal 7-day window. If it's more than 7 days ago (runs failed or were paused), search from that date instead (`after:YYYY/MM/DD`), up to 30 days back. Work through the emails oldest first. If the run can't finish, write the rows found so far; the next run picks up from the new newest Email Received. Say in the summary that this was a catch-up run, with the window.
 
 ## 2. Email sources to scan
 Search Gmail for each sender in the profile's **Email sources** table (`from:<Sender>`), and use the **Source** label on the rows it produces. Each source's **Notes** say how to read its emails: follow them. Skip anything from a sender listed under **Never scan**.
@@ -59,7 +59,7 @@ From the email or listing alone (title, company, location, salary if shown), jud
 - Work arrangement matters even at Tier 1. It's judged against the profile's **Location**, and `score.py` caps any job needing a move the user won't make at 3. Log those rows anyway (don't discard them) so the user can see them; the low score keeps them out of the way.
 
 ## 5. Dedup before writing
-Follow **Dedup** in `job-tracker`: run `canonical_url.py` on every accepted lead's posting link, then skip any lead whose canonical URL, or company and title, is already in the tracker (including its Archive tab) or already accepted earlier in this run. The same LinkedIn job often arrives in several digests with different tracking links; the canonical URL is what makes them match. The same job found both in an alert email and on the company's career site has two different URLs, so it's the company-and-title rule that catches it.
+Follow **Dedup** in `job-tracker`: run `canonical_url.py` on every accepted lead's posting link, then skip any lead whose canonical URL, or company and title, is already in the tracker (including its Archive tab, apart from rows archived by a reset) or already accepted earlier in this run. The same LinkedIn job often arrives in several digests with different tracking links; the canonical URL is what makes them match. The same job found both in an alert email and on the company's career site has two different URLs, so it's the company-and-title rule that catches it.
 
 ## 6. Writing new rows
 Add rows as `job-tracker` describes (at the top, newest first, one pass). For each new row write:

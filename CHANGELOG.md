@@ -2,6 +2,13 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.4.4
+
+- **"reset my job tracker"** (`job-tracker-cleanup`): start fresh with an empty Job Log. After you confirm, every row moves to the Archive, whatever its status. Nothing is deleted: saved job descriptions, fit reports and tailored resumes stay in their Drive folders, your profile and full resume aren't touched, and any row can be restored. Reinstall the plugin to pick it up.
+  - The Archive gains an **Archive Reason** column: `stale` from the weekly cleanup, `reset` from a reset. Cleanup adds it to an existing Archive; older rows stay blank, which means `stale`.
+  - Intake leaves rows archived by a reset out of dedup, so a job still in your alerts comes back as a new row with a new ID. Jobs archived as stale stay out, as before. The catch-up window is based on the Job Log only, so the first scan after a reset looks back the usual 7 days.
+  - Restoring a row whose job is already back in the Job Log says so and asks before adding a second copy.
+
 ## job-search-assistant 0.4.3
 
 - Open postings are no longer read as filled. Some career platforms put the whole job description in data embedded in the page and ship a hidden "this position has been filled" banner on every job page, so a page reader that drops scripts saw an open job as filled, with no description. Reinstall the plugin to pick up the fix.
