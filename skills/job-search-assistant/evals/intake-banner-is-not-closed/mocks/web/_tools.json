@@ -1,0 +1,22 @@
+{
+  "tools": [
+    {
+      "name": "fetch",
+      "description": "Fetches a URL and returns its content as text (pages, JSON feeds).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      }
+    }
+  ]
+}

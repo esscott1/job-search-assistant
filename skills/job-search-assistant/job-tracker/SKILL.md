@@ -1,6 +1,6 @@
 ---
 name: "job-tracker"
-description: "Shared tracker contract for the job-search skills, not run on its own: job-lead-intake-scan, job-lead-tier2-scoring, job-lead-manual-jd-lookup, tailored-resume-builder and job-tracker-cleanup load it before reading or writing the Job_Search_Tracker Google Sheet. Defines which columns each skill owns, how rows are found, added and updated, the Score Tier values, the Run Tier 2 and Build Resume checkboxes, the per-job JD and fit-report files in Drive, the Archive tab, and canonical_url.py for dedup."
+description: "Shared tracker contract for the job-search skills, not run on its own: job-lead-intake-scan, job-lead-tier2-scoring, job-lead-manual-jd-lookup, tailored-resume-builder and job-tracker-cleanup load it before reading or writing the Job_Search_Tracker Google Sheet. Defines which columns each skill owns, how rows are found, added and updated, the Score Tier values, the Run Tier 2 and Build Resume checkboxes, the per-job JD and fit-report files in Drive, the Archive tab, canonical_url.py for dedup, and read_posting.py with the rules for when a posting counts as closed."
 ---
 
 # Job Tracker
@@ -9,7 +9,8 @@ The single definition of the Job Search Tracker and how skills touch it. Each jo
 
 ## Files in this skill
 - `canonical_url.py`: reduces a job link to its canonical form, the dedup key. Run `python3 <this skill's directory>/canonical_url.py <url> [<url> ...]`. It prints a JSON array of `{"input", "canonical"}`; `canonical` is `""` for links that aren't a posting or can't be resolved without following them.
-- `test_canonical_url.py`: checks the rules (`python3 -m pytest -q` in this directory).
+- `read_posting.py`: reads one posting page, its description and whether it's really closed (see **Reading a posting page**). Run `python3 <this skill's directory>/read_posting.py <url>`.
+- `test_canonical_url.py`, `test_read_posting.py`: check the rules (`python3 -m pytest -q` in this directory).
 
 ## The job-search profile
 Everything specific to a user (their name, files, tracker, target roles, location, email sources and housekeeping settings) is in **`job-search-profile.md`** in their Google Drive. The `job-search-profile` skill defines its format and is the only skill that writes it; every other skill reads it first and never assumes a value it doesn't find there.
@@ -81,14 +82,14 @@ Never write anything a row's owner column doesn't list for your skill. In partic
 | `T2-manual` | Scored against the full JD, read in the user's browser | job-lead-manual-jd-lookup |
 | `T2-pending-manual` | Tier 2 web search found no usable JD. The T1 score stands until job-lead-manual-jd-lookup runs | job-lead-tier2-scoring |
 | `T2-no-jd` | Manual lookup confirmed there's no JD anywhere reachable. The T1 score stands and the row isn't flagged again | job-lead-manual-jd-lookup |
-| `T2-closed` | The posting is closed or filled. The user decides whether to set Status to Closed | either Tier 2 skill |
+| `T2-closed` | The posting is closed or filled, on the evidence **Reading a posting page** accepts. The user decides whether to set Status to Closed | either Tier 2 skill |
 
 ### Score Breakdown formats
 - T1: `Alert email | <breakdown>`, or `Career site listing | <breakdown>` for a lead from a career site
 - T2: `JD: <full JD URL> (web search) | <breakdown>` (intake writes `(intake fetch)`)
 - T2-manual: `JD: <full JD URL, or "LinkedIn direct"> (browser) | <breakdown>`
 - A rescore adds the run and the previous score inside the brackets: `JD: <full JD URL> (web search, rescore r3, was 6) | <breakdown>`.
-- An attempt that didn't produce a new score keeps the old breakdown after a note: `<note> | <previous breakdown>`, where the note is e.g. `Tier 2 web search 2026-10-14: no JD off LinkedIn (sources JS-rendered). Tried: acme.com, builtin.com`, `Manual lookup 2026-10-14: LinkedIn shows no JD body, no other source`, or `Posting closed per acme.com 2026-10-14`.
+- An attempt that didn't produce a new score keeps the old breakdown after a note: `<note> | <previous breakdown>`, where the note is e.g. `Tier 2 web search 2026-10-14: no JD off LinkedIn (sources JS-rendered). Tried: acme.com, builtin.com`, `Manual lookup 2026-10-14: LinkedIn shows no JD body, no other source`, or `Posting closed per acme.com 2026-10-14: HTTP 404`. A closed note always ends with its evidence.
 - A JD that came as an email attachment: `JD is an email attachment; add it to Drive | <breakdown>`.
 
 ## The Run Tier 2 checkbox (the human gate)
@@ -107,6 +108,22 @@ Building a tailored resume is on demand only, never scheduled:
 
 ## Checkbox cells
 Sheets returns checkbox cells as the strings `TRUE` and `FALSE`. Untick by writing the boolean `false` with `update_values`. Write `false` into Run Tier 2 and Build Resume for every new row.
+
+## Reading a posting page
+Every skill that opens a job posting page (a company careers page or an ATS posting, never LinkedIn) reads it the same way, because a page read as plain text can be badly wrong. Some career platforms put the whole description in data embedded in the page and ship a "this position has been filled" banner, hidden by their JavaScript, on every job page. A page reader that drops scripts then shows an open job as filled, with no description.
+1. **Run `read_posting.py <url>` first.** It reads the page's structured data (JSON-LD `JobPosting`, or a career platform's embedded job data) and prints `status`, `status_evidence`, `source`, the title, location, pay, posted date, arrangement and `jd_text`.
+   - `source` `json-ld` or `embedded-data` with a `jd_text`: that's the JD. Use it as read; no other fetch is needed.
+   - `source` `visible-text`: the page's visible text, with scripts, hidden elements and expiry templates left out. Use it as the JD if it holds the job's responsibilities and qualifications.
+   - `status` `unreachable` (exit code 3): the script couldn't fetch the page, for example because code execution has no network access here. Fetch the page as usual instead and apply the rules below to what you get.
+2. **A posting is closed only on hard evidence:**
+   - the page returns 404 or 410, or redirects away from the posting to a search or listing page (`read_posting.py` reports these as `closed`);
+   - the posting's structured data says it has expired (a `validThrough` date in the past; also `closed`);
+   - the job is no longer in the company's own feed or listing that it came from;
+   - a closure notice shown next to the job's own description, in text that leaves hidden elements out: `read_posting.py`'s visible text, or the page rendered in a browser. A plain fetch can't tell a hidden banner from a shown one, so a notice it returns never counts.
+3. **Never evidence of closure:**
+   - A "filled" or "no longer accepting applications" banner on a page that shows **no** job description. That's the hidden template above, and the page simply wasn't readable. Treat it as *no usable JD*, never as closed.
+   - Boilerplate about how long a posting stays open, such as "will remain active until the position is filled", "until a qualified pool of candidates is identified", "applications are accepted until…", or "posted for at least 5 days". An open job says this.
+4. **Record the evidence** whenever you treat a posting as closed: `Posting closed per <domain> <date>: <evidence>`, for example `HTTP 404` or `redirected to the careers search page`. A wrong call is then visible in the row.
 
 ## Job files in Drive
 Each job that gets a full JD read has files in a folder for its company, so the JD stays fixed while the user iterates and every scoring run is kept.

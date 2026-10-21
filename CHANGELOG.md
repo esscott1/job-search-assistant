@@ -2,6 +2,14 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.4.3
+
+- Open postings are no longer read as filled. Some career platforms put the whole job description in data embedded in the page and ship a hidden "this position has been filled" banner on every job page, so a page reader that drops scripts saw an open job as filled, with no description. Reinstall the plugin to pick up the fix.
+  - `job-tracker`: new **Reading a posting page** rules, shared by every skill that opens a posting. A posting is closed only on hard evidence: a 404 or 410, a redirect away from the posting, an expired `validThrough`, gone from the company's own feed, or a closure notice next to the job's own description where hidden elements are left out. A banner on a page with no description, and boilerplate such as "will remain active until the position is filled", never count. Every closed call records its evidence in the row.
+  - New `read_posting.py` reads a posting's JSON-LD or embedded job data (description, pay, location, posted date) and reports `open`, `closed`, `unknown` or `unreachable`. When code execution can't reach the site, the skills fall back to a plain fetch under the same rules.
+  - `job-lead-intake-scan` reads posting pages this way and skips a lead as closed only on that evidence, listing each one in its summary. `job-lead-tier2-scoring` sets `T2-closed` only on it; a banner-only page goes to `T2-pending-manual`. `job-lead-manual-jd-lookup` tries `read_posting.py` before opening a browser.
+- Rows already marked `T2-closed` by mistake: tick **Run Tier 2** again to re-read them.
+
 ## job-search-assistant 0.4.2
 
 - Marketplace category set to Productivity (Development for `ai-governance`), and the plugin's description reworded to say "job openings" instead of "leads". No skill changes; update the plugin to see the new listing.

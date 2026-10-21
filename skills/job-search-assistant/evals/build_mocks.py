@@ -6,6 +6,7 @@
 
 Sources (edit these, then rebuild):
 - fixtures/*.md: the synthetic Drive files (profile, full resumes, saved JDs, fit reports).
+- fixtures/web/: pages and feeds the stub web fetch serves, one fixed reply ("web") or one per URL ("web_pages").
 - DRIVE, TRACKER_ROWS and CASES below: what each case's Drive and Job Log contain.
 
 Outputs:
@@ -138,6 +139,20 @@ CASES = {
     "intake-scans-career-site": {
         "rows": ["JS-101", "JS-002"], "ticked": [], "archive": ["JS-005"], "web": "web/northwind-feed.json",
         "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-careers.md", FOLDER, "text/markdown")},
+    },
+    # A career site whose posting pages read as plain text show a "filled" banner and no description,
+    # and an open posting that says it "will remain active until the position is filled".
+    "intake-banner-is-not-closed": {
+        "rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"],
+        "web_pages": {
+            "https://careers.tailspin.example/global/en/search-results?keywords=program%20manager":
+                "web/tailspin-search-results.md",
+            "https://careers.tailspin.example/global/en/job/TS4401/Program-Manager-Cloud-Operations":
+                "web/tailspin-TS4401-banner-only.md",
+            "https://careers.tailspin.example/global/en/job/TS4402/IT-Vendor-Manager": "web/tailspin-TS4402-posting.md",
+        },
+        "drive": {"FILE_PROFILE_0001": ("job-search-profile.md", "job-search-profile-careers-page.md", FOLDER,
+                                        "text/markdown")},
     },
     "intake-nothing-to-scan": {
         "rows": ["JS-002", "JS-001"], "ticked": [], "archive": ["JS-005"],
@@ -277,6 +292,25 @@ def gmail_agent(inbox: str) -> str:
     return GMAIL_AGENT.format(inbox=json.dumps(messages, ensure_ascii=False, indent=1))
 
 
+WEB_AGENT = """---
+type: agent
+---
+
+You play a web fetch tool. It returns a page as plain text, the way a page reader that drops scripts sees it. These are the only pages that exist, each under its URL:
+{pages}
+
+- fetch: if the url is one of the URLs above (ignoring the scheme, a trailing slash and letter case), return that page's text exactly as given. For any other URL, return exactly: 404 Not Found: there is no page at <url>
+Return the page text only, with nothing added.
+"""
+
+
+def web_agent(pages: dict[str, str]) -> str:
+    """A web mock played by a small model, so each URL gets its own page."""
+    listing = "\n".join(f"\n=== {url}\n{(FIXTURES / source).read_text(encoding='utf-8').strip()}"
+                        for url, source in pages.items())
+    return WEB_AGENT.format(pages=listing)
+
+
 def drive_files(files: dict) -> dict[str, str]:
     """The Drive mocks for one set of files: search lists everything, download serves by id."""
     listing = [
@@ -317,6 +351,9 @@ def build() -> dict[Path, str]:
         if "web" in spec:
             out[HERE / case / "mocks/web/_tools.json"] = dumps(WEB_TOOLS)
             out[HERE / case / "mocks/web/fetch.md"] = (FIXTURES / spec["web"]).read_text(encoding="utf-8")
+        if "web_pages" in spec:
+            out[HERE / case / "mocks/web/_tools.json"] = dumps(WEB_TOOLS)
+            out[HERE / case / "mocks/web/fetch.md"] = web_agent(spec["web_pages"])
         if "inbox" in spec:
             agent = gmail_agent(spec["inbox"])
             for tool in ("search_threads", "get_thread"):
