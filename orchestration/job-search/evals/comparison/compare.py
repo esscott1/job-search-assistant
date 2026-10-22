@@ -28,10 +28,11 @@ STOPWORDS = {
     "a", "an", "and", "as", "at", "by", "for", "from", "in", "of", "on", "or", "the", "to",
     "with", "within", "experience", "experienced", "ability", "proven", "demonstrated",
     "strong", "knowledge", "working", "including", "plus", "year", "years", "skill", "skills",
-    "certification", "certified", "certificate",
+    "certification", "certified", "certificate", "management", "manage", "managing", "managed",
 }  # fmt: skip
 # Calibrated on the gold tables: paraphrases of one requirement score 0.5 or more; different
-# requirements that share a word ("vendor management", "program management") score below it.
+# requirements that share only a generic word ("vendor management", "change management")
+# score below it, which test_no_two_gold_requirements_are_confusable checks.
 MATCH_THRESHOLD = 0.5
 TOKEN_KINDS = ("input", "cache_write", "cache_read", "output")
 

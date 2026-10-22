@@ -1,0 +1,13 @@
+{
+  "mode": "tier2",
+  "title_seniority": "strong",
+  "work_arrangement": "relocation_required",
+  "requirements": [
+    {"text": "8+ years of IT program or project management", "type": "required", "evidence": "strong", "resume_evidence": "Project and program management since 2014"},
+    {"text": "Led a migration of applications to AWS", "type": "required", "evidence": "strong", "resume_evidence": "Migrated 40 applications to AWS"},
+    {"text": "Vendor management", "type": "required", "evidence": "strong", "resume_evidence": "Manage 6 strategic vendors"},
+    {"text": "Experience running Agile teams", "type": "required", "evidence": "strong", "resume_evidence": "Introduced Scrum across 5 teams"},
+    {"text": "AWS certification", "type": "preferred", "evidence": "strong", "resume_evidence": "AWS Certified Cloud Practitioner"},
+    {"text": "Experience in retail or e-commerce", "type": "preferred", "evidence": "none", "resume_evidence": ""}
+  ]
+}

@@ -236,7 +236,7 @@
 
   <section>
     <h2>Measured: scoring one job</h2>
-    <p>A and B scored the same three job descriptions against the same synthetic resume and profile, on the same model (<code>claude-sonnet-5-5</code>), three runs each. Each job has a hand-written gold evidence table, so both are measured against a known right answer as well as against each other. Medians per job:</p>
+    <p>A and B scored the same six job descriptions against the same synthetic resume and profile, on the same model (<code>claude-sonnet-5-5</code>), three runs each. Three jobs are clear-cut; three are borderline, each turning on one judgment call the rubric spells out (exactly half the required items met, a "remote" role that requires moving, an unlabelled list of qualifications). Every job has a hand-written gold evidence table, so both are measured against a known right answer as well as against each other. Medians per job:</p>
     <div class="table-wrap">
       <table>
         <thead>
@@ -248,16 +248,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr><th>Score = gold</th><td>9 of 9 runs</td><td>9 of 9 runs</td><td>n/a</td></tr>
-          <tr><th>Evidence = gold</th><td>Every requirement and every strong / partial / none call</td><td>Every requirement and every strong / partial / none call</td><td>n/a</td></tr>
+          <tr><th>Score within ±1 of gold</th><td>18 of 18 runs (17 exact)</td><td>16 of 18 runs (all 16 exact)</td><td>n/a</td></tr>
+          <tr><th>Requirements = gold</th><td>Every run listed exactly gold's requirements</td><td>6 runs also listed lines that aren't qualifications: duties from the Responsibilities section (5), or the residency condition (1)</td><td>n/a</td></tr>
+          <tr><th>Evidence calls</th><td>3 calls differed from gold in 18 runs</td><td>2 calls differed (Azure judged none, not partial, where the resume shows AWS)</td><td>n/a</td></tr>
           <tr><th>Model calls</th><td>12</td><td>1</td><td>n/a</td></tr>
-          <tr><th>Tokens</th><td>About 436,000, about 90% of them cache reads</td><td>About 4,000</td><td>n/a</td></tr>
-          <tr><th>Time</th><td>79 seconds</td><td>5 seconds</td><td>n/a</td></tr>
-          <tr><th>Failures</th><td>None</td><td>None</td><td>n/a</td></tr>
+          <tr><th>Tokens</th><td>About 446,000, about 90% of them cache reads</td><td>About 4,000</td><td>n/a</td></tr>
+          <tr><th>Time</th><td>94 seconds</td><td>5 seconds</td><td>n/a</td></tr>
         </tbody>
       </table>
     </div>
-    <p>On these jobs the two approaches judged identically, so the difference is the work around the judgment. A's run loads its skills, reads the profile, tracker and resume through the connectors, writes a fit report and updates the row; B is handed the job description and resume. A run that scores several rows loads the skills once, so A's figure per job falls as the batch grows. The three jobs were written to be unambiguous; borderline jobs, where judgment is more likely to differ, are next. Method, commands and full results: <code>orchestration/job-search/evals/comparison/</code>.</p>
+    <p>On the clear-cut jobs the two judged almost identically, and the difference is the work around the judgment: A's run loads its skills, reads the profile, tracker and resume through the connectors, writes a fit report and updates the row, while B is handed the job description and resume. The borderline jobs separate them. B's two misses were on the job where exactly half the required items are met: counting a duty as a requirement, or calling a comparable tool <em>none</em>, pushes it under half and the rubric's cap drops the score from 7 to 5. A run that scores several rows loads A's skills once, so A's figure per job falls as the batch grows. Method, commands and full results: <code>orchestration/job-search/evals/comparison/</code>.</p>
   </section>
 
   <section>

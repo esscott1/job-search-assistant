@@ -1,5 +1,5 @@
 ---
-tags: [tier2, scoring, gold]
+tags: [tier2, scoring, gold, comparison]
 runs: 3
 max_turns: 40
 timeout_seconds: 600

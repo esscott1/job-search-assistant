@@ -85,7 +85,10 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - every run of both approaches matched the gold score, the gold requirement list and every evidence call;
   - the difference is the work around the judgment: A's whole run used a median of 12 model calls and about 436,000 tokens (about 90% of them cache reads) in 79 seconds; B's scoring call used 1 call and about 4,000 tokens in 5 seconds;
   - no failures in either.
-- **Follow-up:** three deliberately borderline gold cases (mid-band, mixed required and preferred, unclear location), where judgment is more likely to differ. The three cases here were written to be unambiguous.
+- **Borderline cases (2026-10-22):** three more gold cases, each turning on one judgment call the rubric spells out (exactly half the required items met, a "remote" role that requires moving, an unlabelled list of qualifications). Over all six cases, 3 runs each:
+  - A was within ±1 of gold in 18 of 18 runs;
+  - B was within ±1 in 16 of 18. Both misses were on the half-met case: B called a comparable tool `none` and counted JD duties as requirements, which tripped the fewer-than-half cap (7 → 5).
+- **Follow-up:** B's fit prompt (`fit-scoring/2.0`) lists Responsibilities lines as requirements in about a third of runs. A prompt change, rerun against these cases.
 
 ### 6. B to parity · LangGraph
 
@@ -129,6 +132,6 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | 2. One rubric | ✅ Done ([ADR 0003](adr/0003-shared-rubric.md)) |
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
-| 5. Measured comparison | ✅ Done ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); borderline cases next |
+| 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt follow-up open |
 | 6. B to parity | Can start; 5 is done |
 | 7. Packaging | First pass can start; final after 6 |

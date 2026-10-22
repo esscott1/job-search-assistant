@@ -38,6 +38,9 @@ DRIVE = {
     "FILE_JD_JS101": ("JS-101_JD.md", "JS-101_JD.md", "FOLDER_Northwind_Logistics", "text/markdown"),
     "FILE_JD_JS102": ("JS-102_JD.md", "JS-102_JD.md", "FOLDER_Contoso_Health", "text/markdown"),
     "FILE_JD_JS103": ("JS-103_JD.md", "JS-103_JD.md", "FOLDER_Fabrikam_Robotics", "text/markdown"),
+    "FILE_JD_JS104": ("JS-104_JD.md", "JS-104_JD.md", "FOLDER_Adventure_Works", "text/markdown"),
+    "FILE_JD_JS105": ("JS-105_JD.md", "JS-105_JD.md", "FOLDER_Tailwind_Traders", "text/markdown"),
+    "FILE_JD_JS106": ("JS-106_JD.md", "JS-106_JD.md", "FOLDER_Litware", "text/markdown"),
     "FILE_STYLE_0001": ("resume-style.md", "resume-style.md", FOLDER, "text/markdown"),
 }
 FOLDERS = {
@@ -45,6 +48,9 @@ FOLDERS = {
     "FOLDER_Northwind_Logistics": ("Northwind_Logistics", FOLDER),
     "FOLDER_Contoso_Health": ("Contoso_Health", FOLDER),
     "FOLDER_Fabrikam_Robotics": ("Fabrikam_Robotics", FOLDER),
+    "FOLDER_Adventure_Works": ("Adventure_Works", FOLDER),
+    "FOLDER_Tailwind_Traders": ("Tailwind_Traders", FOLDER),
+    "FOLDER_Litware": ("Litware", FOLDER),
 }
 
 HEADERS = [
@@ -63,6 +69,13 @@ TRACKER_ROWS = {
                "https://careers.contosohealth.example/jobs/102"),
     "JS-103": ("Fabrikam Robotics", "Senior Software Engineer, Rust", "Austin, TX (on-site)", 3,
                "https://careers.fabrikam.example/jobs/103"),
+    # borderline scoring cases: each turns on one judgment call the rubric spells out
+    "JS-104": ("Adventure Works", "Senior IT Program Manager, Finance Systems", "Remote (US)", 8,
+               "https://careers.adventureworks.example/jobs/104"),
+    "JS-105": ("Tailwind Traders", "Cloud Program Manager", "Remote (US)", 8,
+               "https://careers.tailwindtraders.example/jobs/105"),
+    "JS-106": ("Litware", "Program Manager, ERP Modernization", "Ohio (hybrid)", 7,
+               "https://careers.litware.example/jobs/106"),
     "JS-002": ("Acme Widgets", "Senior Cloud Program Manager", "Remote", 7,
                "https://www.linkedin.com/jobs/view/4000000002/"),
     "JS-001": ("Example Corp", "IT Vendor Manager", "Remote", 6,
@@ -99,6 +112,9 @@ CASES = {
     "tier2-gold-strong-fit": {"rows": ["JS-101", "JS-002"], "ticked": ["JS-101"]},
     "tier2-gold-partial-fit": {"rows": ["JS-102", "JS-002"], "ticked": ["JS-102"]},
     "tier2-gold-relocation-mismatch": {"rows": ["JS-103", "JS-002"], "ticked": ["JS-103"]},
+    "tier2-borderline-required-half-met": {"rows": ["JS-104", "JS-002"], "ticked": ["JS-104"]},
+    "tier2-borderline-remote-residency": {"rows": ["JS-105", "JS-002"], "ticked": ["JS-105"]},
+    "tier2-borderline-unlabelled-list": {"rows": ["JS-106", "JS-002"], "ticked": ["JS-106"]},
     "resume-tailors-pasted-jd": {},
     "profile-convert-template": {},
     "profile-style-update": {},

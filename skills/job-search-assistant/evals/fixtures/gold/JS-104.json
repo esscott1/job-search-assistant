@@ -1,0 +1,16 @@
+{
+  "mode": "tier2",
+  "title_seniority": "strong",
+  "work_arrangement": "remote",
+  "requirements": [
+    {"text": "7+ years managing people", "type": "required", "evidence": "partial", "resume_evidence": "Lead a PMO of 12 since 2021, about 5 years"},
+    {"text": "Experience with Microsoft Azure", "type": "required", "evidence": "partial", "resume_evidence": "Cloud migration to AWS, not Azure"},
+    {"text": "Vendor management", "type": "required", "evidence": "strong", "resume_evidence": "Manage 6 strategic vendors"},
+    {"text": "Budget ownership of $5m or more", "type": "required", "evidence": "strong", "resume_evidence": "Own an $8m annual program budget"},
+    {"text": "SAP S/4HANA implementation experience", "type": "required", "evidence": "none", "resume_evidence": ""},
+    {"text": "Experience in financial services", "type": "required", "evidence": "none", "resume_evidence": ""},
+    {"text": "Agile or Scrum delivery", "type": "preferred", "evidence": "strong", "resume_evidence": "Introduced Scrum across 5 teams; Certified ScrumMaster"},
+    {"text": "ITIL certification", "type": "preferred", "evidence": "strong", "resume_evidence": "ITIL 4 Foundation"},
+    {"text": "Power BI", "type": "preferred", "evidence": "none", "resume_evidence": ""}
+  ]
+}

@@ -78,7 +78,14 @@ A scoring eval only means something if the right answer is fixed in advance. Eac
 
 - **The gold answer** is a hand-written evidence table in `fixtures/gold/`: every requirement, required or preferred, and how well the resume shows it. `score.py` turns it into the expected score.
 - **Graders** check that the score lands within ±1 of gold, and that the clear-cut requirements are judged as gold has them (for example, Kubernetes is `none`, vendor management is `strong`). They also check that `score.py` ran, that no web search happened, and that a fit report was written and the row updated. The ±1 allows for honest judgement calls, such as `partial` vs `none` on Azure when the resume shows AWS.
-- **The JDs are written to be unambiguous.** Each has explicit Required and Preferred sections and requirements the resume either clearly meets or clearly lacks, so a disagreement with gold points to a real change in behaviour.
+- **The `tier2-gold-*` JDs are written to be unambiguous.** Each has explicit Required and Preferred sections and requirements the resume either clearly meets or clearly lacks, so a disagreement with gold points to a real change in behaviour.
+- **The `tier2-borderline-*` JDs each turn on one judgment call the rubric spells out,** where a careless reading moves the score by more than 1:
+  - exactly half the required items met, so calling one `partial` as `none` trips the fewer-than-half cap;
+  - a "remote" role that requires living in another time zone, which is `relocation_required`;
+  - one unlabelled list, whose hedged items ("familiarity with", "a plus") are preferred.
+
+  Their gold answers follow the rubric's own definitions, and `test_eval_fixtures.py` checks that each gold table passes its case's graders.
+- **The `comparison` tag** marks the six first-run scoring cases that `orchestration/job-search/evals/comparison/` also gives to the LangGraph pipeline.
 - **When the rubric changes,** the gold scores move. `test_eval_fixtures.py` reruns `score.py` on every gold table and fails if a score falls outside its case's band, which tells you which graders to update in the same PR.
 - **The baseline** is in [`BASELINE.md`](BASELINE.md): every case over 3 runs, with the plugin. Run the scoring cases before and after a change to a scoring skill or the rubric, and put both in the PR.
 
@@ -117,3 +124,6 @@ A scoring eval only means something if the right answer is fixed in advance. Eac
 | `tier2-gold-partial-fit` | job-lead-tier2-scoring, job-fit-rubric | Hybrid role in the home city with real gaps (Kubernetes, healthcare) and an AWS-vs-Azure partial. Gold 7 (accept 6-8) |
 | `tier2-gold-relocation-mismatch` | job-lead-tier2-scoring, job-fit-rubric | On-site Rust engineering role in another state, with relocation ruled out. Gold 1 (accept 1-3): wrong discipline, relocation required |
 | `tier2-rescore-closes-gap` | job-lead-tier2-scoring, job-fit-rubric | The JS-102 row re-ticked after the resume gained a Kubernetes platform. Keeps r1's requirement list, writes r2 with "Changes since r1", score 7 → 8 (accept 7-9) |
+| `tier2-borderline-required-half-met` | job-lead-tier2-scoring, job-fit-rubric | Remote finance-systems role. Two required items strong, two partial (7+ years managing people vs about 5; Azure vs AWS), two none: exactly half met, so no cap. Gold 7 (accept 6-8); judging either partial as none drops it to 5 |
+| `tier2-borderline-remote-residency` | job-lead-tier2-scoring, job-fit-rubric | A "Remote (US)" role that requires living in the Pacific or Mountain time zone, which the profile's no-relocation rule rules out. The resume covers almost everything (raw 8.5), but it's `relocation_required`. Gold 3 (accept 1-3) |
+| `tier2-borderline-unlabelled-list` | job-lead-tier2-scoring, job-fit-rubric | One "What you'll bring" list with no Required or Preferred headings: plain items are required, hedged ones (familiarity with, exposure to, a plus) preferred. The office is "one of our Ohio sites", so the arrangement is `unknown`. Gold 7 (accept 6-8) |

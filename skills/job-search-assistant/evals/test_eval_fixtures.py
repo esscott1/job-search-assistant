@@ -19,6 +19,9 @@ GOLD = {
     "JS-102.json": "tier2-gold-partial-fit",
     "JS-103.json": "tier2-gold-relocation-mismatch",
     "JS-102-r2.json": "tier2-rescore-closes-gap",
+    "JS-104.json": "tier2-borderline-required-half-met",
+    "JS-105.json": "tier2-borderline-remote-residency",
+    "JS-106.json": "tier2-borderline-unlabelled-list",
 }
 
 
@@ -49,6 +52,34 @@ def test_gold_score_is_inside_the_case_band(gold, case):
     grader = (EVALS / case / "graders/score-in-band.md").read_text(encoding="utf-8")
     pattern = re.search(r"pattern: '(.*)'", grader).group(1)
     assert re.search(pattern, f"Score: {score} (T2)"), f"gold score {score} is outside {pattern}"
+
+
+def gold_score(gold: str) -> int:
+    result = subprocess.run(
+        [sys.executable, str(SCORE_PY), str(EVALS / "fixtures/gold" / gold)],
+        capture_output=True, text=True, encoding="utf-8",
+        env={"PYTHONIOENCODING": "utf-8", **__import__("os").environ},
+    )
+    return json.loads(result.stdout)["score"]
+
+
+@pytest.mark.parametrize("gold, case", [(g, c) for g, c in GOLD.items() if "rescore" not in c])
+def test_gold_answer_passes_the_case_graders(gold, case):
+    """The gold table, written into a fit report the way the skill writes it and seen JSON-escaped
+    as the graders see mock calls, passes every regex grader on the fit report. A grader that
+    rejects the right answer would otherwise only show up as a puzzling failure in a live run.
+    (The rescore case also checks the report's prose, so it isn't covered here.)"""
+    table = (EVALS / "fixtures/gold" / gold).read_text(encoding="utf-8")
+    report = f"Score: {gold_score(gold)} (T2)\n\n## Evidence table\n```json\n{table}```\n"
+    seen = json.dumps({"title": "fit report", "textContent": report})
+    for grader in sorted((EVALS / case / "graders").glob("*.md")):
+        text = grader.read_text(encoding="utf-8")
+        if "type: regex" not in text or grader.name == "unticked.md":  # unticked checks the row write
+            continue
+        pattern = re.search(r"pattern: '(.*)'", text).group(1)
+        found = re.search(pattern, seen) is not None
+        wanted = re.search(r"^match: (\S+)", text, re.M).group(1) == "contains"
+        assert found == wanted, f"{case}/{grader.name}"
 
 
 def test_rescore_keeps_the_r1_requirement_list():
