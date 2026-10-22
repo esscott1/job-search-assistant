@@ -76,3 +76,8 @@ def test_resume_staleness_only_before_submission():
     assert not policy.is_resume_stale(job, "old")
     job.status = Status.SUBMITTED
     assert not policy.is_resume_stale(job, "new")
+
+
+def test_rows_saved_before_the_intake_fields_still_load():
+    job = Job.model_validate_json('{"id": "LG-0001", "company": "Acme", "title": "PM"}')
+    assert job.canonical_url == "" and job.found_on is None and job.gmail_message_id is None

@@ -22,7 +22,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from job_search_core import usecases
-from job_search_core.domain import IllegalTransition, Job, Status
+from job_search_core.domain import DuplicateJobId, IllegalTransition, Job, Status
 from langgraph.types import Command
 
 from .deps import Deps, data_dir, real_deps
@@ -89,11 +89,17 @@ def cmd_review(args, deps):
 
 
 def cmd_add(args, deps):
-    job_id = args.id or deps.tracker.next_id()
-    deps.tracker.add(
-        Job(id=job_id, company=args.company, title=args.title, url=args.url, source=args.source)
+    def make_job(job_id: str) -> Job:
+        return Job(
+            id=job_id, company=args.company, title=args.title, url=args.url, source=args.source
+        )
+
+    job = (
+        deps.tracker.add(make_job(args.id))
+        if args.id
+        else usecases.add_new_job(deps.tracker, make_job)
     )
-    print(job_id)
+    print(job.id)
 
 
 def cmd_list(args, deps):
@@ -198,7 +204,13 @@ def main(argv: list[str] | None = None) -> int:
     deps = real_deps() if getattr(args, "needs_deps", True) else None
     try:
         args.fn(args, deps)
-    except (IllegalTransition, usecases.NotEvaluable, KeyError, FileNotFoundError) as exc:
+    except (
+        IllegalTransition,
+        DuplicateJobId,
+        usecases.NotEvaluable,
+        KeyError,
+        FileNotFoundError,
+    ) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     return 0

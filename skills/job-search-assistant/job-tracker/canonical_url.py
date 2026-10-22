@@ -84,7 +84,9 @@ def canonical(url: str) -> str:
         if match:
             return f"https://job-boards.greenhouse.io/{match.group(1)}/jobs/{match.group(2)}"
 
-    if host in ("boards.greenhouse.io", "job-boards.greenhouse.io") and parts.path.startswith("/embed/"):
+    if host in ("boards.greenhouse.io", "job-boards.greenhouse.io") and parts.path.startswith(
+        "/embed/"
+    ):
         params = dict(query)
         if params.get("for") and params.get("token", "").isdigit():
             return f"https://job-boards.greenhouse.io/{params['for']}/jobs/{params['token']}"

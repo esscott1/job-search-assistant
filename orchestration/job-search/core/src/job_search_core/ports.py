@@ -19,7 +19,10 @@ T = TypeVar("T", bound=BaseModel)
 class TrackerPort(Protocol):
     """System of record for jobs and their status history."""
 
-    def add(self, job: Job) -> Job: ...
+    def add(self, job: Job) -> Job:
+        """Add a new job. Raises domain.DuplicateJobId if its ID is taken."""
+        ...
+
     def get(self, job_id: str) -> Job: ...
     def list(self, statuses: set[Status] | None = None) -> list[Job]: ...
     def save(self, job: Job) -> Job:
@@ -33,6 +36,11 @@ class TrackerPort(Protocol):
         ...
 
     def history(self, job_id: str) -> list[StatusChange]: ...
+
+    def next_id(self, prefix: str) -> str:
+        """The highest number used with this prefix, plus one, so an ID is never reused.
+        Another writer can take it before `add`; usecases.add_new_job retries."""
+        ...
 
 
 class JDFetcherPort(Protocol):

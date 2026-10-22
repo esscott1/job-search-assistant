@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import Annotated, Literal
 
@@ -73,6 +73,12 @@ class IllegalTransition(ValueError):
     def __init__(self, job_id: str, current: Status, target: Status):
         super().__init__(f"{job_id}: cannot move from '{current}' to '{target}'")
         self.job_id, self.current, self.target = job_id, current, target
+
+
+class DuplicateJobId(ValueError):
+    def __init__(self, job_id: str):
+        super().__init__(f"{job_id} is already in the tracker")
+        self.job_id = job_id
 
 
 def check_transition(job_id: str, current: Status, target: Status) -> None:
@@ -182,6 +188,11 @@ class Job(BaseModel):
     resume_path: str | None = None
     resume_source_hash: str | None = None  # full-resume hash the tailored resume was built from
     notes: str | None = None
+    # Intake fields, as the Sheet's Job Log has them (job-tracker). Optional, so older rows load.
+    canonical_url: str = ""  # the dedup key, from canonical_url.canonical(); "" if none
+    found_on: date | None = None
+    gmail_message_id: str | None = None
+    email_received: date | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
 

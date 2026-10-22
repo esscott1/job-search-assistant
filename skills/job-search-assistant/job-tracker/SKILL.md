@@ -8,7 +8,7 @@ description: "Shared tracker contract for the job-search skills, not run on its 
 The single definition of the Job Search Tracker and how skills touch it. Each job-search skill loads this before its first Sheets call and follows it exactly. It doesn't decide what to write (that's the calling skill's job); it decides where and how.
 
 ## Files in this skill
-- `canonical_url.py`: reduces a job link to its canonical form, the dedup key. Run `python3 <this skill's directory>/canonical_url.py <url> [<url> ...]`. It prints a JSON array of `{"input", "canonical"}`; `canonical` is `""` for links that aren't a posting or can't be resolved without following them.
+- `canonical_url.py`: reduces a job link to its canonical form, the dedup key. Run `python3 <this skill's directory>/canonical_url.py <url> [<url> ...]`. It prints a JSON array of `{"input", "canonical"}`; `canonical` is `""` for links that aren't a posting or can't be resolved without following them. The repository's code-defined pipeline keeps an identical copy for its own dedup; a change here is copied to `orchestration/job-search/core/src/job_search_core/canonical_url.py` in the same PR, and a test fails until it is.
 - `read_posting.py`: reads one posting page, its description and whether it's really closed (see **Reading a posting page**). Run `python3 <this skill's directory>/read_posting.py <url>`.
 - `test_canonical_url.py`, `test_read_posting.py`: check the rules (`python3 -m pytest -q` in this directory).
 

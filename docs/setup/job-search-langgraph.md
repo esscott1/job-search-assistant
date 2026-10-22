@@ -6,7 +6,7 @@ This guide takes you from a fresh clone to evaluating a real job posting with yo
 |---|---|---|
 | 1 | Install tools and run the demo | Everything (no keys needed) |
 | 2 | Add an Anthropic API key | Scoring and tailoring |
-| 3 | Google Cloud OAuth app | Gmail intake (M2), Drive tracker import (M2) |
+| 3 | Google Cloud OAuth app | Gmail intake and the Google Sheet tracker (roadmap milestone 6) |
 | 4 | Your job-search profile and full resume | Scoring and tailoring |
 | 5 | Evaluate your first job | — |
 | 6 | Optional: tracing and Studio | Debugging, screenshots |
@@ -142,6 +142,8 @@ To reuse IDs from your existing Excel tracker during shadow mode, pass `--id JS-
 cd approaches/langgraph
 uv run --with "langgraph-cli[inmem]" langgraph dev
 ```
+
+Studio uses the same tracker, profile and data folder as the `jobs` command, even though it runs from `approaches/langgraph`: relative paths in `.env` are taken from `orchestration/job-search`.
 
 **Evals.** These check that the scoring prompt and model still land in expected bands against a synthetic candidate:
 

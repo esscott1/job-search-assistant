@@ -12,3 +12,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 evals/job-fit/results/*.local.json
+
+# State that `langgraph dev` keeps between runs
+.langgraph_api/

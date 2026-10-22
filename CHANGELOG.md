@@ -2,6 +2,10 @@
 
 Versions follow the pre-1.0 policy in [`CLAUDE.md`](CLAUDE.md): until 1.0.0, a change that breaks existing users bumps the minor version and anything else bumps the patch. 1.0.0 will be the first release meant for general use.
 
+## job-search-assistant 0.4.6
+
+- `job-tracker`: `canonical_url.py` is reformatted to 100 columns, with no change to how it builds the dedup key; its unit tests pass unchanged. The repository's code-defined pipeline now keeps an identical copy for its own dedup, checked by a test, so both approaches treat the same links as the same job. Updating the installed plugin is optional.
+
 ## job-search-assistant 0.4.5
 
 - `job-fit-rubric`: `score.py` is reformatted to 100 columns, with no change to how it scores; its unit tests pass unchanged. The repository's code-defined pipeline now keeps an identical copy, checked by a test ([ADR 0003](docs/adr/0003-shared-rubric.md)). Updating the installed plugin is optional.

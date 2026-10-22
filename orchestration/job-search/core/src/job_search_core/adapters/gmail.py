@@ -1,7 +1,7 @@
-"""Gmail adapter (read-only). Used by the intake graph (roadmap M2).
+"""Gmail adapter (read-only). Used by the intake graph (roadmap milestone 6).
 
 Status: implemented against the Gmail v1 API but not yet exercised end-to-end — the
-first M2 task is running it against a real inbox and adding a recorded-fixture test.
+first intake task is running it against a real inbox and adding a recorded-fixture test.
 """
 
 from __future__ import annotations
