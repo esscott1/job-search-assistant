@@ -91,6 +91,19 @@ def now() -> datetime:
     return datetime.now(UTC)
 
 
+# The rubric's categories for title fit and work arrangement (job-fit-rubric); the Tier 1 and
+# Tier 2 judgments both use them, and test_rubric.py checks they match the rubric's tables.
+TitleSeniority = Literal["strong", "partial", "weak"]
+WorkArrangement = Literal[
+    "remote",
+    "commutable_onsite",
+    "commutable_hybrid",
+    "unknown",
+    "relocation_acceptable",
+    "relocation_required",
+]
+
+
 class Requirement(BaseModel):
     """One qualification from the JD, judged against the full resume."""
 
@@ -107,15 +120,8 @@ class EvidenceTable(BaseModel):
     """
 
     mode: Literal["tier1", "tier2"]
-    title_seniority: Literal["strong", "partial", "weak"]
-    work_arrangement: Literal[
-        "remote",
-        "commutable_onsite",
-        "commutable_hybrid",
-        "unknown",
-        "relocation_acceptable",
-        "relocation_required",
-    ]
+    title_seniority: TitleSeniority
+    work_arrangement: WorkArrangement
     requirements: list[Requirement] = []
 
 
@@ -136,15 +142,8 @@ class FitAssessment(BaseModel):
     the evidence table from this and the rubric computes the score.
     """
 
-    title_seniority: Literal["strong", "partial", "weak"]
-    work_arrangement: Literal[
-        "remote",
-        "commutable_onsite",
-        "commutable_hybrid",
-        "unknown",
-        "relocation_acceptable",
-        "relocation_required",
-    ]
+    title_seniority: TitleSeniority
+    work_arrangement: WorkArrangement
     requirements: Annotated[list[Requirement], Field(min_length=1)]
     top_gaps: Annotated[list[str], Field(max_length=3)]  # Gaps-cell phrases, biggest first
     rationale: str
@@ -164,6 +163,36 @@ class FitResult(BaseModel):
     rubric_version: str | None = None
     prompt_version: str | None = None
     evidence: EvidenceTable | None = None  # kept so a rescore can reuse the requirement list
+
+
+class LeadCard(BaseModel):
+    """One job in an alert or recruiter email, as the model reads it: what the email says, plus
+    the Tier 1 judgments (title fit and work arrangement) the rubric scores. Never a score."""
+
+    company: Annotated[str, Field(min_length=1)]
+    title: Annotated[str, Field(min_length=1)]
+    location: str = ""
+    posting_url: str = ""  # the job's link exactly as the email gives it; code canonicalises it
+    pay_range: str = ""
+    title_seniority: TitleSeniority
+    work_arrangement: WorkArrangement
+    keep: bool  # false only when clearly off-target or in the profile's Never interested list
+    skip_reason: str = ""  # why, when keep is false
+
+
+class EmailLeads(BaseModel):
+    """The model's answer for one email: every job it offers, or none."""
+
+    leads: list[LeadCard]
+
+
+class KnownJob(BaseModel):
+    """A job intake must not log again: a tracker row, or (with the Sheet) an archived one."""
+
+    id: str
+    company: str
+    title: str
+    canonical_url: str = ""
 
 
 # The tracker's Score Tier values (skills/job-search-assistant/job-tracker/SKILL.md). The

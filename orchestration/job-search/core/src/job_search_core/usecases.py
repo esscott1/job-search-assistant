@@ -6,10 +6,11 @@ Orchestrator nodes should be thin: load state, call a step, call one of these, r
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import date
 
 from . import policy
-from .domain import DuplicateJobId, FitResult, Job, ScoringTier, Status
-from .ports import DocumentStorePort, TrackerPort
+from .domain import DuplicateJobId, FitResult, Job, LeadCard, ScoringTier, Status
+from .ports import DocumentStorePort, MailMessage, TrackerPort
 
 
 class NotEvaluable(RuntimeError):
@@ -27,6 +28,42 @@ def add_new_job(
         except DuplicateJobId:
             continue
     raise DuplicateJobId(job.id)
+
+
+def record_lead(
+    tracker: TrackerPort,
+    card: LeadCard,
+    fit: FitResult,
+    *,
+    canonical_url: str,
+    source: str,
+    message: MailMessage,
+    today: date,
+    prefix: str = "LG",
+) -> Job:
+    """Add a lead from an alert email as a new Tier 1 job, under the next free ID.
+
+    The link stored is the canonical one only: the email's own link can carry a sign-in token.
+    """
+
+    def make_job(job_id: str) -> Job:
+        return Job(
+            id=job_id,
+            company=card.company,
+            title=card.title,
+            url=canonical_url or None,
+            source=source,
+            location=card.location or None,
+            pay_range=card.pay_range or None,
+            fit=fit,
+            scoring_tier="T1",
+            canonical_url=canonical_url,
+            found_on=today,
+            gmail_message_id=message.id,
+            email_received=message.received_at.date(),
+        )
+
+    return add_new_job(tracker, make_job, prefix)
 
 
 def begin_evaluation(tracker: TrackerPort, job_id: str) -> Job:

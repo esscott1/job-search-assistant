@@ -94,13 +94,18 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 
 - **Goal:** B runs the whole workflow, alongside A, on the same tracker.
 - **Deliverables:**
-  - an intake graph: Gmail → source parsers → canonical URL and dedup (`canonical_url.py` moved into `core`) → Tier 1 score → rows;
+  - an intake graph: Gmail → the model reads each email's job cards → canonical URL and dedup (`canonical_url.py` copied into `core`) → Tier 1 score → rows;
   - a Tier 2 graph whose entry point is the **Run Tier 2** checkbox;
-  - a `SheetsTracker` adapter behind `TrackerPort`, so B can read and write the same Google Sheet. Shadow-mode writes go to a separate tab until cut-over, and ADR 0002 is updated;
+  - a `SheetsTracker` adapter behind `TrackerPort`, so B can read A's Google Sheet. During shadow mode B writes to a separate spreadsheet of its own, never to A's tracker, and ADR 0002 is updated;
   - local scheduling;
   - the known fixes (ID collisions in `next_id`, real dependencies built at import in `studio.py`).
 - **Depends on:** 5.
 - **Done when:** B runs in shadow mode for a week next to A, with an agreement report.
+- **Decided (2026-10-22):**
+  - B's shadow is a separate spreadsheet it creates, so it only ever needs the `drive.file` scope.
+  - In shadow mode B's Tier 2 mirrors A: it scores the rows A finished, from A's saved JD.
+  - Intake reads each email with one structured model call; code does the rest.
+- **Progress:** the foundations (job IDs, Studio, the shared dedup key) and the intake graph (`jobs run intake`, 3 of 3 live runs passing the plugin's intake case) are done. Next: reading A's Sheet and writing the shadow, then Tier 2 from the Sheet, then scheduling and the agreement report.
 
 ### 7. Packaging for readers · docs
 
@@ -133,5 +138,5 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
 | 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt follow-up open |
-| 6. B to parity | Can start; 5 is done |
+| 6. B to parity | In progress: foundations and intake done; Sheets next |
 | 7. Packaging | First pass can start; final after 6 |

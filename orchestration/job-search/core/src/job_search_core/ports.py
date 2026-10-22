@@ -11,7 +11,7 @@ from typing import Protocol, TypeVar
 
 from pydantic import BaseModel
 
-from .domain import Job, NeedsHuman, Status, StatusChange, StatusSource
+from .domain import Job, KnownJob, NeedsHuman, Status, StatusChange, StatusSource
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -85,3 +85,10 @@ class MailMessage(BaseModel):
 
 class MailPort(Protocol):
     def search(self, query: str, max_results: int = 50) -> list[MailMessage]: ...
+
+
+class KnownJobsPort(Protocol):
+    def known_jobs(self) -> list[KnownJob]:
+        """Every job intake must not log again: the tracker's rows and, where the tracker has one,
+        its archive (except rows a reset archived, which may come back as new leads)."""
+        ...

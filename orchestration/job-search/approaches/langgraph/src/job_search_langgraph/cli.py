@@ -10,6 +10,7 @@ jobs provide-jd JOB_ID --file jd.txt
 jobs review JOB_ID --approve | --reject [--note ...]
 jobs submit JOB_ID [--note ...]
 jobs set-status JOB_ID STATUS [--note ...]
+jobs run intake [--dry-run]       read the profile's job-alert email and log new leads (Tier 1)
 """
 
 from __future__ import annotations
@@ -22,11 +23,14 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from job_search_core import usecases
+from job_search_core.adapters.google_auth import GoogleAuthError
 from job_search_core.domain import DuplicateJobId, IllegalTransition, Job, Status
+from job_search_core.profile import ProfileError
 from langgraph.types import Command
 
 from .deps import Deps, data_dir, real_deps
 from .evaluate_graph import build_evaluate_graph, fresh_input, pending_interrupt
+from .intake_graph import build_intake_graph
 
 
 def _graph(deps: Deps):
@@ -138,6 +142,22 @@ def cmd_auth(args, deps):
     print(f"Signed in. Gmail: {who['gmail']}  Drive: {who['drive']}")
 
 
+def cmd_run_intake(args, deps):
+    result = build_intake_graph(deps).invoke({"dry_run": args.dry_run})
+    note = " (catch-up: the newest logged email is over a week old)" if result["catch_up"] else ""
+    print(f"Mail window: {result['window']}{note}")
+    print(f"Emails read: {len(result['emails'])}")
+    for m in result["not_read"]:
+        print(f'  not read: {m["sender"]} "{m["subject"]}" ({m["reason"]})')
+    verb = "Would add" if args.dry_run else "Added"
+    print(f"{verb} {len(result['added'])}:")
+    for a in result["added"]:
+        print(f"  {a['id']:10} {a['company']} — {a['title']}  (T1 {a['score']})")
+    print(f"Skipped {len(result['skipped'])}:")
+    for s in result["skipped"]:
+        print(f"  {s['company']} — {s['title']}: {s['reason']}")
+
+
 def cmd_demo(args, _deps):
     from .demo import run_demo
 
@@ -195,6 +215,14 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("status", choices=[s.value for s in Status])
     a.add_argument("--note")
     a.set_defaults(fn=cmd_set_status)
+
+    run = sub.add_parser("run", help="one pass of a workflow stage, then exit")
+    stages = run.add_subparsers(dest="stage", required=True)
+    a = stages.add_parser("intake")
+    a.add_argument(
+        "--dry-run", action="store_true", help="show what would be logged; write nothing"
+    )
+    a.set_defaults(fn=cmd_run_intake)
     return p
 
 
@@ -207,6 +235,8 @@ def main(argv: list[str] | None = None) -> int:
     except (
         IllegalTransition,
         DuplicateJobId,
+        GoogleAuthError,
+        ProfileError,
         usecases.NotEvaluable,
         KeyError,
         FileNotFoundError,

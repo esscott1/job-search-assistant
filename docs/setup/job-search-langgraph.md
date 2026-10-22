@@ -132,6 +132,19 @@ The status lifecycle is enforced. For example, a `below_threshold` job can't be 
 
 To reuse IDs from your existing Excel tracker during shadow mode, pass `--id JS-042` to `jobs add`.
 
+### Log leads from your job-alert email
+
+Intake reads the senders in your profile's **Email sources** table, as the plugin's intake scan does, and logs each new job as a Tier 1 lead. It needs step 3 (Gmail sign-in). Try it with `--dry-run` first: it shows what it would log and writes nothing.
+
+```bash
+uv run jobs run intake --dry-run
+uv run jobs run intake
+```
+
+- **What it reads:** the last 7 days of mail from each Email sources sender. If the newest email already logged is older than that, it reads from that email's date instead, at most 30 days back. It never reads the senders under **Never scan**, nor LinkedIn's message and notification senders.
+- **What it does with each email:** the model lists the email's jobs and judges each one's title fit and work arrangement against your profile. Code then cleans each link to its canonical form and skips anything already known (the same link, or the same company and title). It also skips anything on your **Never interested** list or clearly off-target. The rubric's Tier 1 score is computed for the rest, and each one becomes a new row, oldest email first.
+- **Running it again** adds nothing new: everything it logged is already known.
+
 ## 6. Optional: tracing, Studio, and evals
 
 **LangSmith tracing.** Uncomment the `LANGSMITH_*` lines in `.env` and add a key from [smith.langchain.com](https://smith.langchain.com). Note that the LLM calls go through the Anthropic SDK directly (core doesn't depend on LangChain), so you'll see graph and node spans. Per-call LLM traces are a roadmap item.
