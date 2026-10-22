@@ -1,6 +1,6 @@
 # Job-search orchestration
 
-A working pipeline that runs my own job search, and a worked example of how I'd structure an agentic workflow for a client: business logic in one framework-free package, orchestration in replaceable approaches, evals in CI, and a migration path from the version already in production.
+The job-search workflow as a code-defined pipeline, and a worked example of how to structure an agentic workflow: business logic in one framework-free package, orchestration in replaceable approaches, evals in CI, and a migration path from the version already in production.
 
 **Setup:** [docs/setup/job-search-langgraph.md](../../docs/setup/job-search-langgraph.md) · **Why it's built this way:** [ADR 0001](../../docs/adr/0001-orchestration-approach.md), [ADR 0002](../../docs/adr/0002-tracker-is-system-of-record.md)
 
@@ -10,10 +10,10 @@ uv sync --all-packages && uv run jobs demo     # see it work with fakes, no keys
 
 ## What it does
 
-1. **Intake:** find job leads in Gmail and screen them quickly. *(roadmap M2)*
+1. **Intake:** find job leads in Gmail and screen them quickly. *(roadmap milestone 6, in progress)*
 2. **Evaluate:** fetch the full job description; the model fills an evidence table (each requirement judged against the full resume, plus title fit and work arrangement against the job-search profile), and the shared rubric computes the 1–10 score with a readable breakdown ([ADR 0003](../../docs/adr/0003-shared-rubric.md)). Also names up to three gaps.
-3. **Tailor:** for scores of 7 or more, draft a tailored resume and pause for my review. Re-tailor unsubmitted resumes when the full resume changes. *(tailor + review: this PR; refresh: M5)*
-4. **Track:** follow each job through submission, interviews, and outcome, and notice when postings close. *(manual commands: this PR; automated sweep: M3)*
+3. **Tailor:** for scores of 7 or more, draft a tailored resume and pause for the user's review. Re-tailor unsubmitted resumes when the full resume changes. *(tailor and review: done; re-tailoring: later)*
+4. **Track:** follow each job through submission, interviews, and outcome, and notice when postings close. *(manual commands: done; automated sweep: later)*
 
 ## Architecture
 
@@ -95,16 +95,16 @@ orchestration/job-search/
 
 ## Roadmap
 
-The repository's north star is [`docs/roadmap.md`](../../docs/roadmap.md), which compares this pipeline with the Claude skills plugin and a local MCP server. Its milestone 3, scoring through the shared rubric, is done, and so is milestone 5, the measured comparison with the plugin ([`evals/comparison/`](evals/comparison/README.md)). The table below is the pipeline's own feature list.
+The repository's north star is [`docs/roadmap.md`](../../docs/roadmap.md), which compares this pipeline with the Claude skills plugin and a local MCP server. Its milestone 3, scoring through the shared rubric, is done, and so is milestone 5, the measured comparison with the plugin ([`evals/comparison/`](evals/comparison/README.md)). The table below maps the pipeline's features to it.
 
-| Milestone | Scope | Status |
+| What | Status | Roadmap milestone |
 |---|---|---|
-| M1 | Core + evaluate graph + CLI + evals + CI + setup guide | ✅ this PR |
-| M2 | Intake graph (Gmail), read-only import of the Excel tracker, **shadow mode** alongside the Claude skills | next |
-| M3 | Status sweep: posting-closed checks, classify recruiter emails (confirmation, interview, rejection) | |
-| M4 | `.docx` resume rendering, scheduled runs, per-call LLM tracing | |
-| M5 | Refresh graph: re-tailor unsubmitted resumes when the full resume changes | |
-| Later | Second approach as a spike (orchestrator–worker) against the same core and evals | |
+| Core, evaluate graph, CLI, evals, CI, setup guide | ✅ | 1 |
+| Scoring through the shared rubric | ✅ | 2, 3 |
+| Measured comparison with the plugin | ✅ | 5 |
+| Intake graph (Gmail), the Google Sheet as tracker, Tier 2 started from the Sheet, **shadow mode** next to the plugin | in progress | 6 |
+| Status sweep (closed postings, recruiter replies), re-tailoring when the full resume changes | later | — |
+| `.docx` resume rendering, per-call LLM tracing | later | — |
 
 ## Development
 

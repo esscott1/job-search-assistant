@@ -5,13 +5,28 @@ Orchestrator nodes should be thin: load state, call a step, call one of these, r
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from . import policy
-from .domain import FitResult, Job, ScoringTier, Status
+from .domain import DuplicateJobId, FitResult, Job, ScoringTier, Status
 from .ports import DocumentStorePort, TrackerPort
 
 
 class NotEvaluable(RuntimeError):
     pass
+
+
+def add_new_job(
+    tracker: TrackerPort, make_job: Callable[[str], Job], prefix: str = "LG", attempts: int = 3
+) -> Job:
+    """Add a job under the next free ID, trying again if another writer takes that ID first."""
+    for _ in range(attempts):
+        job = make_job(tracker.next_id(prefix))
+        try:
+            return tracker.add(job)
+        except DuplicateJobId:
+            continue
+    raise DuplicateJobId(job.id)
 
 
 def begin_evaluation(tracker: TrackerPort, job_id: str) -> Job:

@@ -34,14 +34,27 @@ class Deps:
     profile: ProfileSourcePort
 
 
+# orchestration/job-search: relative paths in the settings below are taken from here, not from
+# the working directory, so the CLI (run from here) and Studio (run from approaches/langgraph)
+# use the same tracker.
+WORKSPACE = Path(__file__).resolve().parents[4]
+
+
+def _setting_path(value: str | Path) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else WORKSPACE / path
+
+
 def data_dir() -> Path:
-    return Path(os.environ.get("JOBS_DATA_DIR", "./data"))
+    return _setting_path(os.environ.get("JOBS_DATA_DIR", "data"))
 
 
 def real_deps() -> Deps:
     d = data_dir()
     # The profile names the full resume, which sits in the same folder (Candidate → Full resume).
-    profile = FileProfileSource(os.environ.get("JOBS_PROFILE", d / "job-search-profile.md"))
+    profile = FileProfileSource(
+        _setting_path(os.environ.get("JOBS_PROFILE", d / "job-search-profile.md"))
+    )
     return Deps(
         tracker=SqliteTracker(d / "tracker.db"),
         jd_fetcher=HttpJDFetcher(),

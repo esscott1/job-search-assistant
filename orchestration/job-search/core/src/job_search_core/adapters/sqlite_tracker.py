@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import re
 import sqlite3
 from pathlib import Path
 
 from ..domain import (
+    DuplicateJobId,
     Job,
     Status,
     StatusChange,
@@ -72,12 +74,15 @@ class SqliteTracker:
 
     # -- writes ------------------------------------------------------------------------
     def add(self, job: Job) -> Job:
-        with self._db:
-            self._db.execute(
-                "INSERT INTO jobs (id, data, status, updated_at) VALUES (?, ?, ?, ?)",
-                (job.id, job.model_dump_json(), job.status.value, job.updated_at.isoformat()),
-            )
-            self._record(job.id, None, job.status, "pipeline", "created")
+        try:
+            with self._db:
+                self._db.execute(
+                    "INSERT INTO jobs (id, data, status, updated_at) VALUES (?, ?, ?, ?)",
+                    (job.id, job.model_dump_json(), job.status.value, job.updated_at.isoformat()),
+                )
+                self._record(job.id, None, job.status, "pipeline", "created")
+        except sqlite3.IntegrityError as exc:
+            raise DuplicateJobId(job.id) from exc
         return job
 
     def save(self, job: Job) -> Job:
@@ -103,8 +108,11 @@ class SqliteTracker:
         return job
 
     def next_id(self, prefix: str = "LG") -> str:
-        (count,) = self._db.execute("SELECT COUNT(*) FROM jobs").fetchone()
-        return f"{prefix}-{count + 1:04d}"
+        """Highest number used with this prefix, plus one (rows are never deleted here)."""
+        pattern = re.compile(rf"{re.escape(prefix)}-(\d+)")
+        rows = self._db.execute("SELECT id FROM jobs").fetchall()
+        numbers = [int(m.group(1)) for (job_id,) in rows if (m := pattern.fullmatch(job_id))]
+        return f"{prefix}-{max(numbers, default=0) + 1:04d}"
 
     # -- internals ---------------------------------------------------------------------
     def _write(self, job: Job) -> None:

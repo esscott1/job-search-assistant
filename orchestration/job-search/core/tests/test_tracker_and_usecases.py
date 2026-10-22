@@ -9,7 +9,14 @@ from job_search_core.adapters.fakes import (
 )
 from job_search_core.adapters.http_jd_fetcher import HttpJDFetcher, html_to_text
 from job_search_core.adapters.sqlite_tracker import SqliteTracker
-from job_search_core.domain import FitResult, IllegalTransition, Job, NeedsHuman, Status
+from job_search_core.domain import (
+    DuplicateJobId,
+    FitResult,
+    IllegalTransition,
+    Job,
+    NeedsHuman,
+    Status,
+)
 
 LONG_JD = "Enterprise architect role. " * 40
 
@@ -84,3 +91,34 @@ def test_linkedin_is_never_fetched():
 
 def test_html_to_text_drops_scripts():
     assert html_to_text("<p>Hello</p><script>evil()</script><p>World</p>") == "Hello\nWorld"
+
+
+def test_next_id_follows_the_highest_number_not_the_row_count():
+    tracker = SqliteTracker()
+    tracker.add(Job(id="LG-0007", company="Acme", title="PM"))  # added by hand with --id
+    tracker.add(Job(id="JS-042", company="Acme", title="PM"))  # another prefix doesn't count
+    assert tracker.next_id("LG") == "LG-0008"
+    assert tracker.next_id("XX") == "XX-0001"
+
+
+def test_adding_a_taken_id_is_a_clear_error():
+    tracker = SqliteTracker()
+    tracker.add(Job(id="LG-0001", company="Acme", title="PM"))
+    with pytest.raises(DuplicateJobId, match="LG-0001"):
+        tracker.add(Job(id="LG-0001", company="Other", title="PM"))
+
+
+def test_add_new_job_retries_when_another_writer_takes_the_id():
+    tracker = SqliteTracker()
+    real_next_id = tracker.next_id
+
+    def raced(prefix):
+        if not tracker.list():  # another process adds LG-0001 between next_id and add
+            tracker.add(Job(id="LG-0001", company="Other", title="PM"))
+            return "LG-0001"
+        return real_next_id(prefix)
+
+    tracker.next_id = raced
+    job = usecases.add_new_job(tracker, lambda job_id: Job(id=job_id, company="Acme", title="PM"))
+    assert job.id == "LG-0002"
+    assert tracker.get("LG-0002").company == "Acme"
