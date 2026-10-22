@@ -53,7 +53,7 @@
   section { display: grid; gap: 14px; }
   figure { margin: 0; display: grid; gap: 12px; }
   .scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
-  .scroll svg { display: block; width: 100%; min-width: 860px; height: auto; color: var(--fg); font-family: var(--font-body); }
+  .scroll svg { display: block; width: 100%; min-width: 1000px; height: auto; color: var(--fg); font-family: var(--font-body); }
   figcaption { color: var(--muted); font-size: 14px; max-width: 76ch; }
   .legend { display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: 13px; color: var(--muted); }
   .legend span { display: inline-flex; align-items: center; gap: 8px; }
@@ -129,15 +129,15 @@
     <h2>What depends on what</h2>
     <figure>
       <div class="scroll">
-        <svg viewBox="0 0 1000 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin (done), and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison (done). Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
+        <svg viewBox="0 0 1160 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin (done), and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison (done). Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. Milestone 6 leads to milestone 8, the local app, a desktop UI over the pipeline. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
           <defs>
             <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-muted"/></marker>
             <marker id="af" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-fg"/></marker>
           </defs>
 
           <!-- lane bands -->
-          <rect x="10" y="40" width="980" height="80" rx="8" class="band"/>
-          <rect x="10" y="230" width="980" height="80" rx="8" class="band"/>
+          <rect x="10" y="40" width="1140" height="80" rx="8" class="band"/>
+          <rect x="10" y="230" width="1140" height="80" rx="8" class="band"/>
           <text x="24" y="76" class="t-lane la">A · plugin</text>
           <text x="24" y="94" class="t-lane-sub">Claude skills</text>
           <text x="24" y="171" class="t-lane ls">Shared</text>
@@ -170,9 +170,9 @@
           <rect x="572" y="149" width="116" height="52" rx="7" class="n-done"/>
           <text x="630" y="171" text-anchor="middle" class="t-node">5 Measured</text>
           <text x="630" y="188" text-anchor="middle" class="t-done">✓ done</text>
-          <rect x="847" y="149" width="130" height="52" rx="7" class="n-s"/>
-          <text x="912" y="171" text-anchor="middle" class="t-node">7 Packaging</text>
-          <text x="912" y="188" text-anchor="middle" class="t-node-sub">README · case study</text>
+          <rect x="1000" y="149" width="130" height="52" rx="7" class="n-s"/>
+          <text x="1065" y="171" text-anchor="middle" class="t-node">7 Packaging</text>
+          <text x="1065" y="188" text-anchor="middle" class="t-node-sub">README · case study</text>
 
           <!-- B lane -->
           <rect x="437" y="244" width="116" height="52" rx="7" class="n-done"/>
@@ -181,6 +181,9 @@
           <rect x="707" y="244" width="116" height="52" rx="7" class="n-b"/>
           <text x="765" y="266" text-anchor="middle" class="t-node">6 B to parity</text>
           <text x="765" y="283" text-anchor="middle" class="t-node-sub">intake · Sheets</text>
+          <rect x="847" y="244" width="130" height="52" rx="7" class="n-b"/>
+          <text x="912" y="266" text-anchor="middle" class="t-node">8 Local app</text>
+          <text x="912" y="283" text-anchor="middle" class="t-node-sub">UI · Google sign-in</text>
 
           <!-- C lane -->
           <rect x="302" y="339" width="116" height="52" rx="7" class="n-c"/>
@@ -189,9 +192,9 @@
           <rect x="437" y="339" width="251" height="52" rx="7" class="n-c"/>
           <text x="562" y="361" text-anchor="middle" class="t-node">4b–c Local MCP server</text>
           <text x="562" y="378" text-anchor="middle" class="t-node-sub">Roots · resources · tools · gap_summary</text>
-          <rect x="847" y="339" width="130" height="52" rx="7" class="n-later"/>
-          <text x="912" y="361" text-anchor="middle" class="t-node">Later: hosted</text>
-          <text x="912" y="378" text-anchor="middle" class="t-node-sub">a decision, not a plan</text>
+          <rect x="1000" y="339" width="130" height="52" rx="7" class="n-later"/>
+          <text x="1065" y="361" text-anchor="middle" class="t-node">Later: hosted</text>
+          <text x="1065" y="378" text-anchor="middle" class="t-node-sub">a decision, not a plan</text>
 
           <!-- critical path 1 → 2 → 3 → 5 -->
           <line x1="276" y1="175" x2="297" y2="175" class="e-crit" marker-end="url(#af)"/>
@@ -203,19 +206,20 @@
           <line x1="630" y1="106" x2="630" y2="145" class="e" marker-end="url(#am)"/>
           <text x="638" y="130" class="t-edge">baseline</text>
           <polyline points="688,188 735,188 735,240" class="e" marker-end="url(#am)"/>
-          <line x1="688" y1="162" x2="843" y2="162" class="e" marker-end="url(#am)"/>
-          <text x="765" y="155" text-anchor="middle" class="t-edge">first pass</text>
-          <polyline points="823,270 880,270 880,205" class="e" marker-end="url(#am)"/>
-          <text x="886" y="240" class="t-edge">final</text>
+          <line x1="688" y1="162" x2="996" y2="162" class="e" marker-end="url(#am)"/>
+          <text x="842" y="155" text-anchor="middle" class="t-edge">first pass</text>
+          <polyline points="790,244 790,222 1030,222 1030,205" class="e" marker-end="url(#am)"/>
+          <text x="910" y="216" text-anchor="middle" class="t-edge">final</text>
+          <line x1="823" y1="270" x2="843" y2="270" class="e" marker-end="url(#am)"/>
 
           <!-- C track -->
           <polyline points="218,300 218,365 298,365" class="e" marker-end="url(#am)"/>
           <text x="226" y="330" class="t-edge">parallel</text>
           <line x1="418" y1="365" x2="433" y2="365" class="e" marker-end="url(#am)"/>
-          <polyline points="688,352 832,352 832,192 843,192" class="e" marker-end="url(#am)"/>
-          <text x="760" y="346" text-anchor="middle" class="t-edge">demo</text>
-          <line x1="688" y1="378" x2="843" y2="378" class="e-later" marker-end="url(#am)"/>
-          <text x="760" y="372" text-anchor="middle" class="t-edge">if it earns it</text>
+          <polyline points="650,339 650,320 1145,320 1145,175 1134,175" class="e" marker-end="url(#am)"/>
+          <text x="1139" y="262" text-anchor="end" class="t-edge">demo</text>
+          <line x1="688" y1="378" x2="996" y2="378" class="e-later" marker-end="url(#am)"/>
+          <text x="842" y="372" text-anchor="middle" class="t-edge">if it earns it</text>
         </svg>
       </div>
       <div class="legend" aria-hidden="true">
@@ -223,7 +227,7 @@
         <span><i class="ln"></i>Depends on</span>
         <span><i class="ln later"></i>Behind a decision</span>
       </div>
-      <figcaption>Read left to right. The bold path, 1 → 2 → 3 → 5, turned the comparison into numbers, and it's complete. Next are 6 (B to parity) and, in parallel, the MCP track, which can start any time.</figcaption>
+      <figcaption>Read left to right. The bold path, 1 → 2 → 3 → 5, turned the comparison into numbers, and it's complete. Next are 6 (B to parity) and, in parallel, the MCP track, which can start any time. 8, the local app, builds on 6.</figcaption>
     </figure>
   </section>
 
@@ -291,6 +295,7 @@
           <li>A <code>SheetsTracker</code> adapter: reads A's Sheet; shadow writes to B's own spreadsheet; ADR 0002 updated</li>
           <li>A Tier 2 graph that mirrors A's finished rows in shadow mode</li>
           <li>Scheduling and the agreement report</li>
+          <li>Google access through the developer's own OAuth client; milestone 8 replaces it for users</li>
         </ul>
         <div><div class="k">Done when</div><p>B runs in shadow mode for a week next to A, with an agreement report.</p></div>
       </article>
@@ -302,6 +307,20 @@
           <li>A written case study comparing the three</li>
         </ul>
         <div><div class="k">Done when</div><p>A cold reader gets from the problem to the evidence in two minutes.</p></div>
+      </article>
+
+      <article class="card b">
+        <div class="card-head"><span class="num">8</span><div><h3>Local app</h3><div class="meta">Desktop UI over B · <span class="pill">planned</span></div></div></div>
+        <p>One page at <code>localhost</code> for tracker status, the actions and statistics, with no Google Cloud setup for users.</p>
+        <ul>
+          <li><strong>Google access, split:</strong> one shipped Desktop client asking only for <code>drive.file</code>, plus the Picker for the tracker and folder; Gmail stays with Claude's connector</li>
+          <li><strong>8a</strong>: local server and page, sign-in, Picker, granted-scope check</li>
+          <li><strong>8b</strong>: tracker status and statistics, with gap counts in <code>core</code> shared with 4c</li>
+          <li><strong>8c</strong>: Search for jobs (the plugin through headless Claude Code), Score and Build resume (B's graphs)</li>
+          <li><strong>8d</strong>: publish the Google app; ADR 0005</li>
+        </ul>
+        <div><div class="k">Spikes</div><p>Headless Claude Code used the claude.ai connectors unattended; <code>drive.file</code> plus the Picker read and wrote a picked tracker, and saw nothing else.</p></div>
+        <div><div class="k">Done when</div><p>A new user signs in, picks their tracker, sees status and statistics, scores a job and builds a resume, with no Cloud setup.</p></div>
       </article>
 
       <article class="card c later">
@@ -324,6 +343,8 @@
           <tr><td>D2</td><td>B's tracker: SQLite, as ADR 0002 says today, or the Google Sheet</td><td>6</td><td>The Sheet, with SQLite kept for tests and the offline demo</td></tr>
           <tr><td>D3</td><td>Whether the Claude desktop app starts plugin servers and sends Roots</td><td>4b</td><td>Settled by the 4a probe; Claude Code is the target either way</td></tr>
           <tr><td>D4</td><td>Whether to host an MCP server</td><td>Later</td><td>Not until 4c shows it's worth it</td></tr>
+          <tr><td>D5</td><td>How users give the app Google access without their own Cloud project</td><td>8</td><td>✓ Decided: one shipped Desktop client with <code>drive.file</code> and the Picker; Gmail through Claude's connector</td></tr>
+          <tr><td>D6</td><td>What runs the app's Score and Build resume buttons: B on an Anthropic API key, or the plugin through headless Claude Code</td><td>8c</td><td>B, far lighter per job in milestone 5; the plugin for users without a key</td></tr>
         </tbody>
       </table>
     </div>

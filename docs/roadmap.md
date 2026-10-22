@@ -22,7 +22,7 @@ The same problem (find job leads, score fit against a full resume, show the gaps
 
 ## Milestones
 
-The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it is complete. Milestone 4 runs in parallel from the start. 6 and 7 follow 5.
+The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it is complete. Milestone 4 runs in parallel from the start. 6 and 7 follow 5, and 8, the local app, follows 6.
 
 ### 1. Foundations ✅ done
 
@@ -99,6 +99,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - a `SheetsTracker` adapter behind `TrackerPort`, so B can read A's Google Sheet. During shadow mode B writes to a separate spreadsheet of its own, never to A's tracker, and ADR 0002 is updated;
   - local scheduling;
   - the known fixes (ID collisions in `next_id`, real dependencies built at import in `studio.py`).
+- **Google access in this milestone** is the developer's own OAuth client (the setup guide's step 3). That's fine for building B and for the shadow week, but it isn't something to ask of every user: reading Gmail needs a restricted scope. Milestone 8 replaces it for users.
 - **Depends on:** 5.
 - **Done when:** B runs in shadow mode for a week next to A, with an agreement report.
 - **Decided (2026-10-22):**
@@ -115,6 +116,27 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - a written case study comparing the approaches.
 - **Depends on:** 5 for a first pass, 6 for the final one.
 
+### 8. Local app · a desktop UI over B
+
+- **Goal:** a web page that runs on the user's own computer (at `localhost`) and is one place to see and run the job search: tracker status, the actions (search for jobs, Tier 2 scoring, a tailored resume) and statistics. No user creates a Google Cloud project.
+- **Google access, split by what each scope costs:**
+  - **One OAuth client, shipped with the repo.** The maintainer registers one Desktop client; users click **Sign in with Google**. It asks only for `openid`, `email` and `drive.file`. `drive.file` is non-sensitive, so publishing the app needs Google's brand check, not the security assessment that a Gmail scope needs.
+  - **The Google Picker.** The user picks their tracker Sheet and job folder once. `drive.file` then covers those, and the files the app creates (B's shadow sheet, JD files, resumes), and nothing else in their Drive.
+  - **Gmail stays with Claude.** Every Gmail read scope is restricted (a yearly security assessment for a public app), so the app never asks for one. Intake runs on the user's Claude account, through Claude's Gmail connector: the plugin's scheduled intake in claude.ai, or the page's **Search for jobs** button running the plugin's intake skill through headless Claude Code.
+- **Spikes (2026-10-22):**
+  - **Headless Claude Code:** `claude -p`, on the user's Claude login with no API key, loaded the plugin and used the claude.ai Gmail, Drive and Sheets connectors unattended, with only read tools on its allowlist. The intake skill, as a dry run over a week of alerts, took about 7 minutes. Its scripts need `python` on the allowlist (on Windows it tried `python3` and `py`).
+  - **Sign-in and the Picker:** a Desktop client asking only for `openid`, `email` and `drive.file`, with the Picker served from `localhost`, read a picked copy of a tracker and wrote to it (added a tab, wrote a cell, read it back, removed the tab). Before the pick, `drive.file` saw no files. Silent token refresh worked.
+  - **Found on the way:** Google's consent screen lets people untick the Drive permission, so the app checks what was granted; and Python has to use the operating system's certificate store (`truststore`) on machines that intercept TLS.
+- **Deliverables:**
+  - **8a, the app shell:** a small local server (FastAPI) and one page, as a new front end under `approaches/` (its README states its maturity). Sign-in with the shipped client, the Picker, a check of the granted scopes, `truststore`. Tokens stay in `data/`.
+  - **8b, tracker and statistics:** the Job Log and Archive through 6c's Sheets adapter; counts by status, score band and Tier 2 backlog; gap statistics computed in `core`, as the same function 4c's `gap_summary` exposes, so the page and the MCP server can't disagree.
+  - **8c, actions:** each button starts a background job and shows its progress.
+    - **Search for jobs:** the plugin's intake skill through headless Claude Code, with a fixed tool allowlist. Needs Claude Code installed and signed in.
+    - **Score (Tier 2)** and **Build resume:** B's graphs (decision D6).
+  - **8d, publishing:** the OAuth app moves to Production after the brand check, so users see no "unverified app" warning and their sign-in doesn't expire weekly. ADR 0005: why Google access is split this way.
+- **Depends on:** 6c (the Sheets adapter) and 6d (the Tier 2 graph). The statistics code is shared with 4c; whichever comes first builds it in `core`.
+- **Done when:** a new user starts the app, signs in with Google, picks their tracker, sees its status and statistics, scores a job and builds a resume from the page, all without any Google Cloud setup of their own.
+
 ### Later, behind a decision
 
 - **A hosted MCP server.** Drive and Sheets under the `drive.file` scope, with Gmail left on Anthropic's connector, so the server works in claude.ai scheduled runs. This only makes sense if C proves useful; it brings OAuth custody, Google verification and hosting.
@@ -128,6 +150,8 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | D2 | B's tracker: SQLite (ADR 0002 today) or the Google Sheet through `SheetsTracker` | 6 | The Sheet, with SQLite kept for tests and the offline demo |
 | D3 | Whether the Claude desktop app starts plugin-declared MCP servers and sends Roots | 4b | Settled by the 4a probe; Claude Code is the target either way |
 | D4 | Whether to host an MCP server | Later | Not until 4c shows it's worth it |
+| D5 | How users give the app Google access without their own Cloud project | 8 | ✅ Decided: one shipped Desktop client with `drive.file` and the Picker; Gmail through Claude's connector |
+| D6 | What runs the app's Score and Build resume buttons: B on the user's Anthropic API key, or the plugin through headless Claude Code on their Claude plan | 8c | B, which milestone 5 measured as far lighter per job; the plugin path for users without a key |
 
 ## Status
 
@@ -140,3 +164,4 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt follow-up open |
 | 6. B to parity | In progress: foundations and intake done; Sheets next |
 | 7. Packaging | First pass can start; final after 6 |
+| 8. Local app | Planned; spikes done; starts after 6c and 6d |
