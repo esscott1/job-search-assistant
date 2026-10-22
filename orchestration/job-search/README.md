@@ -89,12 +89,13 @@ orchestration/job-search/
 ├── approaches/
 │   └── langgraph/              job_search_langgraph — graphs, CLI (`jobs`), Studio entry
 ├── evals/job-fit/              synthetic persona (resume + profile), 8 labeled JDs, results/latest.json
+├── evals/comparison/          A (plugin) vs B (this pipeline) on the plugin's gold cases; results/RESULTS.md
 └── data/                       gitignored: your resume and profile, tracker.db, checkpoints, OAuth token
 ```
 
 ## Roadmap
 
-The repository's north star is [`docs/roadmap.md`](../../docs/roadmap.md), which compares this pipeline with the Claude skills plugin and a local MCP server. Its milestone 3, scoring through the shared rubric, is done. The table below is the pipeline's own feature list.
+The repository's north star is [`docs/roadmap.md`](../../docs/roadmap.md), which compares this pipeline with the Claude skills plugin and a local MCP server. Its milestone 3, scoring through the shared rubric, is done, and so is milestone 5, the measured comparison with the plugin ([`evals/comparison/`](evals/comparison/README.md)). The table below is the pipeline's own feature list.
 
 | Milestone | Scope | Status |
 |---|---|---|
@@ -112,4 +113,5 @@ uv sync --all-packages
 uv run pytest -q                                  # unit + graph tests, all fakes
 uv run ruff check . && uv run ruff format --check .
 uv run python evals/job-fit/run_evals.py          # real model; needs ANTHROPIC_API_KEY
+uv run python evals/comparison/run_b.py --runs 3  # the comparison: B's side (A's runs in WSL; see its README)
 ```

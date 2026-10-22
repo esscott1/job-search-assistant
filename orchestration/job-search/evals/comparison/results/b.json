@@ -1,0 +1,633 @@
+{
+ "meta": {
+  "approach": "B",
+  "date": "2026-10-21",
+  "model": "claude-sonnet-5-5",
+  "prompt": "fit-scoring/2.0",
+  "rubric": "1.1",
+  "runs_per_case": 3
+ },
+ "runs": [
+  {
+   "case": "strong-fit",
+   "run": 1,
+   "ok": true,
+   "score": 10,
+   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "10+ years of experience delivering IT programs.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present"
+     },
+     {
+      "text": "Led migrations of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget."
+     },
+     {
+      "text": "Vendor management, including contract negotiation.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year."
+     },
+     {
+      "text": "Managed program budgets of $5m or more.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report spend and forecasts monthly to the CIO."
+     },
+     {
+      "text": "Agile delivery experience.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "ITIL certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "ServiceNow experience.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Delivered a ServiceNow ITSM rollout to 2,000 users."
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3302,
+    "output": 721,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 12.1,
+   "failures": []
+  },
+  {
+   "case": "strong-fit",
+   "run": 2,
+   "ok": true,
+   "score": 10,
+   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "10+ years of experience delivering IT programs.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director 2021-present"
+     },
+     {
+      "text": "Led migrations of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget"
+     },
+     {
+      "text": "Vendor management, including contract negotiation.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Managed program budgets of $5m or more.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report spend and forecasts monthly to the CIO"
+     },
+     {
+      "text": "Agile delivery experience.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "ITIL certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "ServiceNow experience.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Delivered a ServiceNow ITSM rollout to 2,000 users"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3302,
+    "output": 702,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 4.6,
+   "failures": []
+  },
+  {
+   "case": "strong-fit",
+   "run": 3,
+   "ok": true,
+   "score": 10,
+   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "10+ years of experience delivering IT programs.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director 2021-present"
+     },
+     {
+      "text": "Led migrations of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget"
+     },
+     {
+      "text": "Vendor management, including contract negotiation.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Managed program budgets of $5m or more.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report spend and forecasts monthly to the CIO"
+     },
+     {
+      "text": "Agile delivery experience.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "ITIL certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "ServiceNow experience.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Delivered a ServiceNow ITSM rollout to 2,000 users"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3302,
+    "output": 707,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 4.6,
+   "failures": []
+  },
+  {
+   "case": "partial-fit",
+   "run": 1,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/6 · Pref 1/3 · coverage 55% · Title strong · Commutable hybrid | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "commutable_hybrid",
+    "requirements": [
+     {
+      "text": "8+ years of IT program management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Last 9 years leading cloud and infrastructure programs; Director, IT Program Delivery; Senior IT Program Manager 2018-2021"
+     },
+     {
+      "text": "Experience leading migrations to Microsoft Azure.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Ran migration of 40 applications from two data centres to AWS over 18 months; no Azure shown"
+     },
+     {
+      "text": "Delivered Kubernetes-based platforms.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Experience in the healthcare industry.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Managed budgets over $2m.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report to the CIO monthly"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Agile delivery.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "Power BI.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3296,
+    "output": 742,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.0,
+   "failures": []
+  },
+  {
+   "case": "partial-fit",
+   "run": 2,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/6 · Pref 1/3 · coverage 55% · Title strong · Commutable hybrid | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "commutable_hybrid",
+    "requirements": [
+     {
+      "text": "8+ years of IT program management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present"
+     },
+     {
+      "text": "Experience leading migrations to Microsoft Azure.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Ran migration of 40 applications from two data centres to AWS over 18 months; no Azure experience listed"
+     },
+     {
+      "text": "Delivered Kubernetes-based platforms.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Experience in the healthcare industry.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Managed budgets over $2m.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report to the CIO monthly"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Agile delivery.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "Power BI.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3296,
+    "output": 742,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.1,
+   "failures": []
+  },
+  {
+   "case": "partial-fit",
+   "run": 3,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/6 · Pref 1/3 · coverage 55% · Title strong · Commutable hybrid | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "commutable_hybrid",
+    "requirements": [
+     {
+      "text": "8+ years of IT program management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Last 9 years leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present"
+     },
+     {
+      "text": "Experience leading migrations to Microsoft Azure.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Led migration of 40 applications to AWS over 18 months; no Azure shown"
+     },
+     {
+      "text": "Delivered Kubernetes-based platforms.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Experience in the healthcare industry.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Managed budgets over $2m.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report to the CIO monthly"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Agile delivery.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "Power BI.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3296,
+    "output": 738,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.2,
+   "failures": []
+  },
+  {
+   "case": "relocation-mismatch",
+   "run": 1,
+   "ok": true,
+   "score": 1,
+   "breakdown": "Rubric v1.1 | Req 0.5/4 · Pref 0/2 · coverage 11% · Title weak · Relocation required | raw 0.8 → 1",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "weak",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "5+ years writing production Rust.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Built distributed systems at scale.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Deep Linux kernel and systems programming experience.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "B.S. in Computer Science or equivalent.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "B.S., Information Systems, Example State University"
+     },
+     {
+      "text": "Embedded or robotics experience.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Contributions to open-source Rust projects.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3240,
+    "output": 448,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 3.3,
+   "failures": []
+  },
+  {
+   "case": "relocation-mismatch",
+   "run": 2,
+   "ok": true,
+   "score": 1,
+   "breakdown": "Rubric v1.1 | Req 0.5/4 · Pref 0/2 · coverage 11% · Title weak · Relocation required | raw 0.8 → 1",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "weak",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "5+ years writing production Rust.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Built distributed systems at scale.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Deep Linux kernel and systems programming experience.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "B.S. in Computer Science or equivalent.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "B.S., Information Systems, Example State University"
+     },
+     {
+      "text": "Embedded or robotics experience.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Contributions to open-source Rust projects.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3240,
+    "output": 441,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 3.2,
+   "failures": []
+  },
+  {
+   "case": "relocation-mismatch",
+   "run": 3,
+   "ok": true,
+   "score": 1,
+   "breakdown": "Rubric v1.1 | Req 0.5/4 · Pref 0/2 · coverage 11% · Title weak · Relocation required | raw 0.8 → 1",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "weak",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "5+ years writing production Rust.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Built distributed systems at scale.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Deep Linux kernel and systems programming experience.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "B.S. in Computer Science or equivalent.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "B.S., Information Systems, Example State University"
+     },
+     {
+      "text": "Embedded or robotics experience.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Contributions to open-source Rust projects.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3240,
+    "output": 429,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 2.9,
+   "failures": []
+  }
+ ]
+}

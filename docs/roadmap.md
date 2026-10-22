@@ -22,7 +22,7 @@ The same problem (find job leads, score fit against a full resume, show the gaps
 
 ## Milestones
 
-The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone 4 runs in parallel from the start. 6 and 7 follow 5.
+The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it is complete. Milestone 4 runs in parallel from the start. 6 and 7 follow 5.
 
 ### 1. Foundations ✅ done
 
@@ -67,7 +67,7 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
   - ADR 0004: why a local server, why read-mostly, why Roots.
 - **Done when:** in Claude Code, "what am I most often missing since September?" is answered from the server's counts, and the eval passes. The cloud plugin is unchanged.
 
-### 5. Measured comparison · shared evals
+### 5. Measured comparison · shared evals ✅ done
 
 - **Goal:** the comparison page's claims become numbers.
 - **Deliverables:**
@@ -81,6 +81,11 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
   - the numbers added to [the comparison page](architecture/three-approaches.html).
 - **Depends on:** 2 and 3.
 - **Done when:** the results are committed and reproducible with one documented command per approach.
+- **Result (2026-10-21):** [`orchestration/job-search/evals/comparison/`](../orchestration/job-search/evals/comparison/README.md), on the plugin's three gold Tier 2 cases, both on `claude-sonnet-5-5`, 3 runs each:
+  - every run of both approaches matched the gold score, the gold requirement list and every evidence call;
+  - the difference is the work around the judgment: A's whole run used a median of 12 model calls and about 436,000 tokens (about 90% of them cache reads) in 79 seconds; B's scoring call used 1 call and about 4,000 tokens in 5 seconds;
+  - no failures in either.
+- **Follow-up:** three deliberately borderline gold cases (mid-band, mixed required and preferred, unclear location), where judgment is more likely to differ. The three cases here were written to be unambiguous.
 
 ### 6. B to parity · LangGraph
 
@@ -124,6 +129,6 @@ The critical path to a measured comparison is **1 → 2 → 3 → 5**. Milestone
 | 2. One rubric | ✅ Done ([ADR 0003](adr/0003-shared-rubric.md)) |
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
-| 5. Measured comparison | Next; 2 and 3 are done |
-| 6. B to parity | Waiting on 5 |
-| 7. Packaging | Waiting on 5 |
+| 5. Measured comparison | ✅ Done ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); borderline cases next |
+| 6. B to parity | Can start; 5 is done |
+| 7. Packaging | First pass can start; final after 6 |

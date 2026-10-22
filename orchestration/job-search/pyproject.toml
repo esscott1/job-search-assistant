@@ -23,4 +23,4 @@ select = ["E", "F", "I", "B", "UP"]
 ignore = ["E501"]  # the formatter owns line length; long strings and diagrams are fine
 
 [tool.pytest.ini_options]
-testpaths = ["core/tests", "approaches"]
+testpaths = ["core/tests", "approaches", "evals/comparison"]

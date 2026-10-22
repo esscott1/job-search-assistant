@@ -127,7 +127,7 @@
     <h2>What depends on what</h2>
     <figure>
       <div class="scroll">
-        <svg viewBox="0 0 1000 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin (done), and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison. Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
+        <svg viewBox="0 0 1000 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin (done), and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison (done). Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
           <defs>
             <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-muted"/></marker>
             <marker id="af" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-fg"/></marker>
@@ -165,9 +165,9 @@
           <rect x="302" y="149" width="116" height="52" rx="7" class="n-done"/>
           <text x="360" y="171" text-anchor="middle" class="t-node">2 One rubric</text>
           <text x="360" y="188" text-anchor="middle" class="t-done">✓ done</text>
-          <rect x="572" y="149" width="116" height="52" rx="7" class="n-s"/>
+          <rect x="572" y="149" width="116" height="52" rx="7" class="n-done"/>
           <text x="630" y="171" text-anchor="middle" class="t-node">5 Measured</text>
-          <text x="630" y="188" text-anchor="middle" class="t-node-sub">comparison</text>
+          <text x="630" y="188" text-anchor="middle" class="t-done">✓ done</text>
           <rect x="847" y="149" width="130" height="52" rx="7" class="n-s"/>
           <text x="912" y="171" text-anchor="middle" class="t-node">7 Packaging</text>
           <text x="912" y="188" text-anchor="middle" class="t-node-sub">README · case study</text>
@@ -221,7 +221,7 @@
         <span><i class="ln"></i>Depends on</span>
         <span><i class="ln later"></i>Behind a decision</span>
       </div>
-      <figcaption>Read left to right. The bold path, 1 → 2 → 3 → 5, is what turns the comparison into numbers. The MCP track can start any time; it touches nothing on the critical path, so it's a good parallel piece of work.</figcaption>
+      <figcaption>Read left to right. The bold path, 1 → 2 → 3 → 5, turned the comparison into numbers, and it's complete. Next are 6 (B to parity) and, in parallel, the MCP track, which can start any time.</figcaption>
     </figure>
   </section>
 
@@ -271,18 +271,18 @@
       </article>
 
       <article class="card s">
-        <div class="card-head"><span class="num">5</span><div><h3>Measured comparison</h3><div class="meta">Shared evals · <span class="pill next">next</span></div></div></div>
+        <div class="card-head"><span class="num">5</span><div><h3>Measured comparison</h3><div class="meta">Shared evals · <span class="pill done">done</span></div></div></div>
         <p>The comparison page's claims become numbers.</p>
         <ul>
-          <li>The same job descriptions and resume through A's Tier 2 cases and B's graph</li>
-          <li>Score agreement (±1), requirement overlap (≥80%), tokens per job, run time, failure modes</li>
-          <li>Results committed, and added to the comparison page</li>
+          <li>The plugin's three gold Tier 2 cases through A and B, both on <code>claude-sonnet-5-5</code>, 3 runs each</li>
+          <li>Every run of both matched the gold score, requirements and evidence calls</li>
+          <li>Per job: A's whole run about 436,000 tokens in 12 calls and 79 s; B's scoring call about 4,000 tokens in 1 call and 5 s</li>
         </ul>
-        <div><div class="k">Done when</div><p>One documented command per approach reproduces the table.</p></div>
+        <div><div class="k">Next</div><p>Three deliberately borderline gold cases, where judgment is more likely to differ.</p></div>
       </article>
 
       <article class="card b">
-        <div class="card-head"><span class="num">6</span><div><h3>B to parity</h3><div class="meta">LangGraph · after 5</div></div></div>
+        <div class="card-head"><span class="num">6</span><div><h3>B to parity</h3><div class="meta">LangGraph · <span class="pill next">next</span></div></div></div>
         <ul>
           <li>An intake graph: Gmail, parsers, canonical-URL dedup in <code>core</code>, Tier 1 score</li>
           <li>A Tier 2 graph that starts from the Run Tier 2 checkbox</li>
@@ -293,7 +293,7 @@
       </article>
 
       <article class="card s">
-        <div class="card-head"><span class="num">7</span><div><h3>Packaging for readers</h3><div class="meta">Docs · first pass after 5, final after 6</div></div></div>
+        <div class="card-head"><span class="num">7</span><div><h3>Packaging for readers</h3><div class="meta">Docs · first pass can start, final after 6</div></div></div>
         <ul>
           <li>README: problem → this architecture → a short demo of each approach → results → ADRs → what's next</li>
           <li>A written case study comparing the three</li>

@@ -1,0 +1,689 @@
+{
+ "meta": {
+  "approach": "A",
+  "date": "2026-10-21",
+  "models": [
+   "claude-sonnet-5-5"
+  ],
+  "plugin_version": "0.4.5",
+  "claude_code": "2.1.301",
+  "runs_per_case": 3
+ },
+ "runs": [
+  {
+   "case": "partial-fit",
+   "run": 1,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/6 · Pref 1/3 · coverage 55% · Title strong · Commutable hybrid | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "commutable_hybrid",
+    "requirements": [
+     {
+      "text": "8+ years of IT program management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 yrs in IT, last 9 leading cloud and infrastructure programs"
+     },
+     {
+      "text": "Experience leading migrations to Microsoft Azure.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Ran 40-app migration to AWS; no Azure shown"
+     },
+     {
+      "text": "Delivered Kubernetes-based platforms.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts saving $1.1m/yr"
+     },
+     {
+      "text": "Experience in the healthcare industry.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Managed budgets over $2m.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own $8m annual program budget"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Agile delivery.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Scrum across 5 teams; Certified ScrumMaster"
+     },
+     {
+      "text": "Power BI.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 26,
+    "output": 5788,
+    "cache_read": 431929,
+    "cache_write": 46895
+   },
+   "model_calls": 13,
+   "turns": 24,
+   "seconds": 85,
+   "api_seconds": 65.0,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  },
+  {
+   "case": "partial-fit",
+   "run": 2,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/6 · Pref 1/3 · coverage 55% · Title strong · Commutable hybrid | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "commutable_hybrid",
+    "requirements": [
+     {
+      "text": "8+ years of IT program management",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, last 9 leading cloud and infrastructure programs"
+     },
+     {
+      "text": "Experience leading migrations to Microsoft Azure",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Led 40-app migration to AWS; no Azure shown"
+     },
+     {
+      "text": "Delivered Kubernetes-based platforms",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Vendor management",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts saving $1.1m/yr"
+     },
+     {
+      "text": "Experience in the healthcare industry",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Managed budgets over $2m",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own $8m annual program budget"
+     },
+     {
+      "text": "PMP certification",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Agile delivery",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Scrum across 5 teams; Certified ScrumMaster"
+     },
+     {
+      "text": "Power BI",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 24,
+    "output": 5145,
+    "cache_read": 389555,
+    "cache_write": 40419
+   },
+   "model_calls": 12,
+   "turns": 23,
+   "seconds": 71,
+   "api_seconds": 48.6,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  },
+  {
+   "case": "partial-fit",
+   "run": 3,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/6 · Pref 1/3 · coverage 55% · Title strong · Commutable hybrid | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "commutable_hybrid",
+    "requirements": [
+     {
+      "text": "8+ years of IT program management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present; 9 yrs leading programs"
+     },
+     {
+      "text": "Experience leading migrations to Microsoft Azure.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Ran 40-app migration to AWS (not Azure)"
+     },
+     {
+      "text": "Delivered Kubernetes-based platforms.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts saving $1.1m/yr"
+     },
+     {
+      "text": "Experience in the healthcare industry.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": "Logistics and software companies only"
+     },
+     {
+      "text": "Managed budgets over $2m.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own $8m annual program budget"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": "ITIL 4, AWS CCP, CSM only"
+     },
+     {
+      "text": "Agile delivery.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Scrum across 5 teams; Certified ScrumMaster"
+     },
+     {
+      "text": "Power BI.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 24,
+    "output": 5993,
+    "cache_read": 387373,
+    "cache_write": 47048
+   },
+   "model_calls": 12,
+   "turns": 23,
+   "seconds": 78,
+   "api_seconds": 59.5,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  },
+  {
+   "case": "relocation-mismatch",
+   "run": 1,
+   "ok": true,
+   "score": 1,
+   "breakdown": "Rubric v1.1 | Req 0.5/4 · Pref 0/2 · coverage 11% · Title weak · Relocation required | raw 0.8 → 1",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "weak",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "5+ years writing production Rust.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Built distributed systems at scale.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": "Led programs/migrations, not engineering distributed systems"
+     },
+     {
+      "text": "Deep Linux kernel and systems programming experience.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "B.S. in Computer Science or equivalent.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "B.S., Information Systems, Example State University"
+     },
+     {
+      "text": "Embedded or robotics experience.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Contributions to open-source Rust projects.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 26,
+    "output": 4656,
+    "cache_read": 426854,
+    "cache_write": 39891
+   },
+   "model_calls": 13,
+   "turns": 23,
+   "seconds": 89,
+   "api_seconds": 67.6,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  },
+  {
+   "case": "relocation-mismatch",
+   "run": 2,
+   "ok": true,
+   "score": 1,
+   "breakdown": "Rubric v1.1 | Req 0.5/4 · Pref 0/2 · coverage 11% · Title weak · Relocation required | raw 0.8 → 1",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "weak",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "5+ years writing production Rust.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Built distributed systems at scale.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": "Led delivery programs, not engineering of distributed systems"
+     },
+     {
+      "text": "Deep Linux kernel and systems programming experience.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "B.S. in Computer Science or equivalent.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "B.S., Information Systems, Example State University"
+     },
+     {
+      "text": "Embedded or robotics experience.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Contributions to open-source Rust projects.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 24,
+    "output": 4751,
+    "cache_read": 388941,
+    "cache_write": 40392
+   },
+   "model_calls": 12,
+   "turns": 23,
+   "seconds": 79,
+   "api_seconds": 52.2,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  },
+  {
+   "case": "relocation-mismatch",
+   "run": 3,
+   "ok": true,
+   "score": 1,
+   "breakdown": "Rubric v1.1 | Req 0.5/4 · Pref 0/2 · coverage 11% · Title weak · Relocation required | raw 0.8 → 1",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "weak",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "5+ years writing production Rust.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Built distributed systems at scale.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Deep Linux kernel and systems programming experience.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "B.S. in Computer Science or equivalent.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "B.S., Information Systems, Example State University"
+     },
+     {
+      "text": "Embedded or robotics experience.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Contributions to open-source Rust projects.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 24,
+    "output": 4731,
+    "cache_read": 387563,
+    "cache_write": 39520
+   },
+   "model_calls": 12,
+   "turns": 21,
+   "seconds": 92,
+   "api_seconds": 66.8,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  },
+  {
+   "case": "strong-fit",
+   "run": 1,
+   "ok": true,
+   "score": 10,
+   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "10+ years of experience delivering IT programs",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, last 9 leading cloud and infrastructure programs"
+     },
+     {
+      "text": "Led migrations of applications to AWS",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran migration of 40 applications from two data centres to AWS over 18 months"
+     },
+     {
+      "text": "Vendor management, including contract negotiation",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Managed program budgets of $5m or more",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget"
+     },
+     {
+      "text": "Agile delivery experience",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Scrum across 5 teams; Certified ScrumMaster"
+     },
+     {
+      "text": "ITIL certification",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "ServiceNow experience",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Delivered ServiceNow ITSM rollout to 2,000 users"
+     },
+     {
+      "text": "PMP certification",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 24,
+    "output": 5024,
+    "cache_read": 389883,
+    "cache_write": 40416
+   },
+   "model_calls": 12,
+   "turns": 23,
+   "seconds": 76,
+   "api_seconds": 54.4,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  },
+  {
+   "case": "strong-fit",
+   "run": 2,
+   "ok": true,
+   "score": 10,
+   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "10+ years of experience delivering IT programs.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, last 9 leading cloud and infrastructure programs"
+     },
+     {
+      "text": "Led migrations of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran migration of 40 applications from two data centres to AWS over 18 months"
+     },
+     {
+      "text": "Vendor management, including contract negotiation.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Managed program budgets of $5m or more.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget"
+     },
+     {
+      "text": "Agile delivery experience.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster 2021"
+     },
+     {
+      "text": "ITIL certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "ServiceNow experience.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Delivered a ServiceNow ITSM rollout to 2,000 users"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 24,
+    "output": 5276,
+    "cache_read": 390382,
+    "cache_write": 40638
+   },
+   "model_calls": 12,
+   "turns": 23,
+   "seconds": 79,
+   "api_seconds": 57.0,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  },
+  {
+   "case": "strong-fit",
+   "run": 3,
+   "ok": true,
+   "score": 10,
+   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "10+ years of experience delivering IT programs.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, last 9 leading cloud and infrastructure programs"
+     },
+     {
+      "text": "Led migrations of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months"
+     },
+     {
+      "text": "Vendor management, including contract negotiation.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Managed program budgets of $5m or more.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget"
+     },
+     {
+      "text": "Agile delivery experience.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster"
+     },
+     {
+      "text": "ITIL certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "ServiceNow experience.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Delivered a ServiceNow ITSM rollout to 2,000 users"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 26,
+    "output": 6387,
+    "cache_read": 440432,
+    "cache_write": 42564
+   },
+   "model_calls": 13,
+   "turns": 24,
+   "seconds": 101,
+   "api_seconds": 68.7,
+   "eval_score": 1,
+   "models": [
+    "claude-sonnet-5-5"
+   ],
+   "failures": []
+  }
+ ]
+}

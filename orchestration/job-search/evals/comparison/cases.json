@@ -1,0 +1,11 @@
+{
+  "note": "The shared cases: approach A's Tier 2 gold eval cases, and the same JD, resume and profile given to approach B. Paths are relative to the repository root; nothing is copied, so the inputs can't drift apart.",
+  "fixtures": "skills/job-search-assistant/evals/fixtures",
+  "resume": "Full-Resume.md",
+  "profile": "job-search-profile.md",
+  "cases": [
+    {"id": "strong-fit", "job": "JS-101", "a_case": "tier2-gold-strong-fit"},
+    {"id": "partial-fit", "job": "JS-102", "a_case": "tier2-gold-partial-fit"},
+    {"id": "relocation-mismatch", "job": "JS-103", "a_case": "tier2-gold-relocation-mismatch"}
+  ]
+}
