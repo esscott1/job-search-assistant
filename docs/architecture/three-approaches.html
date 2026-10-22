@@ -1,4 +1,6 @@
+<!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>One Problem, Three Architectures</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -62,6 +64,7 @@
   .t-label { font-size: 12px; fill: var(--fg); }
   .t-head { font-size: 11.5px; font-weight: 600; fill: var(--muted); letter-spacing: .06em; }
   .t-mono { font-size: 11px; font-family: var(--font-mono); fill: var(--fg); }
+  .t-step { font-size: 11.5px; fill: var(--fg); }
   .t-badge { font-size: 12px; font-weight: 700; fill: var(--surface); }
   .t-use-a { font-size: 12px; font-weight: 700; fill: var(--a); }
   .t-use-b { font-size: 12px; font-weight: 700; fill: var(--b); }
@@ -96,7 +99,7 @@
     <h2>Who decides the next step, and what they share</h2>
     <figure>
       <div class="scroll">
-        <svg viewBox="0 0 1000 450" role="img" aria-label="Three approaches side by side. A, the Claude skills plugin: Claude follows SKILL.md steps and calls generic connectors. B, the LangGraph pipeline: code routes a job through fetch_jd, score, tailor and a review pause, and the model is called only to score and tailor. C, the local MCP server: Claude picks a tool and the server answers in code. All three use the same Gmail and Drive data, the same fit rubric, tracker rules and synthetic-persona evals; A writes the Google Sheet tracker and B writes a SQLite tracker.">
+        <svg viewBox="0 0 1000 450" role="img" aria-label="Three approaches side by side. A, the Claude skills plugin: Claude follows SKILL.md steps and calls generic connectors. B, the LangGraph pipeline: code routes a job through fetch JD, assess fit (assess_fit), score, tailor and a review pause; the model is called only to judge the evidence and to tailor, and the shared rubric computes the score. C, the local MCP server: Claude picks a tool and the server answers in code. All three use the same Gmail and Drive data, the same fit rubric, tracker rules and synthetic-persona evals; A writes the Google Sheet tracker and B writes a SQLite tracker.">
           <defs>
             <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-fg"/></marker>
             <marker id="ah-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-b"/></marker>
@@ -112,7 +115,7 @@
           <rect x="355" y="20" width="290" height="58" rx="8" class="b-b"/>
           <circle cx="379" cy="49" r="12" class="badge-b"/><text x="379" y="53" text-anchor="middle" class="t-badge">B</text>
           <text x="401" y="45" class="t-title">LangGraph pipeline</text>
-          <text x="401" y="64" class="t-sub">exists · first milestone</text>
+          <text x="401" y="64" class="t-sub">exists · scores through the shared rubric</text>
 
           <rect x="680" y="20" width="290" height="58" rx="8" class="b-c"/>
           <circle cx="704" cy="49" r="12" class="badge-c"/><text x="704" y="53" text-anchor="middle" class="t-badge">C</text>
@@ -134,23 +137,26 @@
 
           <!-- B mechanism -->
           <rect x="355" y="116" width="290" height="110" rx="8" class="b-panel"/>
-          <rect x="363" y="136" width="58" height="32" rx="5" class="node-b"/>
-          <text x="392" y="156" text-anchor="middle" class="t-mono">fetch_jd</text>
-          <rect x="435" y="136" width="58" height="32" rx="5" class="node-b"/>
-          <text x="464" y="156" text-anchor="middle" class="t-mono">score</text>
-          <circle cx="488" cy="141" r="4" class="model"/>
-          <rect x="507" y="136" width="58" height="32" rx="5" class="node-b"/>
-          <text x="536" y="156" text-anchor="middle" class="t-mono">tailor</text>
-          <circle cx="560" cy="141" r="4" class="model"/>
-          <rect x="579" y="136" width="58" height="32" rx="5" class="node-b"/>
-          <text x="608" y="156" text-anchor="middle" class="t-mono">review ⏸</text>
-          <line x1="421" y1="152" x2="433" y2="152" class="a-b" marker-end="url(#ah-b)"/>
-          <line x1="493" y1="152" x2="505" y2="152" class="a-b" marker-end="url(#ah-b)"/>
-          <line x1="565" y1="152" x2="577" y2="152" class="a-b" marker-end="url(#ah-b)"/>
-          <polyline points="464,168 464,182 478,182" class="a-b" marker-end="url(#ah-b)"/>
-          <text x="482" y="186" class="t-sub">below 7 → stop</text>
+          <rect x="360" y="136" width="50" height="32" rx="5" class="node-b"/>
+          <text x="385" y="156" text-anchor="middle" class="t-step">fetch JD</text>
+          <rect x="422" y="136" width="44" height="32" rx="5" class="node-b"/>
+          <text x="444" y="156" text-anchor="middle" class="t-step">assess</text>
+          <circle cx="461" cy="141" r="4" class="model"/>
+          <rect x="478" y="136" width="40" height="32" rx="5" class="node-b"/>
+          <text x="498" y="156" text-anchor="middle" class="t-step">score</text>
+          <rect x="530" y="136" width="42" height="32" rx="5" class="node-b"/>
+          <text x="551" y="156" text-anchor="middle" class="t-step">tailor</text>
+          <circle cx="567" cy="141" r="4" class="model"/>
+          <rect x="584" y="136" width="56" height="32" rx="5" class="node-b"/>
+          <text x="612" y="156" text-anchor="middle" class="t-step">review ⏸</text>
+          <line x1="410" y1="152" x2="420" y2="152" class="a-b" marker-end="url(#ah-b)"/>
+          <line x1="466" y1="152" x2="476" y2="152" class="a-b" marker-end="url(#ah-b)"/>
+          <line x1="518" y1="152" x2="528" y2="152" class="a-b" marker-end="url(#ah-b)"/>
+          <line x1="572" y1="152" x2="582" y2="152" class="a-b" marker-end="url(#ah-b)"/>
+          <polyline points="498,168 498,182 512,182" class="a-b" marker-end="url(#ah-b)"/>
+          <text x="516" y="186" class="t-sub">below 7 → stop</text>
           <circle cx="371" cy="207" r="4" class="model"/>
-          <text x="381" y="211" class="t-label">model call · code routes everything else</text>
+          <text x="381" y="211" class="t-label">model call · code routes and scores</text>
 
           <!-- C mechanism -->
           <rect x="680" y="116" width="290" height="110" rx="8" class="b-panel"/>
@@ -187,7 +193,7 @@
           <text x="30" y="352" class="t-head">SAME RULES AND TESTS</text>
           <rect x="30" y="362" width="290" height="62" rx="7" class="b-shared"/>
           <text x="175" y="386" text-anchor="middle" class="t-title">Fit rubric</text>
-          <text x="175" y="406" text-anchor="middle" class="t-sub">score.py; a core copy is planned</text>
+          <text x="175" y="406" text-anchor="middle" class="t-sub">score.py, copied exactly to core/rubric.py</text>
 
           <rect x="355" y="362" width="290" height="62" rx="7" class="b-shared"/>
           <text x="500" y="386" text-anchor="middle" class="t-title">Tracker rules</text>
@@ -198,7 +204,7 @@
           <text x="825" y="406" text-anchor="middle" class="t-sub">same job descriptions, same gold scores</text>
         </svg>
       </div>
-      <figcaption>The top band is the only thing that differs: in A the model follows written steps, in B code moves each job through a fixed graph and calls the model only at the dots, and in C the model asks questions that code answers. The two bands below are held constant, so any difference in a score, a cost or a failure comes from the architecture, not the task.</figcaption>
+      <figcaption>The top band is the only thing that differs: in A the model follows written steps, in B code moves each job through a fixed graph and calls the model only at the dots (the rubric code computes the score), and in C the model asks questions that code answers. The two bands below are held constant, so any difference in a score, a cost or a failure comes from the architecture, not the task.</figcaption>
     </figure>
   </section>
 
