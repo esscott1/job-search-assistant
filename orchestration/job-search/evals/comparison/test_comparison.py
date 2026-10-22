@@ -3,6 +3,7 @@ No model calls; the eval results and traces here are small synthetic stand-ins i
 
 import copy
 import json
+import re
 
 import compare
 import extract_a
@@ -26,6 +27,17 @@ def test_every_case_points_at_existing_inputs():
         assert inputs.jd_text(CFG, case).strip()
         assert inputs.gold_table(CFG, case)["requirements"]
         assert (plugin_evals / case["a_case"] / "prompt.md").is_file()
+
+
+def test_the_comparison_tag_selects_exactly_the_shared_cases():
+    """run_a.sh selects A's cases by the `comparison` tag, so the tag and cases.json must agree."""
+    plugin_evals = inputs.REPO / "skills/job-search-assistant/evals"
+    tagged = {
+        p.parent.name
+        for p in plugin_evals.glob("*/prompt.md")
+        if re.search(r"^tags: \[.*\bcomparison\b.*\]$", p.read_text(encoding="utf-8"), re.M)
+    }
+    assert tagged == {c["a_case"] for c in CFG["cases"]}
 
 
 # --- matching ---

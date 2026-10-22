@@ -1,5 +1,5 @@
 ---
-tags: [tier2, scoring, gold, smoke]
+tags: [tier2, scoring, gold, smoke, comparison]
 runs: 3
 max_turns: 40
 timeout_seconds: 600

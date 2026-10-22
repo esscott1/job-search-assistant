@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Approach A on the shared cases: the plugin's Tier 2 gold eval cases with the model pinned and
+# Approach A on the shared cases: the plugin's eval cases tagged `comparison`, with the model pinned and
 # each run's trace kept, then extract_a.py writes results/a.json. The cases run score.py, so this
 # needs Linux, macOS or WSL (set up WSL first: docs/setup/windows-wsl-evals.md).
 #   wsl -d Ubuntu -- bash /mnt/c/<path to repo>/orchestration/job-search/evals/comparison/run_a.sh
@@ -29,7 +29,7 @@ echo "output dir: $out"
 
 cd "$repo"
 # --threshold 0: a run that fails a grader is still a result to compare, not a reason to stop.
-claude plugin eval skills/job-search-assistant --case 'tier2-gold-*' --runs "$runs" \
+claude plugin eval skills/job-search-assistant --tag comparison --runs "$runs" \
   --ablation none --allow-tools Bash Write -j 3 --model "$model" --keep-temp \
   --threshold 0 --json "$out/result.json" --trust-plugin --no-publish --output-dir "$out"
 

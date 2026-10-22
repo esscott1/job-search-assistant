@@ -276,11 +276,11 @@
         <div class="card-head"><span class="num">5</span><div><h3>Measured comparison</h3><div class="meta">Shared evals · <span class="pill done">done</span></div></div></div>
         <p>The comparison page's claims become numbers.</p>
         <ul>
-          <li>The plugin's three gold Tier 2 cases through A and B, both on <code>claude-sonnet-5-5</code>, 3 runs each</li>
-          <li>Every run of both matched the gold score, requirements and evidence calls</li>
-          <li>Per job: A's whole run about 436,000 tokens in 12 calls and 79 s; B's scoring call about 4,000 tokens in 1 call and 5 s</li>
+          <li>Six gold Tier 2 cases (three clear-cut, three borderline) through A and B, both on <code>claude-sonnet-5-5</code>, 3 runs each</li>
+          <li>Within ±1 of gold: A in 18 of 18 runs, B in 16 of 18 (both misses on the borderline half-met case)</li>
+          <li>Per job: A's whole run about 446,000 tokens in 12 calls and 94 s; B's scoring call about 4,000 tokens in 1 call and 5 s</li>
         </ul>
-        <div><div class="k">Next</div><p>Three deliberately borderline gold cases, where judgment is more likely to differ.</p></div>
+        <div><div class="k">Next</div><p>B's fit prompt: stop listing JD duties as requirements, then rerun the comparison.</p></div>
       </article>
 
       <article class="card b">

@@ -1,7 +1,7 @@
 {
  "meta": {
   "approach": "B",
-  "date": "2026-10-21",
+  "date": "2026-10-22",
   "model": "claude-sonnet-5-5",
   "prompt": "fit-scoring/2.0",
   "rubric": "1.1",
@@ -11,6 +11,89 @@
   {
    "case": "strong-fit",
    "run": 1,
+   "ok": true,
+   "score": 10,
+   "breakdown": "Rubric v1.1 | Req 7/7 · Pref 2/3 · coverage 96% · Title strong · Remote | raw 9.7 → 10",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "10+ years of experience delivering IT programs.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager since 2018"
+     },
+     {
+      "text": "Led migrations of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget"
+     },
+     {
+      "text": "Vendor management, including contract negotiation.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Managed program budgets of $5m or more.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report spend and forecasts monthly to the CIO"
+     },
+     {
+      "text": "Agile delivery experience.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "Lead a portfolio of cloud migration programs from planning through cutover.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Lead a PMO of 12 managers delivering 30+ projects a year; ran 40-application AWS migration"
+     },
+     {
+      "text": "Report status to IT leadership.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Report spend and forecasts monthly to the CIO"
+     },
+     {
+      "text": "ITIL certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "ServiceNow experience.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Delivered a ServiceNow ITSM rollout to 2,000 users"
+     },
+     {
+      "text": "PMP certification.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3302,
+    "output": 843,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 19.7,
+   "failures": []
+  },
+  {
+   "case": "strong-fit",
+   "run": 2,
    "ok": true,
    "score": 10,
    "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
@@ -23,7 +106,7 @@
       "text": "10+ years of experience delivering IT programs.",
       "type": "required",
       "evidence": "strong",
-      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present"
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021 and Director, IT Program Delivery 2021-present."
      },
      {
       "text": "Led migrations of applications to AWS.",
@@ -47,13 +130,13 @@
       "text": "Agile delivery experience.",
       "type": "required",
       "evidence": "strong",
-      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)."
      },
      {
       "text": "ITIL certification.",
       "type": "preferred",
       "evidence": "strong",
-      "resume_evidence": "ITIL 4 Foundation (2019)"
+      "resume_evidence": "ITIL 4 Foundation (2019)."
      },
      {
       "text": "ServiceNow experience.",
@@ -71,78 +154,7 @@
    },
    "tokens": {
     "input": 3302,
-    "output": 721,
-    "cache_read": 0,
-    "cache_write": 0
-   },
-   "model_calls": 1,
-   "seconds": 12.1,
-   "failures": []
-  },
-  {
-   "case": "strong-fit",
-   "run": 2,
-   "ok": true,
-   "score": 10,
-   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
-   "table": {
-    "mode": "tier2",
-    "title_seniority": "strong",
-    "work_arrangement": "remote",
-    "requirements": [
-     {
-      "text": "10+ years of experience delivering IT programs.",
-      "type": "required",
-      "evidence": "strong",
-      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director 2021-present"
-     },
-     {
-      "text": "Led migrations of applications to AWS.",
-      "type": "required",
-      "evidence": "strong",
-      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget"
-     },
-     {
-      "text": "Vendor management, including contract negotiation.",
-      "type": "required",
-      "evidence": "strong",
-      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
-     },
-     {
-      "text": "Managed program budgets of $5m or more.",
-      "type": "required",
-      "evidence": "strong",
-      "resume_evidence": "Own an $8m annual program budget; report spend and forecasts monthly to the CIO"
-     },
-     {
-      "text": "Agile delivery experience.",
-      "type": "required",
-      "evidence": "strong",
-      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
-     },
-     {
-      "text": "ITIL certification.",
-      "type": "preferred",
-      "evidence": "strong",
-      "resume_evidence": "ITIL 4 Foundation (2019)"
-     },
-     {
-      "text": "ServiceNow experience.",
-      "type": "preferred",
-      "evidence": "strong",
-      "resume_evidence": "Delivered a ServiceNow ITSM rollout to 2,000 users"
-     },
-     {
-      "text": "PMP certification.",
-      "type": "preferred",
-      "evidence": "none",
-      "resume_evidence": ""
-     }
-    ]
-   },
-   "tokens": {
-    "input": 3302,
-    "output": 702,
+    "output": 731,
     "cache_read": 0,
     "cache_write": 0
    },
@@ -155,56 +167,68 @@
    "run": 3,
    "ok": true,
    "score": 10,
-   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 2/3 · coverage 94% · Title strong · Remote | raw 9.6 → 10",
+   "breakdown": "Rubric v1.1 | Req 7/7 · Pref 2/3 · coverage 96% · Title strong · Remote | raw 9.7 → 10",
    "table": {
     "mode": "tier2",
     "title_seniority": "strong",
     "work_arrangement": "remote",
     "requirements": [
      {
-      "text": "10+ years of experience delivering IT programs.",
+      "text": "10+ years of experience delivering IT programs",
       "type": "required",
       "evidence": "strong",
-      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director 2021-present"
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager since 2018, Director since 2021"
      },
      {
-      "text": "Led migrations of applications to AWS.",
+      "text": "Led migrations of applications to AWS",
       "type": "required",
       "evidence": "strong",
       "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget"
      },
      {
-      "text": "Vendor management, including contract negotiation.",
+      "text": "Vendor management, including contract negotiation",
       "type": "required",
       "evidence": "strong",
       "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
      },
      {
-      "text": "Managed program budgets of $5m or more.",
+      "text": "Managed program budgets of $5m or more",
       "type": "required",
       "evidence": "strong",
       "resume_evidence": "Own an $8m annual program budget; report spend and forecasts monthly to the CIO"
      },
      {
-      "text": "Agile delivery experience.",
+      "text": "Agile delivery experience",
       "type": "required",
       "evidence": "strong",
       "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
      },
      {
-      "text": "ITIL certification.",
+      "text": "Lead a portfolio of cloud migration programs from planning through cutover",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Lead a PMO of 12 managers delivering 30+ projects a year; 40-application AWS migration over 18 months"
+     },
+     {
+      "text": "Report status to IT leadership",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Report spend and forecasts monthly to the CIO"
+     },
+     {
+      "text": "ITIL certification",
       "type": "preferred",
       "evidence": "strong",
       "resume_evidence": "ITIL 4 Foundation (2019)"
      },
      {
-      "text": "ServiceNow experience.",
+      "text": "ServiceNow experience",
       "type": "preferred",
       "evidence": "strong",
       "resume_evidence": "Delivered a ServiceNow ITSM rollout to 2,000 users"
      },
      {
-      "text": "PMP certification.",
+      "text": "PMP certification",
       "type": "preferred",
       "evidence": "none",
       "resume_evidence": ""
@@ -213,12 +237,12 @@
    },
    "tokens": {
     "input": 3302,
-    "output": 707,
+    "output": 844,
     "cache_read": 0,
     "cache_write": 0
    },
    "model_calls": 1,
-   "seconds": 4.6,
+   "seconds": 5.2,
    "failures": []
   },
   {
@@ -236,13 +260,13 @@
       "text": "8+ years of IT program management.",
       "type": "required",
       "evidence": "strong",
-      "resume_evidence": "Last 9 years leading cloud and infrastructure programs; Director, IT Program Delivery; Senior IT Program Manager 2018-2021"
+      "resume_evidence": "Last 9 years leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present."
      },
      {
       "text": "Experience leading migrations to Microsoft Azure.",
       "type": "required",
       "evidence": "partial",
-      "resume_evidence": "Ran migration of 40 applications from two data centres to AWS over 18 months; no Azure shown"
+      "resume_evidence": "Led 40-application migration from two data centres to AWS; no Azure shown."
      },
      {
       "text": "Delivered Kubernetes-based platforms.",
@@ -254,7 +278,7 @@
       "text": "Vendor management.",
       "type": "required",
       "evidence": "strong",
-      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year."
      },
      {
       "text": "Experience in the healthcare industry.",
@@ -266,7 +290,7 @@
       "text": "Managed budgets over $2m.",
       "type": "required",
       "evidence": "strong",
-      "resume_evidence": "Own an $8m annual program budget; report to the CIO monthly"
+      "resume_evidence": "Own an $8m annual program budget; report to the CIO monthly."
      },
      {
       "text": "PMP certification.",
@@ -278,7 +302,7 @@
       "text": "Agile delivery.",
       "type": "preferred",
       "evidence": "strong",
-      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+      "resume_evidence": "Introduced Scrum across 5 teams; Certified ScrumMaster (2021)."
      },
      {
       "text": "Power BI.",
@@ -290,12 +314,12 @@
    },
    "tokens": {
     "input": 3296,
-    "output": 742,
+    "output": 703,
     "cache_read": 0,
     "cache_write": 0
    },
    "model_calls": 1,
-   "seconds": 5.0,
+   "seconds": 4.7,
    "failures": []
   },
   {
@@ -313,13 +337,13 @@
       "text": "8+ years of IT program management.",
       "type": "required",
       "evidence": "strong",
-      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present"
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Director, IT Program Delivery and Senior IT Program Manager roles"
      },
      {
       "text": "Experience leading migrations to Microsoft Azure.",
       "type": "required",
       "evidence": "partial",
-      "resume_evidence": "Ran migration of 40 applications from two data centres to AWS over 18 months; no Azure experience listed"
+      "resume_evidence": "Ran migration of 40 applications from two data centres to AWS over 18 months; AWS Certified Cloud Practitioner; no Azure shown"
      },
      {
       "text": "Delivered Kubernetes-based platforms.",
@@ -367,7 +391,7 @@
    },
    "tokens": {
     "input": 3296,
-    "output": 742,
+    "output": 764,
     "cache_read": 0,
     "cache_write": 0
    },
@@ -390,13 +414,13 @@
       "text": "8+ years of IT program management.",
       "type": "required",
       "evidence": "strong",
-      "resume_evidence": "Last 9 years leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present"
+      "resume_evidence": "Summary: 14 years in IT, last 9 leading cloud and infrastructure programs; Senior IT Program Manager 2018-2021, Director IT Program Delivery 2021-present"
      },
      {
       "text": "Experience leading migrations to Microsoft Azure.",
       "type": "required",
       "evidence": "partial",
-      "resume_evidence": "Led migration of 40 applications to AWS over 18 months; no Azure shown"
+      "resume_evidence": "Ran migration of 40 applications from two data centres to AWS (no Azure shown)"
      },
      {
       "text": "Delivered Kubernetes-based platforms.",
@@ -444,12 +468,12 @@
    },
    "tokens": {
     "input": 3296,
-    "output": 738,
+    "output": 744,
     "cache_read": 0,
     "cache_write": 0
    },
    "model_calls": 1,
-   "seconds": 5.2,
+   "seconds": 5.1,
    "failures": []
   },
   {
@@ -503,12 +527,12 @@
    },
    "tokens": {
     "input": 3240,
-    "output": 448,
+    "output": 451,
     "cache_read": 0,
     "cache_write": 0
    },
    "model_calls": 1,
-   "seconds": 3.3,
+   "seconds": 5.0,
    "failures": []
   },
   {
@@ -562,12 +586,12 @@
    },
    "tokens": {
     "input": 3240,
-    "output": 441,
+    "output": 449,
     "cache_read": 0,
     "cache_write": 0
    },
    "model_calls": 1,
-   "seconds": 3.2,
+   "seconds": 3.3,
    "failures": []
   },
   {
@@ -621,12 +645,663 @@
    },
    "tokens": {
     "input": 3240,
-    "output": 429,
+    "output": 444,
     "cache_read": 0,
     "cache_write": 0
    },
    "model_calls": 1,
-   "seconds": 2.9,
+   "seconds": 3.5,
+   "failures": []
+  },
+  {
+   "case": "required-half-met",
+   "run": 1,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3/6 · Pref 2/3 · coverage 52% · Title strong · Remote | raw 6.7 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "7+ years managing people.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Leads a PMO of 12 since 2021 (about 4-5 years as Director); earlier roles show vendor coordination but no people management"
+     },
+     {
+      "text": "Experience with Microsoft Azure.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "AWS cloud migration of 40 applications and AWS Cloud Practitioner; no Azure listed"
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manages 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Budget ownership of $5m or more.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Owns an $8m annual program budget; reports to the CIO monthly"
+     },
+     {
+      "text": "SAP S/4HANA implementation experience.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Experience in financial services.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Agile or Scrum delivery.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Scrum across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "ITIL certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "Power BI.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3298,
+    "output": 723,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.2,
+   "failures": []
+  },
+  {
+   "case": "required-half-met",
+   "run": 2,
+   "ok": true,
+   "score": 5,
+   "breakdown": "Rubric v1.1 | Req 3.5/8 · Pref 2/3 · coverage 46% · Title strong · Remote | raw 6.2 → 5 (<50% of required met, max 5)",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "7+ years managing people",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Leads a PMO of 12 program and project managers as Director since 2021 (about 5 years); earlier roles show coordination of vendor teams but no clear people management."
+     },
+     {
+      "text": "Experience with Microsoft Azure",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Vendor management",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts saving $1.1m a year; ran a network refresh with three vendors."
+     },
+     {
+      "text": "Budget ownership of $5m or more",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report spend and forecasts monthly to the CIO."
+     },
+     {
+      "text": "SAP S/4HANA implementation experience",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Experience in financial services",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Lead the program replacing our finance and procurement systems",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Led large enterprise programs (ServiceNow ITSM rollout, AWS migration of 40 applications), but no finance or procurement systems replacement."
+     },
+     {
+      "text": "Report progress and spend to the CFO",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Reports spend and forecasts monthly to the CIO, not the CFO."
+     },
+     {
+      "text": "Agile or Scrum delivery",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)."
+     },
+     {
+      "text": "ITIL certification",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)."
+     },
+     {
+      "text": "Power BI",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3298,
+    "output": 890,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.8,
+   "failures": []
+  },
+  {
+   "case": "required-half-met",
+   "run": 3,
+   "ok": true,
+   "score": 5,
+   "breakdown": "Rubric v1.1 | Req 3/7 · Pref 2/3 · coverage 46% · Title strong · Remote | raw 6.2 → 5 (<50% of required met, max 5)",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "remote",
+    "requirements": [
+     {
+      "text": "7+ years managing people.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Leads a PMO of 12 managers as Director (2021-present, about 4-5 years); earlier roles show coordination of offshore vendor teams but no explicit people management"
+     },
+     {
+      "text": "Experience with Microsoft Azure.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Budget ownership of $5m or more.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Own an $8m annual program budget; report spend and forecasts monthly to the CIO"
+     },
+     {
+      "text": "SAP S/4HANA implementation experience.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Experience in financial services.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Lead the program replacing our finance and procurement systems.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Led large programs (AWS migration, ServiceNow ITSM rollout, network refresh), but no finance or procurement system replacement"
+     },
+     {
+      "text": "Agile or Scrum delivery.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "ITIL certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "ITIL 4 Foundation (2019)"
+     },
+     {
+      "text": "Power BI.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3298,
+    "output": 845,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.8,
+   "failures": []
+  },
+  {
+   "case": "remote-residency",
+   "run": 1,
+   "ok": true,
+   "score": 3,
+   "breakdown": "Rubric v1.1 | Req 4/4 · Pref 1/2 · coverage 93% · Title strong · Relocation required | raw 8.5 → 3 (relocation max 3)",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "8+ years of IT program or project management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; IT Project Manager since 2014, Director, IT Program Delivery 2021-Present"
+     },
+     {
+      "text": "Led a migration of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget."
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year."
+     },
+     {
+      "text": "Experience running Agile teams.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; ran quarterly planning; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "AWS certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "AWS Certified Cloud Practitioner (2020)"
+     },
+     {
+      "text": "Experience in retail or e-commerce.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3257,
+    "output": 620,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.8,
+   "failures": []
+  },
+  {
+   "case": "remote-residency",
+   "run": 2,
+   "ok": true,
+   "score": 3,
+   "breakdown": "Rubric v1.1 | Req 4/5 · Pref 1/2 · coverage 76% · Title strong · Relocation required | raw 7.4 → 3 (relocation max 3)",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "8+ years of IT program or project management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, last 9 leading cloud and infrastructure programs; IT Project Manager since 2014, Senior IT Program Manager, Director, IT Program Delivery"
+     },
+     {
+      "text": "Led a migration of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget."
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year."
+     },
+     {
+      "text": "Experience running Agile teams.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; Certified ScrumMaster (2021)"
+     },
+     {
+      "text": "AWS certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "AWS Certified Cloud Practitioner (2020)"
+     },
+     {
+      "text": "Experience in retail or e-commerce.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Candidates must live in the Pacific or Mountain time zone.",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3257,
+    "output": 665,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.8,
+   "failures": []
+  },
+  {
+   "case": "remote-residency",
+   "run": 3,
+   "ok": true,
+   "score": 3,
+   "breakdown": "Rubric v1.1 | Req 5/5 · Pref 1/2 · coverage 94% · Title strong · Relocation required | raw 8.6 → 3 (relocation max 3)",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "relocation_required",
+    "requirements": [
+     {
+      "text": "8+ years of IT program or project management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT; project manager since 2014, program leadership for the last 9 years (Director, IT Program Delivery; Senior IT Program Manager)"
+     },
+     {
+      "text": "Led a migration of applications to AWS.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran the migration of 40 applications from two data centres to AWS over 18 months, on budget."
+     },
+     {
+      "text": "Vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year."
+     },
+     {
+      "text": "Experience running Agile teams.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; ran quarterly planning; Certified ScrumMaster (2021)."
+     },
+     {
+      "text": "Coordinate cloud, network and vendor teams.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Ran a network refresh across 22 sites with three vendors; AWS migration; manages cloud and telecom vendors."
+     },
+     {
+      "text": "AWS certification.",
+      "type": "preferred",
+      "evidence": "strong",
+      "resume_evidence": "AWS Certified Cloud Practitioner (2020)"
+     },
+     {
+      "text": "Experience in retail or e-commerce.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3257,
+    "output": 698,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.9,
+   "failures": []
+  },
+  {
+   "case": "unlabelled-list",
+   "run": 1,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/5 · Pref 0.5/3 · coverage 61% · Title strong · Location unclear | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "unknown",
+    "requirements": [
+     {
+      "text": "8+ years running IT programs.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Summary: 14 years in IT, the last 9 leading cloud and infrastructure programs; Director, IT Program Delivery 2021-Present and Senior IT Program Manager 2018-2021."
+     },
+     {
+      "text": "ERP implementation experience (SAP or Oracle).",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Strong vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors (managed services, cloud, telecom); renegotiated two contracts, saving $1.1m a year."
+     },
+     {
+      "text": "Experience building or running a PMO.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Lead a PMO of 12 program and project managers delivering 30+ projects a year; Core Competencies: PMO design."
+     },
+     {
+      "text": "Change management experience.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "ServiceNow ITSM rollout to 2,000 users and Agile adoption across 5 teams imply change work, but no explicit change management role or method is listed."
+     },
+     {
+      "text": "Familiarity with Workday.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Exposure to data migration.",
+      "type": "preferred",
+      "evidence": "partial",
+      "resume_evidence": "Migrated 40 applications from two data centres to AWS over 18 months; this is application migration, not ERP data migration."
+     },
+     {
+      "text": "Prosci certification is a plus.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3275,
+    "output": 748,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 5.3,
+   "failures": []
+  },
+  {
+   "case": "unlabelled-list",
+   "run": 2,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/5 · Pref 0.5/3 · coverage 61% · Title strong · Location unclear | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "unknown",
+    "requirements": [
+     {
+      "text": "8+ years running IT programs",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Summary: 14 years in IT, last 9 leading cloud and infrastructure programs; Director, IT Program Delivery since 2021"
+     },
+     {
+      "text": "ERP implementation experience (SAP or Oracle)",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Strong vendor management",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Experience building or running a PMO",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Lead a PMO of 12 program and project managers delivering 30+ projects a year; PMO design competency"
+     },
+     {
+      "text": "Change management experience",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "ServiceNow ITSM rollout to 2,000 users and Agile introduction across 5 teams imply change work, but no explicit change management or Prosci"
+     },
+     {
+      "text": "Familiarity with Workday",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Exposure to data migration",
+      "type": "preferred",
+      "evidence": "partial",
+      "resume_evidence": "Migrated 40 applications from two data centres to AWS over 18 months; application migration, not explicit data migration"
+     },
+     {
+      "text": "Prosci certification is a plus",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3275,
+    "output": 701,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 4.8,
+   "failures": []
+  },
+  {
+   "case": "unlabelled-list",
+   "run": 3,
+   "ok": true,
+   "score": 7,
+   "breakdown": "Rubric v1.1 | Req 3.5/5 · Pref 0.5/3 · coverage 61% · Title strong · Location unclear | raw 6.8 → 7",
+   "table": {
+    "mode": "tier2",
+    "title_seniority": "strong",
+    "work_arrangement": "unknown",
+    "requirements": [
+     {
+      "text": "8+ years running IT programs.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "14 years in IT, the last 9 leading cloud and infrastructure programs; Director, IT Program Delivery since 2021"
+     },
+     {
+      "text": "ERP implementation experience (SAP or Oracle).",
+      "type": "required",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Strong vendor management.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Manage 6 strategic vendors; renegotiated two contracts, saving $1.1m a year"
+     },
+     {
+      "text": "Experience building or running a PMO.",
+      "type": "required",
+      "evidence": "strong",
+      "resume_evidence": "Lead a PMO of 12 program and project managers delivering 30+ projects a year; PMO design"
+     },
+     {
+      "text": "Change management experience.",
+      "type": "required",
+      "evidence": "partial",
+      "resume_evidence": "Introduced Agile (Scrum) delivery across 5 teams; ServiceNow ITSM rollout to 2,000 users, but no explicit change management role"
+     },
+     {
+      "text": "Familiarity with Workday.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     },
+     {
+      "text": "Exposure to data migration.",
+      "type": "preferred",
+      "evidence": "partial",
+      "resume_evidence": "Migrated 40 applications from two data centres to AWS over 18 months, which implies data movement but isn't described as data migration"
+     },
+     {
+      "text": "Prosci certification is a plus.",
+      "type": "preferred",
+      "evidence": "none",
+      "resume_evidence": ""
+     }
+    ]
+   },
+   "tokens": {
+    "input": 3275,
+    "output": 694,
+    "cache_read": 0,
+    "cache_write": 0
+   },
+   "model_calls": 1,
+   "seconds": 4.9,
    "failures": []
   }
  ]

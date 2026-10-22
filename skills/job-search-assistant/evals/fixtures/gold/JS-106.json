@@ -1,0 +1,15 @@
+{
+  "mode": "tier2",
+  "title_seniority": "strong",
+  "work_arrangement": "unknown",
+  "requirements": [
+    {"text": "8+ years running IT programs", "type": "required", "evidence": "strong", "resume_evidence": "Last 9 years leading cloud and infrastructure programs"},
+    {"text": "ERP implementation experience (SAP or Oracle)", "type": "required", "evidence": "none", "resume_evidence": ""},
+    {"text": "Strong vendor management", "type": "required", "evidence": "strong", "resume_evidence": "Manage 6 strategic vendors"},
+    {"text": "Experience building or running a PMO", "type": "required", "evidence": "strong", "resume_evidence": "Lead a PMO of 12; PMO design"},
+    {"text": "Change management experience", "type": "required", "evidence": "partial", "resume_evidence": "ServiceNow rollout to 2,000 users; introduced Scrum across 5 teams"},
+    {"text": "Familiarity with Workday", "type": "preferred", "evidence": "none", "resume_evidence": ""},
+    {"text": "Exposure to data migration", "type": "preferred", "evidence": "partial", "resume_evidence": "Migrated 40 applications to AWS"},
+    {"text": "Prosci certification is a plus", "type": "preferred", "evidence": "none", "resume_evidence": ""}
+  ]
+}

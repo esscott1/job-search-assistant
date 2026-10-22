@@ -170,6 +170,22 @@ The page limit and the half-full 3rd page can't be exercised here, because Libre
 
 **Note on the rescore case.** In the 3-run baseline it scored 0.95 every time. The only failure was the `same-requirements` grader, whose pattern couldn't cross from one requirement entry to the next, so it could never match. The grader was fixed and the case rerun once: 1.00, with the r2 evidence table identical to gold. Every other grader passed in all runs.
 
+**Borderline scoring cases** (new) and the clear-cut gold cases, plugin 0.4.5, run through the measured comparison (`orchestration/job-search/evals/comparison/run_a.sh`), which pins the model to `claude-sonnet-5-5`. WSL Ubuntu, Claude Code 2.1.301, 3 runs each, 2026-10-22:
+
+| Case | Gold | Scores | Grader score (3 runs) |
+|---|---|---|---|
+| `tier2-borderline-required-half-met` | 7 | 7 · 7 · 7 | 1.00 · 1.00 · 1.00 |
+| `tier2-borderline-remote-residency` | 3 | 3 · 3 · 3 | 0.81 · 1.00 · 1.00 |
+| `tier2-borderline-unlabelled-list` | 7 | 7 · 7 · 7 | 0.88 · 1.00 · 0.88 |
+| `tier2-gold-strong-fit` | 10 | 10 · 10 · 9 | 1.00 · 1.00 · 1.00 |
+| `tier2-gold-partial-fit` | 7 | 7 · 7 · 7 | 1.00 · 1.00 · 1.00 |
+| `tier2-gold-relocation-mismatch` | 1 | 1 · 1 · 1 | 1.00 · 1.00 · 1.00 |
+
+Every score was within ±1 of gold, and every judgment call the borderline cases turn on was made as gold has it. The three misses:
+- **`remote-residency`, run 1:** the score was right (3, relocation required), but the fit report's first line read `Score: 3 (T1 → scored against saved JD; …)` instead of `Score: 3 (T2)`, so `score-in-band` didn't match. That's a formatting slip in the fit report, not a scoring error.
+- **`unlabelled-list`, runs 1 and 3:** "ERP implementation experience (SAP or Oracle)" was judged `partial`, where gold has `none` (the resume shows no ERP work). The score held at 7.
+- **`strong-fit`, run 3:** "10+ years of experience delivering IT programs" was judged `partial` (programs since 2018, projects before that), so the score was 9. It's within the band, and a defensible reading.
+
 ## What a change should look like
 - A scoring case dropping below 1.00 is a regression until shown otherwise. Read the run's fit report (`--keep-temp`, then the `create_file` call in `trace.jsonl`) before changing a grader.
 - If a rubric change moves a gold score, `test_eval_fixtures.py` fails first. Update the gold table, the band in that case's `score-in-band.md`, and this file in the same PR.

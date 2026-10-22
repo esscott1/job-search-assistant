@@ -1,19 +1,22 @@
 name: job-search CI
 
 on:
-  # The rubric drift test (core/tests/test_rubric.py) reads the plugin's score.py and gold tables.
+  # The rubric drift test (core/tests/test_rubric.py) reads the plugin's score.py and gold tables;
+  # the comparison tests (evals/comparison/) read its fixtures and the scoring cases' tags.
   pull_request:
     paths:
       - "orchestration/job-search/**"
       - ".github/workflows/job-search-*.yml"
       - "skills/job-search-assistant/job-fit-rubric/score.py"
-      - "skills/job-search-assistant/evals/fixtures/gold/**"
+      - "skills/job-search-assistant/evals/fixtures/**"
+      - "skills/job-search-assistant/evals/tier2-*/prompt.md"
   push:
     branches: [main]
     paths:
       - "orchestration/job-search/**"
       - "skills/job-search-assistant/job-fit-rubric/score.py"
-      - "skills/job-search-assistant/evals/fixtures/gold/**"
+      - "skills/job-search-assistant/evals/fixtures/**"
+      - "skills/job-search-assistant/evals/tier2-*/prompt.md"
 
 permissions:
   contents: read

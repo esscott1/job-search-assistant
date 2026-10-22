@@ -6,7 +6,7 @@ Roadmap milestone 5. Both approaches score a job the same way: the model fills a
 
 ## What's compared
 
-- **The cases** (`cases.json`) are the plugin's three Tier 2 gold eval cases: JS-101 (strong fit), JS-102 (partial fit) and JS-103 (relocation mismatch). Each has a saved JD and a **hand-written gold evidence table** (`skills/job-search-assistant/evals/fixtures/gold/`). Both approaches get the same JD, the same synthetic full resume and the same synthetic job-search profile, read from the plugin's fixtures (nothing is copied).
+- **The cases** (`cases.json`) are the plugin's six Tier 2 eval cases tagged `comparison`. Three are clear-cut: JS-101 (strong fit), JS-102 (partial fit) and JS-103 (relocation mismatch). Three are borderline, each turning on one judgment call the rubric spells out: JS-104 (exactly half the required items met, so one wrong call trips the fewer-than-half cap), JS-105 (a "remote" role that requires living in another time zone) and JS-106 (one unlabelled list of qualifications, and an office that can't be placed). Each has a saved JD and a **hand-written gold evidence table** (`skills/job-search-assistant/evals/fixtures/gold/`). Both approaches get the same JD, the same synthetic full resume and the same synthetic job-search profile, read from the plugin's fixtures (nothing is copied).
 - **A** runs as a user would trigger it: `claude plugin eval` gives Claude "run Tier 2 now" with the plugin installed and the Google connectors stubbed. The skill reads the profile, the tracker and the resume, judges the evidence, runs `score.py`, writes a fit report and updates the row.
 - **B** calls the steps the evaluate graph uses, `assess_fit` (the model) then `compute_fit` (the rubric), with the JD, resume and profile passed in.
 - **Scoring only.** A finds the saved JD in Drive, so it doesn't search the web, and B is given the JD; fetching isn't measured. Neither is rescoring or tailoring.
@@ -23,10 +23,10 @@ uv run python evals/comparison/compare.py                        # no model call
 ```
 
 - **`run_b.py`** writes `results/b.json`. `--fake` checks the harness with no key and writes nothing.
-- **`run_a.sh`** needs a shell for `score.py`, so Linux, macOS or WSL ([setup](../../../../docs/setup/windows-wsl-evals.md)). It runs the eval with each run's trace kept (`--keep-temp`), then `extract_a.py` reads the traces and writes `results/a.json`, then it deletes the kept sandboxes. Raw output and copies of the traces stay in `~/eval-runs/comparison-*`, outside the repository. The extraction has to happen in the same session as the eval, because WSL clears `/tmp` when the distro stops.
+- **`run_a.sh`** selects A's cases by the `comparison` tag (a test checks the tag matches `cases.json`). It needs a shell for `score.py`, so Linux, macOS or WSL ([setup](../../../../docs/setup/windows-wsl-evals.md)). It runs the eval with each run's trace kept (`--keep-temp`), then `extract_a.py` reads the traces and writes `results/a.json`, then it deletes the kept sandboxes. Raw output and copies of the traces stay in `~/eval-runs/comparison-*`, outside the repository. The extraction has to happen in the same session as the eval, because WSL clears `/tmp` when the distro stops.
 - **`compare.py`** reads both files and the gold tables and writes `results/comparison.json` and `results/RESULTS.md`. It's deterministic: rerun it on the committed JSON and the output doesn't change.
 
-Usage: three runs per case is 9 plugin eval runs (a few minutes at `-j 3`, on your Claude plan) and 9 API calls for B (on the API key).
+Usage: three runs per case is 18 plugin eval runs (about 15 minutes at `-j 3`, on your Claude plan) and 18 API calls for B (on the API key).
 
 ## What's measured
 
@@ -52,6 +52,6 @@ The threshold is calibrated on the gold tables: a test checks that no two requir
 
 ## Limits
 
-- **Three cases, written to be unambiguous.** High agreement here says the approaches agree on clear-cut JDs. Borderline cases (mid-band, mixed required and preferred, unclear location) are where judgment would differ; adding them is the next step.
+- **Six cases.** Enough to show where the approaches differ, not to estimate how often across real postings. Each borderline case tests one judgment call; real JDs mix several.
 - **One job per A run.** A Tier 2 run that scores several ticked rows loads its skills once, so its tokens per job would be lower than measured here.
 - **A's stand-ins.** The Google connectors are stubbed. The Sheets stand-in is played by a small model, whose tokens aren't in A's trace and whose time is in A's duration.
