@@ -284,12 +284,13 @@
       </article>
 
       <article class="card b">
-        <div class="card-head"><span class="num">6</span><div><h3>B to parity</h3><div class="meta">LangGraph · <span class="pill next">next</span></div></div></div>
+        <div class="card-head"><span class="num">6</span><div><h3>B to parity</h3><div class="meta">LangGraph · <span class="pill next">in progress</span></div></div></div>
         <ul>
-          <li>An intake graph: Gmail, parsers, canonical-URL dedup in <code>core</code>, Tier 1 score</li>
-          <li>A Tier 2 graph that starts from the Run Tier 2 checkbox</li>
-          <li>A <code>SheetsTracker</code> adapter; shadow-mode writes to their own tab; ADR 0002 updated</li>
-          <li>Local scheduling, and the known fixes in <code>next_id</code> and <code>studio.py</code></li>
+          <li>✓ Foundations: job IDs, Studio, the shared dedup key in <code>core</code></li>
+          <li>✓ An intake graph: Gmail, the model reads each email's job cards, canonical-URL dedup, Tier 1 score</li>
+          <li>A <code>SheetsTracker</code> adapter: reads A's Sheet; shadow writes to B's own spreadsheet; ADR 0002 updated</li>
+          <li>A Tier 2 graph that mirrors A's finished rows in shadow mode</li>
+          <li>Scheduling and the agreement report</li>
         </ul>
         <div><div class="k">Done when</div><p>B runs in shadow mode for a week next to A, with an agreement report.</p></div>
       </article>

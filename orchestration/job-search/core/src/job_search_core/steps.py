@@ -9,8 +9,17 @@ from __future__ import annotations
 import json
 
 from . import policy, profile, prompts, scoring
-from .domain import EvidenceTable, FitAssessment, FitResult, Job, NeedsHuman, Requirement
-from .ports import JDFetcherPort, LLMPort
+from .domain import (
+    EmailLeads,
+    EvidenceTable,
+    FitAssessment,
+    FitResult,
+    Job,
+    LeadCard,
+    NeedsHuman,
+    Requirement,
+)
+from .ports import JDFetcherPort, LLMPort, MailMessage
 
 
 class RescoreMismatch(ValueError):
@@ -104,6 +113,41 @@ def compute_fit(assessment: FitAssessment, previous: EvidenceTable | None = None
         score=result.score,
         top_gaps=assessment.top_gaps,
         rationale=assessment.rationale,
+        breakdown=result.breakdown,
+        rubric_version=result.rubric_version,
+        prompt_version=version,
+        evidence=table,
+    )
+
+
+def read_alert_email(message: MailMessage, profile_text: str, llm: LLMPort) -> list[LeadCard]:
+    """The model's reading of one email: the jobs it offers, with Tier 1 judgments. No score."""
+    _, system = prompts.load("lead_reading")
+    prompt = (
+        f"<candidate_profile>\n{profile.sections(profile_text)}\n</candidate_profile>\n\n"
+        f"<email>\nFrom: {message.sender}\nSubject: {message.subject}\n"
+        f"Date: {message.received_at:%Y-%m-%d}\n\n{message.body_text}\n</email>\n\n"
+        "List the jobs this email offers."
+    )
+    return llm.structured(system=system, prompt=prompt, schema=EmailLeads).leads
+
+
+def tier1_fit(card: LeadCard) -> FitResult:
+    """Deterministic: the rubric's Tier 1 score from a lead's two judgments (no JD read yet)."""
+    table = EvidenceTable(
+        mode="tier1", title_seniority=card.title_seniority, work_arrangement=card.work_arrangement
+    )
+    result = scoring.score_evidence(table)
+    gaps = ["JD not read yet"]
+    if card.work_arrangement == "relocation_required":
+        gaps.append(
+            f"Relocation required ({card.location})" if card.location else "Relocation required"
+        )
+    version, _ = prompts.load("lead_reading")
+    return FitResult(
+        score=result.score,
+        top_gaps=gaps,
+        rationale="",
         breakdown=result.breakdown,
         rubric_version=result.rubric_version,
         prompt_version=version,

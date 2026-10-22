@@ -12,12 +12,16 @@ from job_search_core.adapters.files import (
     FileProfileSource,
     ProfileResumeSource,
 )
+from job_search_core.adapters.gmail import GmailMail
 from job_search_core.adapters.http_jd_fetcher import HttpJDFetcher
+from job_search_core.adapters.known_jobs import TrackerKnownJobs
 from job_search_core.adapters.sqlite_tracker import SqliteTracker
 from job_search_core.ports import (
     DocumentStorePort,
     JDFetcherPort,
+    KnownJobsPort,
     LLMPort,
+    MailPort,
     ProfileSourcePort,
     ResumeSourcePort,
     TrackerPort,
@@ -32,6 +36,8 @@ class Deps:
     resume: ResumeSourcePort
     docs: DocumentStorePort
     profile: ProfileSourcePort
+    mail: MailPort | None = None  # intake only
+    known: KnownJobsPort | None = None  # intake only: what dedup checks against
 
 
 # orchestration/job-search: relative paths in the settings below are taken from here, not from
@@ -55,11 +61,14 @@ def real_deps() -> Deps:
     profile = FileProfileSource(
         _setting_path(os.environ.get("JOBS_PROFILE", d / "job-search-profile.md"))
     )
+    tracker = SqliteTracker(d / "tracker.db")
     return Deps(
-        tracker=SqliteTracker(d / "tracker.db"),
+        tracker=tracker,
         jd_fetcher=HttpJDFetcher(),
         llm=AnthropicLLM(),
         resume=ProfileResumeSource(profile),
         docs=FileDocumentStore(d / "resumes"),
         profile=profile,
+        mail=GmailMail(),  # signs in on first search, so other commands need no Google token
+        known=TrackerKnownJobs(tracker),
     )

@@ -1,0 +1,149 @@
+{
+ "summary": {
+  "prompt": "lead-reading/1.0",
+  "model": "claude-sonnet-5-5",
+  "passed": 3,
+  "runs": 3,
+  "date": "2026-10-22"
+ },
+ "runs": [
+  {
+   "checks": {
+    "logs exactly Globex then Initech": true,
+    "skips the duplicates": true,
+    "skips the retail job as off-target": true,
+    "Tier 1 scores in 6-8": true,
+    "stores no sign-in token": true
+   },
+   "added": [
+    {
+     "id": "LG-0001",
+     "company": "Globex Corp",
+     "title": "Senior IT Program Manager",
+     "score": 7
+    },
+    {
+     "id": "LG-0002",
+     "company": "Initech",
+     "title": "Cloud Program Manager",
+     "score": 7
+    }
+   ],
+   "skipped": [
+    {
+     "company": "ShopMart Example",
+     "title": "Retail Store Manager",
+     "reason": "Retail role, on the never interested list"
+    },
+    {
+     "company": "Example Corp",
+     "title": "IT Vendor Manager",
+     "reason": "already known as JS-001"
+    },
+    {
+     "company": "Umbrella Example",
+     "title": "Program Manager, Infrastructure",
+     "reason": "already known as JS-005"
+    }
+   ],
+   "model_calls": 2,
+   "tokens": {
+    "input": 4456,
+    "output": 810
+   },
+   "seconds": 13.2
+  },
+  {
+   "checks": {
+    "logs exactly Globex then Initech": true,
+    "skips the duplicates": true,
+    "skips the retail job as off-target": true,
+    "Tier 1 scores in 6-8": true,
+    "stores no sign-in token": true
+   },
+   "added": [
+    {
+     "id": "LG-0001",
+     "company": "Globex Corp",
+     "title": "Senior IT Program Manager",
+     "score": 7
+    },
+    {
+     "id": "LG-0002",
+     "company": "Initech",
+     "title": "Cloud Program Manager",
+     "score": 7
+    }
+   ],
+   "skipped": [
+    {
+     "company": "ShopMart Example",
+     "title": "Retail Store Manager",
+     "reason": "Retail role, on never-interested list"
+    },
+    {
+     "company": "Example Corp",
+     "title": "IT Vendor Manager",
+     "reason": "already known as JS-001"
+    },
+    {
+     "company": "Umbrella Example",
+     "title": "Program Manager, Infrastructure",
+     "reason": "already known as JS-005"
+    }
+   ],
+   "model_calls": 2,
+   "tokens": {
+    "input": 4456,
+    "output": 842
+   },
+   "seconds": 3.2
+  },
+  {
+   "checks": {
+    "logs exactly Globex then Initech": true,
+    "skips the duplicates": true,
+    "skips the retail job as off-target": true,
+    "Tier 1 scores in 6-8": true,
+    "stores no sign-in token": true
+   },
+   "added": [
+    {
+     "id": "LG-0001",
+     "company": "Globex Corp",
+     "title": "Senior IT Program Manager",
+     "score": 7
+    },
+    {
+     "id": "LG-0002",
+     "company": "Initech",
+     "title": "Cloud Program Manager",
+     "score": 7
+    }
+   ],
+   "skipped": [
+    {
+     "company": "ShopMart Example",
+     "title": "Retail Store Manager",
+     "reason": "Retail role, on never-interested list"
+    },
+    {
+     "company": "Example Corp",
+     "title": "IT Vendor Manager",
+     "reason": "already known as JS-001"
+    },
+    {
+     "company": "Umbrella Example",
+     "title": "Program Manager, Infrastructure",
+     "reason": "already known as JS-005"
+    }
+   ],
+   "model_calls": 2,
+   "tokens": {
+    "input": 4456,
+    "output": 842
+   },
+   "seconds": 3.2
+  }
+ ]
+}
