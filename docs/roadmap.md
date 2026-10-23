@@ -9,7 +9,7 @@ The same problem (find job leads, score fit against a full resume, show the gaps
 | | Approach | Who decides the next step | Status |
 |---|---|---|---|
 | **A** | Claude skills plugin (`skills/job-search-assistant/`) | The model, following SKILL.md steps | Released, 0.4.x |
-| **B** | LangGraph pipeline (`orchestration/job-search/approaches/langgraph/`) | Code: a state graph that calls the model only to score and tailor | First milestone: evaluate graph, tested with fakes |
+| **B** | LangGraph pipeline (`orchestration/job-search/approaches/langgraph/`) | Code: a state graph that calls the model only to read, judge and write | Scores like A on the gold cases; intake and the Google Sheet done; reaching parity (milestone 6) |
 | **C** | Local MCP server (`job-search-local` plugin) | The model picks a tool; code computes the answer | Proposed |
 
 ## Principles that hold across every milestone
@@ -96,9 +96,9 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 - **Goal:** B runs the whole workflow, alongside A, on the same tracker.
 - **Deliverables:**
   - an intake graph: Gmail → the model reads each email's job cards → canonical URL and dedup (`canonical_url.py` copied into `core`) → Tier 1 score → rows;
-  - a Tier 2 graph whose entry point is the **Run Tier 2** checkbox;
+  - a Tier 2 graph: in shadow mode it scores the rows A finished Tier 2 on, from A's saved JD; after cut-over its entry point is the **Run Tier 2** checkbox;
   - a `SheetsTracker` adapter behind `TrackerPort`, so B can read A's Google Sheet. During shadow mode B writes to a separate spreadsheet of its own, never to A's tracker, and ADR 0002 is updated;
-  - local scheduling;
+  - local scheduling (decision D7);
   - the known fixes (ID collisions in `next_id`, real dependencies built at import in `studio.py`).
 - **Google access in this milestone** is the developer's own OAuth client (the setup guide's step 3). That's fine for building B and for the shadow week, but it isn't something to ask of every user: reading Gmail needs a restricted scope. Milestone 8 replaces it for users.
 - **Depends on:** 5.
@@ -107,7 +107,13 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - B's shadow is a separate spreadsheet it creates, so it only ever needs the `drive.file` scope.
   - In shadow mode B's Tier 2 mirrors A: it scores the rows A finished, from A's saved JD.
   - Intake reads each email with one structured model call; code does the rest.
-- **Progress:** the foundations (job IDs, Studio, the shared dedup key), the intake graph (`jobs run intake`, 3 of 3 live runs passing the plugin's intake case) and the Sheets adapters are done. `jobs auth google` signs in with `drive.file` and the Google Picker (milestone 8's sign-in), B reads A's tracker for dedup, and `SheetsTracker` keeps B's jobs in its own shadow spreadsheet (ADR 0002, updated). Next: Tier 2 from the Sheet, then scheduling and the agreement report.
+- **Progress:**
+  - **6a, foundations:** job IDs, Studio, the shared dedup key. Done.
+  - **6b, intake:** `jobs run intake`, 3 of 3 live runs passing the plugin's intake case. Done; not yet run against a real inbox.
+  - **6c, Sheets:** `jobs auth google` signs in with `drive.file` and the Google Picker (milestone 8's sign-in). B reads A's tracker for dedup and keeps its own jobs in a shadow spreadsheet through `SheetsTracker` (ADR 0002, updated). The tracker is named only by the profile's **Tracker → Sheet ID**, as for the plugin: the Picker approves access to that file, and B keeps no copy of its ID. Done.
+  - B's fit prompt fixed (`fit-scoring/2.1`, milestone 5).
+- **Next, 6d: Tier 2 from the Sheet.** It needs decision D8 first: how B reads the JD files A saved in Drive, which `drive.file` may not reach.
+- **Then 6e:** `jobs run tier2`, the agreement report, scheduling (D7) and the shadow week.
 
 ### 7. Packaging for readers · docs
 
@@ -129,19 +135,22 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - **Sign-in and the Picker:** a Desktop client asking only for `openid`, `email` and `drive.file`, with the Picker served from `localhost`, read a picked copy of a tracker and wrote to it (added a tab, wrote a cell, read it back, removed the tab). Before the pick, `drive.file` saw no files. Silent token refresh worked.
   - **Found on the way:** Google's consent screen lets people untick the Drive permission, so the app checks what was granted; and Python has to use the operating system's certificate store (`truststore`) on machines that intercept TLS.
 - **Deliverables:**
-  - **8a, the app shell:** a small local server (FastAPI) and one page, as a new front end under `approaches/` (its README states its maturity). Sign-in with the shipped client, the Picker, a check of the granted scopes, `truststore`. Tokens stay in `data/`.
+  - **8a, the app shell:** a small local server (FastAPI) and one page, as a new front end under `approaches/` (its README states its maturity). Sign-in with the shipped client, a check of the granted scopes, `truststore`. Tokens stay in `data/`.
+    - **Onboarding without `.env`:** the user picks their `job-search-profile.md` in the Picker once, and the app reads it from Drive by that file ID. Today's pipeline needs `JOBS_PROFILE` pointing at a Drive-synced copy, because `drive.file` can't search Drive; the app removes that step. The profile then names the tracker and folder, and the Picker approves those (as `jobs auth google` does now).
   - **8b, tracker and statistics:** the Job Log and Archive through 6c's Sheets adapter; counts by status, score band and Tier 2 backlog; gap statistics computed in `core`, as the same function 4c's `gap_summary` exposes, so the page and the MCP server can't disagree.
   - **8c, actions:** each button starts a background job and shows its progress.
-    - **Search for jobs:** the plugin's intake skill through headless Claude Code, with a fixed tool allowlist. Needs Claude Code installed and signed in.
+    - **Search for jobs:** the plugin's intake skill through headless Claude Code, with a fixed tool allowlist that includes `python` for the skill's scripts, and a pinned `--model` (it otherwise runs on the account's default). Needs Claude Code installed and signed in.
     - **Score (Tier 2)** and **Build resume:** B's graphs (decision D6).
   - **8d, publishing:** the OAuth app moves to Production after the brand check, so users see no "unverified app" warning and their sign-in doesn't expire weekly. ADR 0005: why Google access is split this way.
-- **Depends on:** 6c (the Sheets adapter) and 6d (the Tier 2 graph). The statistics code is shared with 4c; whichever comes first builds it in `core`.
+- **B's own Gmail intake (6b)** stays for developers with their own Google project and for the shadow week; app users get intake through Claude instead.
+- **Depends on:** 6c (the Sheets adapter), 6d (the Tier 2 graph) and decision D8 (reading the plugin's job files). The statistics code is shared with 4c; whichever comes first builds it in `core`.
 - **Done when:** a new user starts the app, signs in with Google, approves the tracker their profile names, sees its status and statistics, scores a job and builds a resume from the page, all without any Google Cloud setup of their own.
 
 ### Later, behind a decision
 
 - **A hosted MCP server.** Drive and Sheets under the `drive.file` scope, with Gmail left on Anthropic's connector, so the server works in claude.ai scheduled runs. This only makes sense if C proves useful; it brings OAuth custody, Google verification and hosting.
 - **B's remaining milestones:** a status sweep (closed postings, recruiter replies) and re-tailoring when the full resume changes.
+- **The same requirements rule for A** (milestone 5's follow-up): two sentences in `job-fit-rubric`, a plugin release, and A's scoring evals rerun.
 
 ## Open decisions
 
@@ -153,6 +162,9 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | D4 | Whether to host an MCP server | Later | Not until 4c shows it's worth it |
 | D5 | How users give the app Google access without their own Cloud project | 8 | ✅ Decided: one shipped Desktop client with `drive.file` and the Picker; Gmail through Claude's connector |
 | D6 | What runs the app's Score and Build resume buttons: B on the user's Anthropic API key, or the plugin through headless Claude Code on their Claude plan | 8c | B, which milestone 5 measured as far lighter per job; the plugin path for users without a key |
+| D7 | How B runs during the shadow week: manual commands (`jobs run intake`, `jobs run tier2`) or a scheduler (Windows Task Scheduler, cron) | 6e | Open |
+| D8 | How B and the app read the job files the plugin saves in Drive (`<ID>_JD.md`, fit reports): `drive.file` reaches only picked or app-created files | 6d | Spike first: does picking the job folder in the Picker grant access to the files inside it? If not, read them from the Drive-synced folder on disk (as `JOBS_PROFILE` does), or ask for a broader scope only as a last resort |
+| D9 | Whether the app's Desktop OAuth client file is committed to the repo (Google treats a Desktop client's secret as not confidential) or fetched at first run | 8a | Open |
 
 ## Status
 
@@ -163,6 +175,6 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
 | 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt fixed (18/18 on gold); the same rule for A's rubric is a follow-up |
-| 6. B to parity | In progress: foundations, intake and Sheets done; Tier 2 from the Sheet next |
+| 6. B to parity | In progress: 6a foundations, 6b intake and 6c Sheets done; 6d (Tier 2 from the Sheet) next, after decision D8 |
 | 7. Packaging | First pass can start; final after 6 |
-| 8. Local app | Planned; spikes done; starts after 6c and 6d |
+| 8. Local app | Planned; spikes done; starts after 6d (6c done) |
