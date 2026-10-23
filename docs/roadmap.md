@@ -112,7 +112,8 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - **6b, intake:** `jobs run intake`, 3 of 3 live runs passing the plugin's intake case. Done; not yet run against a real inbox.
   - **6c, Sheets:** `jobs auth google` signs in with `drive.file` and the Google Picker (milestone 8's sign-in). B reads A's tracker for dedup and keeps its own jobs in a shadow spreadsheet through `SheetsTracker` (ADR 0002, updated). The tracker is named only by the profile's **Tracker → Sheet ID**, as for the plugin: the Picker approves access to that file, and B keeps no copy of its ID. Done.
   - B's fit prompt fixed (`fit-scoring/2.1`, milestone 5).
-- **Next, 6d: Tier 2 from the Sheet.** It needs decision D8 first: how B reads the JD files A saved in Drive, which `drive.file` may not reach.
+- **D8 spike (2026-10-23):** under `drive.file`, picking a folder in the Picker grants access to the folder alone. Before and after the pick, B could not open or list the files inside it, at the top level or in a company subfolder, whether `.md` or Google Doc. The plugin saves job files as unconverted Markdown, so Drive for desktop syncs them to disk as ordinary `.md` files.
+- **Next, 6d: Tier 2 from the Sheet.** B reads A's saved `<ID>_JD.md` from the Drive-synced job-search folder on disk, the folder that holds the profile `JOBS_PROFILE` points to (decision D8).
 - **Then 6e:** `jobs run tier2`, the agreement report, scheduling (D7) and the shadow week.
 
 ### 7. Packaging for readers · docs
@@ -128,7 +129,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 - **Goal:** a web page that runs on the user's own computer (at `localhost`) and is one place to see and run the job search: tracker status, the actions (search for jobs, Tier 2 scoring, a tailored resume) and statistics. No user creates a Google Cloud project.
 - **Google access, split by what each scope costs:**
   - **One OAuth client, shipped with the repo.** The maintainer registers one Desktop client; users click **Sign in with Google**. It asks only for `openid`, `email` and `drive.file`. `drive.file` is non-sensitive, so publishing the app needs Google's brand check, not the security assessment that a Gmail scope needs.
-  - **The Google Picker.** The user approves, once, the tracker Sheet and job folder their profile names (the profile stays the only place they're named). `drive.file` then covers those, and the files the app creates (B's shadow sheet, JD files, resumes), and nothing else in their Drive.
+  - **The Google Picker.** The user approves, once, the tracker Sheet their profile names (the profile stays the only place it's named). `drive.file` then covers it, and the files the app creates (B's shadow sheet, JD files, resumes), and nothing else in their Drive. Picking the job folder does not reach the files the plugin saved in it (the D8 spike); how the app reads them is decision D10.
   - **Gmail stays with Claude.** Every Gmail read scope is restricted (a yearly security assessment for a public app), so the app never asks for one. Intake runs on the user's Claude account, through Claude's Gmail connector: the plugin's scheduled intake in claude.ai, or the page's **Search for jobs** button running the plugin's intake skill through headless Claude Code.
 - **Spikes (2026-10-22):**
   - **Headless Claude Code:** `claude -p`, on the user's Claude login with no API key, loaded the plugin and used the claude.ai Gmail, Drive and Sheets connectors unattended, with only read tools on its allowlist. The intake skill, as a dry run over a week of alerts, took about 7 minutes. Its scripts need `python` on the allowlist (on Windows it tried `python3` and `py`).
@@ -136,14 +137,14 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - **Found on the way:** Google's consent screen lets people untick the Drive permission, so the app checks what was granted; and Python has to use the operating system's certificate store (`truststore`) on machines that intercept TLS.
 - **Deliverables:**
   - **8a, the app shell:** a small local server (FastAPI) and one page, as a new front end under `approaches/` (its README states its maturity). Sign-in with the shipped client, a check of the granted scopes, `truststore`. Tokens stay in `data/`.
-    - **Onboarding without `.env`:** the user picks their `job-search-profile.md` in the Picker once, and the app reads it from Drive by that file ID. Today's pipeline needs `JOBS_PROFILE` pointing at a Drive-synced copy, because `drive.file` can't search Drive; the app removes that step. The profile then names the tracker and folder, and the Picker approves those (as `jobs auth google` does now).
+    - **Onboarding without `.env`:** the user picks their `job-search-profile.md` in the Picker once, and the app reads it from Drive by that file ID. Today's pipeline needs `JOBS_PROFILE` pointing at a Drive-synced copy, because `drive.file` can't search Drive; the app removes that step. The profile then names the tracker, and the Picker approves it (as `jobs auth google` does now).
   - **8b, tracker and statistics:** the Job Log and Archive through 6c's Sheets adapter; counts by status, score band and Tier 2 backlog; gap statistics computed in `core`, as the same function 4c's `gap_summary` exposes, so the page and the MCP server can't disagree.
   - **8c, actions:** each button starts a background job and shows its progress.
     - **Search for jobs:** the plugin's intake skill through headless Claude Code, with a fixed tool allowlist that includes `python` for the skill's scripts, and a pinned `--model` (it otherwise runs on the account's default). Needs Claude Code installed and signed in.
     - **Score (Tier 2)** and **Build resume:** B's graphs (decision D6).
   - **8d, publishing:** the OAuth app moves to Production after the brand check, so users see no "unverified app" warning and their sign-in doesn't expire weekly. ADR 0005: why Google access is split this way.
 - **B's own Gmail intake (6b)** stays for developers with their own Google project and for the shadow week; app users get intake through Claude instead.
-- **Depends on:** 6c (the Sheets adapter), 6d (the Tier 2 graph) and decision D8 (reading the plugin's job files). The statistics code is shared with 4c; whichever comes first builds it in `core`.
+- **Depends on:** 6c (the Sheets adapter), 6d (the Tier 2 graph) and decision D10 (how the app reads the plugin's job files). The statistics code is shared with 4c; whichever comes first builds it in `core`.
 - **Done when:** a new user starts the app, signs in with Google, approves the tracker their profile names, sees its status and statistics, scores a job and builds a resume from the page, all without any Google Cloud setup of their own.
 
 ### Later, behind a decision
@@ -163,8 +164,9 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | D5 | How users give the app Google access without their own Cloud project | 8 | ✅ Decided: one shipped Desktop client with `drive.file` and the Picker; Gmail through Claude's connector |
 | D6 | What runs the app's Score and Build resume buttons: B on the user's Anthropic API key, or the plugin through headless Claude Code on their Claude plan | 8c | B, which milestone 5 measured as far lighter per job; the plugin path for users without a key |
 | D7 | How B runs during the shadow week: manual commands (`jobs run intake`, `jobs run tier2`) or a scheduler (Windows Task Scheduler, cron) | 6e | Open |
-| D8 | How B and the app read the job files the plugin saves in Drive (`<ID>_JD.md`, fit reports): `drive.file` reaches only picked or app-created files | 6d | Spike first: does picking the job folder in the Picker grant access to the files inside it? If not, read them from the Drive-synced folder on disk (as `JOBS_PROFILE` does), or ask for a broader scope only as a last resort |
+| D8 | How B reads the job files the plugin saves in Drive (`<ID>_JD.md`, fit reports): `drive.file` reaches only picked or app-created files | 6d | ✅ Decided (2026-10-23 spike): picking the job folder grants the folder, not the files in it, so B reads them from the Drive-synced folder on disk, the folder holding the profile `JOBS_PROFILE` points to. No broader scope |
 | D9 | Whether the app's Desktop OAuth client file is committed to the repo (Google treats a Desktop client's secret as not confidential) or fetched at first run | 8a | Open |
+| D10 | How the app reads the plugin's job files for users who don't sync Drive to disk: the Picker can't grant them (D8), and `drive.readonly` is restricted | 8 | Open. Options: require Drive for desktop, as B does; or the plugin also writes each JD into the tracker Sheet the user already picks (a JDs tab, as B's shadow keeps), which changes the plugin's contract |
 
 ## Status
 
@@ -175,6 +177,6 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
 | 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt fixed (18/18 on gold); the same rule for A's rubric is a follow-up |
-| 6. B to parity | In progress: 6a foundations, 6b intake and 6c Sheets done; 6d (Tier 2 from the Sheet) next, after decision D8 |
+| 6. B to parity | In progress: 6a foundations, 6b intake and 6c Sheets done; D8 decided; 6d (Tier 2 from the Sheet) next |
 | 7. Packaging | First pass can start; final after 6 |
-| 8. Local app | Planned; spikes done; starts after 6d (6c done) |
+| 8. Local app | Planned; spikes done; starts after 6d (6c done); needs D10 |
