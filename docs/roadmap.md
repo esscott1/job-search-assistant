@@ -88,7 +88,8 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 - **Borderline cases (2026-10-22):** three more gold cases, each turning on one judgment call the rubric spells out (exactly half the required items met, a "remote" role that requires moving, an unlabelled list of qualifications). Over all six cases, 3 runs each:
   - A was within ±1 of gold in 18 of 18 runs;
   - B was within ±1 in 16 of 18. Both misses were on the half-met case: B called a comparable tool `none` and counted JD duties as requirements, which tripped the fewer-than-half cap (7 → 5).
-- **Follow-up:** B's fit prompt (`fit-scoring/2.0`) lists Responsibilities lines as requirements in about a third of runs. A prompt change, rerun against these cases.
+- **Fixed (2026-10-22): B's fit prompt.** `fit-scoring/2.1` takes requirements only from a JD's qualifications, never its duties, and counts the same kind of tool from another vendor (AWS for Azure) as `partial`. `assess_fit` also asks once more when a job that falls short comes back with no gaps. Rerun of B, 3 runs per case: **18 of 18 exactly on gold**, every requirement list matching gold, no duties listed. B's job-fit evals: 8 of 8 in three runs, after `salesforce-architect`'s band moved from 3–6 to 2–6 (its 3 came from counting the JD's opening duty; the plugin's rubric skill scored the same JD 3, 2, 3, the 2 when it left the duty out).
+- **Follow-up for A:** the plugin's rubric text doesn't rule out duties either, and on a JD without headings it counted one in 2 of 3 runs. The same two sentences could go into `job-fit-rubric`, with A's scoring evals rerun.
 
 ### 6. B to parity · LangGraph
 
@@ -161,7 +162,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | 2. One rubric | ✅ Done ([ADR 0003](adr/0003-shared-rubric.md)) |
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
-| 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt follow-up open |
+| 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt fixed (18/18 on gold); the same rule for A's rubric is a follow-up |
 | 6. B to parity | In progress: foundations, intake and Sheets done; Tier 2 from the Sheet next |
 | 7. Packaging | First pass can start; final after 6 |
 | 8. Local app | Planned; spikes done; starts after 6c and 6d |

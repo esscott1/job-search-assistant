@@ -51,6 +51,10 @@ def assess_fit(
 ) -> FitAssessment:
     """The model's judgment: an evidence table and the top gaps. Never a score.
 
+    If some requirement falls short but the model lists no gaps, it gets one more try: an empty
+    Gaps cell on a job that isn't a full match misleads. A second empty answer is kept (the
+    score doesn't depend on gaps).
+
     On a rescore (`previous` given), the model must judge the same requirements again. If it
     returns a different number of them, it gets one more try before RescoreMismatch.
     """
@@ -70,6 +74,11 @@ def assess_fit(
     prompt += "Assess the fit."
 
     assessment = llm.structured(system=system, prompt=prompt, schema=FitAssessment)
+    short = [r for r in assessment.requirements if r.evidence != "strong"]
+    if short and not assessment.top_gaps:
+        retry = f"{prompt}\n\nYour last answer listed no top_gaps, but {len(short)} "
+        retry += "requirements are partial or none. List the biggest gaps."
+        assessment = llm.structured(system=system, prompt=retry, schema=FitAssessment)
     if previous and previous.requirements:
         expected = len(previous.requirements)
         if len(assessment.requirements) != expected:

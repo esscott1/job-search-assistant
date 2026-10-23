@@ -1,6 +1,6 @@
 {
   "summary": {
-    "prompt": "fit-scoring/2.0",
+    "prompt": "fit-scoring/2.1",
     "rubric": "1.1",
     "model": "claude-sonnet-5-5",
     "passed": 8,
@@ -17,13 +17,12 @@
       "in_band": true,
       "gaps_ok": true,
       "gaps": [
-        "No agentic framework experience (LangGraph)",
-        "No agentic workflow reference architectures",
-        "No named AI governance board with risk"
+        "No LangGraph or agent framework experience",
+        "No hands-on ML production delivery"
       ],
-      "breakdown": "Rubric v1.1 | Req 6/8 \u00b7 Pref 2/3 \u00b7 coverage 74% \u00b7 Title strong \u00b7 Location unclear | raw 7.7 \u2192 8",
-      "requirements": 11,
-      "seconds": 13.3
+      "breakdown": "Rubric v1.1 | Req 2.5/3 \u00b7 Pref 2/3 \u00b7 coverage 79% \u00b7 Title strong \u00b7 Location unclear | raw 8.0 \u2192 8",
+      "requirements": 6,
+      "seconds": 5.8
     },
     {
       "id": "enterprise-architect-utilities",
@@ -35,17 +34,15 @@
       "in_band": true,
       "gaps_ok": true,
       "gaps": [
-        "No customer, billing, grid-operations domain depth",
-        "Capability map maintenance not shown",
-        "Limited dedicated utilities experience"
+        "ArchiMate not shown in hands-on work"
       ],
-      "breakdown": "Rubric v1.1 | Req 8/9 \u00b7 Pref 0.5/1 \u00b7 coverage 88% \u00b7 Title strong \u00b7 Location unclear | raw 8.6 \u2192 9",
-      "requirements": 10,
-      "seconds": 6.2
+      "breakdown": "Rubric v1.1 | Req 4.5/5 \u00b7 Pref 1/1 \u00b7 coverage 91% \u00b7 Title strong \u00b7 Location unclear | raw 8.8 \u2192 9",
+      "requirements": 6,
+      "seconds": 4.0
     },
     {
       "id": "pmo-director",
-      "score": 6,
+      "score": 5,
       "expected": [
         5,
         8
@@ -54,12 +51,12 @@
       "gaps_ok": true,
       "gaps": [
         "No PMP or PgMP",
-        "No Jira Align or Planview",
-        "Under 10 yrs program/portfolio management"
+        "Only 6 yrs program management",
+        "No Jira Align or Planview"
       ],
-      "breakdown": "Rubric v1.1 | Req 4/7 \u00b7 Pref 0/0 \u00b7 coverage 57% \u00b7 Title partial \u00b7 Location unclear | raw 5.5 \u2192 6",
-      "requirements": 7,
-      "seconds": 7.2
+      "breakdown": "Rubric v1.1 | Req 2.5/5 \u00b7 Pref 0/0 \u00b7 coverage 50% \u00b7 Title partial \u00b7 Location unclear | raw 5.0 \u2192 5",
+      "requirements": 5,
+      "seconds": 4.3
     },
     {
       "id": "forward-deployed-engineer",
@@ -72,30 +69,30 @@
       "gaps_ok": true,
       "gaps": [
         "No production software engineering experience",
-        "No TypeScript experience",
-        "Python only at scripting level"
+        "Python only at scripting level",
+        "No hands-on LLM application building"
       ],
-      "breakdown": "Rubric v1.1 | Req 3/7 \u00b7 Pref 1/1 \u00b7 coverage 45% \u00b7 Title weak \u00b7 Location unclear | raw 3.7 \u2192 4",
-      "requirements": 8,
-      "seconds": 5.0
+      "breakdown": "Rubric v1.1 | Req 2/4 \u00b7 Pref 1/1 \u00b7 coverage 54% \u00b7 Title weak \u00b7 Location unclear | raw 4.3 \u2192 4",
+      "requirements": 5,
+      "seconds": 3.8
     },
     {
       "id": "salesforce-architect",
-      "score": 3,
+      "score": 2,
       "expected": [
-        3,
+        2,
         6
       ],
       "in_band": true,
       "gaps_ok": true,
       "gaps": [
-        "No Salesforce certifications",
-        "No Apex or LWC experience",
-        "No Salesforce implementation experience"
+        "No Salesforce implementation experience",
+        "No Salesforce architect certifications",
+        "No Apex or LWC skills"
       ],
-      "breakdown": "Rubric v1.1 | Req 1.5/5 \u00b7 Pref 0/1 \u00b7 coverage 28% \u00b7 Title partial \u00b7 Location unclear | raw 3.5 \u2192 3",
-      "requirements": 6,
-      "seconds": 4.7
+      "breakdown": "Rubric v1.1 | Req 0.5/4 \u00b7 Pref 0/1 \u00b7 coverage 12% \u00b7 Title partial \u00b7 Location unclear | raw 2.3 \u2192 2",
+      "requirements": 5,
+      "seconds": 3.7
     },
     {
       "id": "ml-research-engineer",
@@ -108,12 +105,12 @@
       "gaps_ok": true,
       "gaps": [
         "No PyTorch or JAX experience",
-        "No LLM training or fine-tuning",
-        "No MS/PhD in machine learning"
+        "No CUDA or distributed training",
+        "No ML graduate degree"
       ],
-      "breakdown": "Rubric v1.1 | Req 0/6 \u00b7 Pref 0/1 \u00b7 coverage 0% \u00b7 Title weak \u00b7 Location unclear | raw 0.5 \u2192 1",
-      "requirements": 7,
-      "seconds": 4.1
+      "breakdown": "Rubric v1.1 | Req 0/3 \u00b7 Pref 0/1 \u00b7 coverage 0% \u00b7 Title weak \u00b7 Location unclear | raw 0.5 \u2192 1",
+      "requirements": 4,
+      "seconds": 3.3
     },
     {
       "id": "junior-data-analyst",
@@ -125,17 +122,17 @@
       "in_band": true,
       "gaps_ok": true,
       "gaps": [
-        "No BI tool experience (Tableau, Power BI)",
+        "No BI tool experience (Tableau/Power BI)",
         "No Excel proficiency shown",
-        "Hands-on data analysis not shown"
+        "No hands-on data analysis work"
       ],
-      "breakdown": "Rubric v1.1 | Req 2.5/8 \u00b7 Pref 0/0 \u00b7 coverage 31% \u00b7 Title weak \u00b7 Location unclear | raw 2.7 \u2192 3",
-      "requirements": 8,
-      "seconds": 5.3
+      "breakdown": "Rubric v1.1 | Req 1.5/5 \u00b7 Pref 0/0 \u00b7 coverage 30% \u00b7 Title weak \u00b7 Location unclear | raw 2.6 \u2192 3",
+      "requirements": 5,
+      "seconds": 10.7
     },
     {
       "id": "retail-store-manager",
-      "score": 2,
+      "score": 1,
       "expected": [
         1,
         2
@@ -144,12 +141,12 @@
       "gaps_ok": true,
       "gaps": [
         "No retail store management experience",
-        "No inventory or merchandising experience",
-        "No sales target ownership"
+        "No team leadership of store associates",
+        "No inventory or merchandising background"
       ],
-      "breakdown": "Rubric v1.1 | Req 1.5/8 \u00b7 Pref 0/0 \u00b7 coverage 19% \u00b7 Title weak \u00b7 Location unclear | raw 1.8 \u2192 2",
-      "requirements": 8,
-      "seconds": 4.6
+      "breakdown": "Rubric v1.1 | Req 0/3 \u00b7 Pref 0/0 \u00b7 coverage 0% \u00b7 Title weak \u00b7 Location unclear | raw 0.5 \u2192 1",
+      "requirements": 3,
+      "seconds": 3.0
     }
   ]
 }

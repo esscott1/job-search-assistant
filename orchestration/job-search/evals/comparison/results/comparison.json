@@ -14,7 +14,7 @@
    "approach": "B",
    "date": "2026-10-22",
    "model": "claude-sonnet-5-5",
-   "prompt": "fit-scoring/2.0",
+   "prompt": "fit-scoring/2.1",
    "rubric": "1.1",
    "runs_per_case": 3
   },
@@ -95,21 +95,18 @@
     "within_1_of_gold": 1.0,
     "exact_gold": 1.0,
     "vs_gold": {
-     "overlap": 0.867,
+     "overlap": 1.0,
      "evidence_agree": 1.0,
      "title_agree": 1.0,
      "arrangement_agree": 1.0,
      "details": [
       {
-       "overlap": 0.8,
+       "overlap": 1.0,
        "evidence_agree": 1.0,
        "type_agree": 1.0,
        "title_agree": true,
        "arrangement_agree": true,
-       "unmatched_first": [
-        "Lead a portfolio of cloud migration programs from planning through cutover.",
-        "Report status to IT leadership."
-       ],
+       "unmatched_first": [],
        "unmatched_second": [],
        "inexact_matches": []
       },
@@ -124,15 +121,12 @@
        "inexact_matches": []
       },
       {
-       "overlap": 0.8,
+       "overlap": 1.0,
        "evidence_agree": 1.0,
        "type_agree": 1.0,
        "title_agree": true,
        "arrangement_agree": true,
-       "unmatched_first": [
-        "Lead a portfolio of cloud migration programs from planning through cutover",
-        "Report status to IT leadership"
-       ],
+       "unmatched_first": [],
        "unmatched_second": [],
        "inexact_matches": []
       }
@@ -143,20 +137,17 @@
     "pairs": 9,
     "within_1": 1.0,
     "median_difference": 0,
-    "overlap": 0.867,
+    "overlap": 1.0,
     "evidence_agree": 0.958,
     "details": [
      {
-      "overlap": 0.8,
+      "overlap": 1.0,
       "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead a portfolio of cloud migration programs from planning through cutover.",
-       "Report status to IT leadership."
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
@@ -170,29 +161,13 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8,
+      "overlap": 1.0,
       "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead a portfolio of cloud migration programs from planning through cutover",
-       "Report status to IT leadership"
-      ],
-      "inexact_matches": []
-     },
-     {
-      "overlap": 0.8,
-      "evidence_agree": 1.0,
-      "type_agree": 1.0,
-      "title_agree": true,
-      "arrangement_agree": true,
-      "unmatched_first": [],
-      "unmatched_second": [
-       "Lead a portfolio of cloud migration programs from planning through cutover.",
-       "Report status to IT leadership."
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
@@ -206,29 +181,23 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8,
+      "overlap": 1.0,
       "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead a portfolio of cloud migration programs from planning through cutover",
-       "Report status to IT leadership"
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
-      "overlap": 0.8,
-      "evidence_agree": 0.875,
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead a portfolio of cloud migration programs from planning through cutover.",
-       "Report status to IT leadership."
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
@@ -242,16 +211,23 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8,
+      "overlap": 1.0,
       "evidence_agree": 0.875,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead a portfolio of cloud migration programs from planning through cutover",
-       "Report status to IT leadership"
-      ],
+      "unmatched_second": [],
+      "inexact_matches": []
+     },
+     {
+      "overlap": 1.0,
+      "evidence_agree": 0.875,
+      "type_agree": 1.0,
+      "title_agree": true,
+      "arrangement_agree": true,
+      "unmatched_first": [],
+      "unmatched_second": [],
       "inexact_matches": []
      }
     ]
@@ -744,19 +720,19 @@
     "scored": 3,
     "scores": [
      7,
-     5,
-     5
-    ],
-    "median": 5,
-    "spread": [
-     5,
+     7,
      7
     ],
-    "within_1_of_gold": 0.333,
-    "exact_gold": 0.333,
+    "median": 7,
+    "spread": [
+     7,
+     7
+    ],
+    "within_1_of_gold": 1.0,
+    "exact_gold": 1.0,
     "vs_gold": {
-     "overlap": 0.906,
-     "evidence_agree": 0.926,
+     "overlap": 1.0,
+     "evidence_agree": 1.0,
      "title_agree": 1.0,
      "arrangement_agree": 1.0,
      "details": [
@@ -771,27 +747,22 @@
        "inexact_matches": []
       },
       {
-       "overlap": 0.8181818181818182,
-       "evidence_agree": 0.8888888888888888,
+       "overlap": 1.0,
+       "evidence_agree": 1.0,
        "type_agree": 1.0,
        "title_agree": true,
        "arrangement_agree": true,
-       "unmatched_first": [
-        "Lead the program replacing our finance and procurement systems",
-        "Report progress and spend to the CFO"
-       ],
+       "unmatched_first": [],
        "unmatched_second": [],
        "inexact_matches": []
       },
       {
-       "overlap": 0.9,
-       "evidence_agree": 0.8888888888888888,
+       "overlap": 1.0,
+       "evidence_agree": 1.0,
        "type_agree": 1.0,
        "title_agree": true,
        "arrangement_agree": true,
-       "unmatched_first": [
-        "Lead the program replacing our finance and procurement systems."
-       ],
+       "unmatched_first": [],
        "unmatched_second": [],
        "inexact_matches": []
       }
@@ -800,10 +771,10 @@
    },
    "A_vs_B": {
     "pairs": 9,
-    "within_1": 0.333,
-    "median_difference": 2,
-    "overlap": 0.906,
-    "evidence_agree": 0.926,
+    "within_1": 1.0,
+    "median_difference": 0,
+    "overlap": 1.0,
+    "evidence_agree": 1.0,
     "details": [
      {
       "overlap": 1.0,
@@ -816,28 +787,13 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8181818181818182,
-      "evidence_agree": 0.8888888888888888,
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead the program replacing our finance and procurement systems",
-       "Report progress and spend to the CFO"
-      ],
-      "inexact_matches": []
-     },
-     {
-      "overlap": 0.9,
-      "evidence_agree": 0.8888888888888888,
-      "type_agree": 1.0,
-      "title_agree": true,
-      "arrangement_agree": true,
-      "unmatched_first": [],
-      "unmatched_second": [
-       "Lead the program replacing our finance and procurement systems."
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
@@ -851,28 +807,13 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8181818181818182,
-      "evidence_agree": 0.8888888888888888,
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead the program replacing our finance and procurement systems",
-       "Report progress and spend to the CFO"
-      ],
-      "inexact_matches": []
-     },
-     {
-      "overlap": 0.9,
-      "evidence_agree": 0.8888888888888888,
-      "type_agree": 1.0,
-      "title_agree": true,
-      "arrangement_agree": true,
-      "unmatched_first": [],
-      "unmatched_second": [
-       "Lead the program replacing our finance and procurement systems."
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
@@ -886,28 +827,43 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8181818181818182,
-      "evidence_agree": 0.8888888888888888,
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead the program replacing our finance and procurement systems",
-       "Report progress and spend to the CFO"
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
-      "overlap": 0.9,
-      "evidence_agree": 0.8888888888888888,
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Lead the program replacing our finance and procurement systems."
-      ],
+      "unmatched_second": [],
+      "inexact_matches": []
+     },
+     {
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
+      "type_agree": 1.0,
+      "title_agree": true,
+      "arrangement_agree": true,
+      "unmatched_first": [],
+      "unmatched_second": [],
+      "inexact_matches": []
+     },
+     {
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
+      "type_agree": 1.0,
+      "title_agree": true,
+      "arrangement_agree": true,
+      "unmatched_first": [],
+      "unmatched_second": [],
       "inexact_matches": []
      }
     ]
@@ -987,7 +943,7 @@
     "within_1_of_gold": 1.0,
     "exact_gold": 1.0,
     "vs_gold": {
-     "overlap": 0.905,
+     "overlap": 1.0,
      "evidence_agree": 1.0,
      "title_agree": 1.0,
      "arrangement_agree": 1.0,
@@ -1003,26 +959,22 @@
        "inexact_matches": []
       },
       {
-       "overlap": 0.8571428571428571,
+       "overlap": 1.0,
        "evidence_agree": 1.0,
        "type_agree": 1.0,
        "title_agree": true,
        "arrangement_agree": true,
-       "unmatched_first": [
-        "Candidates must live in the Pacific or Mountain time zone."
-       ],
+       "unmatched_first": [],
        "unmatched_second": [],
        "inexact_matches": []
       },
       {
-       "overlap": 0.8571428571428571,
+       "overlap": 1.0,
        "evidence_agree": 1.0,
        "type_agree": 1.0,
        "title_agree": true,
        "arrangement_agree": true,
-       "unmatched_first": [
-        "Coordinate cloud, network and vendor teams."
-       ],
+       "unmatched_first": [],
        "unmatched_second": [],
        "inexact_matches": []
       }
@@ -1033,7 +985,7 @@
     "pairs": 9,
     "within_1": 1.0,
     "median_difference": 0,
-    "overlap": 0.905,
+    "overlap": 1.0,
     "evidence_agree": 1.0,
     "details": [
      {
@@ -1047,27 +999,13 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8571428571428571,
+      "overlap": 1.0,
       "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Candidates must live in the Pacific or Mountain time zone."
-      ],
-      "inexact_matches": []
-     },
-     {
-      "overlap": 0.8571428571428571,
-      "evidence_agree": 1.0,
-      "type_agree": 1.0,
-      "title_agree": true,
-      "arrangement_agree": true,
-      "unmatched_first": [],
-      "unmatched_second": [
-       "Coordinate cloud, network and vendor teams."
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
@@ -1081,27 +1019,13 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8571428571428571,
+      "overlap": 1.0,
       "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Candidates must live in the Pacific or Mountain time zone."
-      ],
-      "inexact_matches": []
-     },
-     {
-      "overlap": 0.8571428571428571,
-      "evidence_agree": 1.0,
-      "type_agree": 1.0,
-      "title_agree": true,
-      "arrangement_agree": true,
-      "unmatched_first": [],
-      "unmatched_second": [
-       "Coordinate cloud, network and vendor teams."
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
@@ -1115,27 +1039,43 @@
       "inexact_matches": []
      },
      {
-      "overlap": 0.8571428571428571,
+      "overlap": 1.0,
       "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Candidates must live in the Pacific or Mountain time zone."
-      ],
+      "unmatched_second": [],
       "inexact_matches": []
      },
      {
-      "overlap": 0.8571428571428571,
+      "overlap": 1.0,
       "evidence_agree": 1.0,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
       "unmatched_first": [],
-      "unmatched_second": [
-       "Coordinate cloud, network and vendor teams."
-      ],
+      "unmatched_second": [],
+      "inexact_matches": []
+     },
+     {
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
+      "type_agree": 1.0,
+      "title_agree": true,
+      "arrangement_agree": true,
+      "unmatched_first": [],
+      "unmatched_second": [],
+      "inexact_matches": []
+     },
+     {
+      "overlap": 1.0,
+      "evidence_agree": 1.0,
+      "type_agree": 1.0,
+      "title_agree": true,
+      "arrangement_agree": true,
+      "unmatched_first": [],
+      "unmatched_second": [],
       "inexact_matches": []
      }
     ]
@@ -1216,13 +1156,13 @@
     "exact_gold": 1.0,
     "vs_gold": {
      "overlap": 1.0,
-     "evidence_agree": 1.0,
+     "evidence_agree": 0.917,
      "title_agree": 1.0,
      "arrangement_agree": 1.0,
      "details": [
       {
        "overlap": 1.0,
-       "evidence_agree": 1.0,
+       "evidence_agree": 0.875,
        "type_agree": 1.0,
        "title_agree": true,
        "arrangement_agree": true,
@@ -1242,7 +1182,7 @@
       },
       {
        "overlap": 1.0,
-       "evidence_agree": 1.0,
+       "evidence_agree": 0.875,
        "type_agree": 1.0,
        "title_agree": true,
        "arrangement_agree": true,
@@ -1258,11 +1198,11 @@
     "within_1": 1.0,
     "median_difference": 0,
     "overlap": 1.0,
-    "evidence_agree": 0.917,
+    "evidence_agree": 0.833,
     "details": [
      {
       "overlap": 1.0,
-      "evidence_agree": 0.875,
+      "evidence_agree": 0.75,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
@@ -1273,6 +1213,16 @@
      {
       "overlap": 1.0,
       "evidence_agree": 0.875,
+      "type_agree": 1.0,
+      "title_agree": true,
+      "arrangement_agree": true,
+      "unmatched_first": [],
+      "unmatched_second": [],
+      "inexact_matches": []
+     },
+     {
+      "overlap": 1.0,
+      "evidence_agree": 0.75,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
@@ -1302,7 +1252,7 @@
      },
      {
       "overlap": 1.0,
-      "evidence_agree": 1.0,
+      "evidence_agree": 0.875,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
@@ -1312,7 +1262,7 @@
      },
      {
       "overlap": 1.0,
-      "evidence_agree": 1.0,
+      "evidence_agree": 0.75,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
@@ -1332,17 +1282,7 @@
      },
      {
       "overlap": 1.0,
-      "evidence_agree": 0.875,
-      "type_agree": 1.0,
-      "title_agree": true,
-      "arrangement_agree": true,
-      "unmatched_first": [],
-      "unmatched_second": [],
-      "inexact_matches": []
-     },
-     {
-      "overlap": 1.0,
-      "evidence_agree": 0.875,
+      "evidence_agree": 0.75,
       "type_agree": 1.0,
       "title_agree": true,
       "arrangement_agree": true,
@@ -1368,14 +1308,14 @@
   },
   "B": {
    "tokens": {
-    "input": 3285.5,
+    "input": 3510.5,
     "cache_write": 0.0,
     "cache_read": 0.0,
-    "output": 713.0,
-    "total": 4010.0
+    "output": 690.5,
+    "total": 4210.5
    },
    "model_calls": 1.0,
-   "seconds": 5.15
+   "seconds": 4.65
   }
  },
  "failures": {
