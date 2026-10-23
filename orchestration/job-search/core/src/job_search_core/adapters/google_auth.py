@@ -1,8 +1,15 @@
 """Google OAuth for a personal account: one-time browser consent, then silent refresh.
 
-Requires the `google` extra. See docs/setup/job-search-langgraph.md for the Google Cloud
-setup — in particular, publish the OAuth app to "In production", or Google expires the
-refresh token after 7 days and the pipeline starts failing weekly.
+Requires the `google` extra. The pipeline asks for `drive.file`, which reaches only the files
+you pick in the Google Picker (your tracker) and the files the pipeline creates (its shadow
+spreadsheet), nothing else in your Drive. `gmail.readonly` is added only when you ask for it
+(`jobs auth google --gmail`), for B's own intake. See docs/setup/job-search-langgraph.md,
+step 3, for the Google Cloud setup.
+
+The files live in one folder, `data/google/` by default:
+- `credentials.json`: the OAuth client (a Desktop client);
+- `token.json`: your refresh token, written here after sign-in. It is a credential;
+- `picker.json` and `sheets.json`: see `google_picker` and `google_sheets`.
 """
 
 from __future__ import annotations
@@ -10,59 +17,81 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-# Read-only on purpose: the pipeline never sends mail or edits Drive files.
-SCOPES = [
-    "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/drive.readonly",
-]
+SIGN_IN = ["openid", "https://www.googleapis.com/auth/userinfo.email"]
+DRIVE_FILE = "https://www.googleapis.com/auth/drive.file"
+GMAIL_READONLY = "https://www.googleapis.com/auth/gmail.readonly"
 
 
 class GoogleAuthError(RuntimeError):
     pass
 
 
-def _paths() -> tuple[Path, Path]:
-    secrets = Path(os.environ.get("GOOGLE_CLIENT_SECRETS", "data/google/credentials.json"))
-    token = Path(os.environ.get("GOOGLE_TOKEN_PATH", "data/google/token.json"))
-    return secrets, token
+def use_os_certificates() -> None:
+    """Trust the operating system's certificates, not only Python's bundle. Without this,
+    sign-in fails on machines whose antivirus or network inspects TLS."""
+    import truststore
+
+    truststore.inject_into_ssl()
 
 
-def load_credentials(interactive: bool = False):
-    """Return valid credentials, refreshing silently. Opens a browser only if interactive."""
+def missing_scopes(granted: list[str] | None, needed: list[str]) -> list[str]:
+    """Google's consent screen lets people untick a permission; this says which are missing."""
+    return [s for s in needed if s not in set(granted or [])]
+
+
+def _paths(folder: Path) -> tuple[Path, Path]:
+    return folder / "credentials.json", folder / "token.json"
+
+
+def _fix(scope: str) -> str:
+    return "`jobs auth google --gmail`" if scope == GMAIL_READONLY else "`jobs auth google`"
+
+
+def load_credentials(folder: Path, needs: str = DRIVE_FILE):
+    """Return valid credentials that include `needs`, refreshing silently. Never opens a browser."""
     from google.auth.exceptions import RefreshError
     from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
+
+    _, token = _paths(folder)
+    if not token.exists():
+        raise GoogleAuthError(f"No Google token yet. Run {_fix(needs)} once to sign in.")
+    creds = Credentials.from_authorized_user_file(str(token))
+    if missing_scopes(creds.scopes, [needs]):
+        raise GoogleAuthError(f"Google access to {needs} wasn't granted. Run {_fix(needs)}.")
+    use_os_certificates()  # every Google call made with these credentials needs it, not just refresh
+    if creds.valid:
+        return creds
+    try:
+        creds.refresh(Request())
+    except RefreshError as exc:
+        raise GoogleAuthError(
+            "Google refresh token was rejected (expired or revoked). Run `jobs auth google` to "
+            "sign in again. If this happens about weekly, your OAuth app is still in 'Testing' "
+            "(setup guide, step 3)."
+        ) from exc
+    token.write_text(creds.to_json())
+    return creds
+
+
+def sign_in(folder: Path, gmail: bool = False):
+    """Open the browser for consent and save the token. Raises if a needed box was unticked."""
     from google_auth_oauthlib.flow import InstalledAppFlow
 
-    secrets, token = _paths()
-    creds = None
-    if token.exists():
-        creds = Credentials.from_authorized_user_file(str(token), SCOPES)
-
-    if creds and creds.valid:
-        return creds
-    if creds and creds.expired and creds.refresh_token:
-        try:
-            creds.refresh(Request())
-        except RefreshError as exc:
-            if not interactive:
-                raise GoogleAuthError(
-                    "Google refresh token was rejected (expired or revoked). "
-                    "Run `jobs auth google` to sign in again. If this happens about weekly, "
-                    "your OAuth app is still in 'Testing' — publish it (setup guide, step 3)."
-                ) from exc
-            creds = None
-        else:
-            token.write_text(creds.to_json())
-            return creds
-
-    if not interactive:
-        raise GoogleAuthError("No Google token yet. Run `jobs auth google` once to sign in.")
+    secrets, token = _paths(folder)
     if not secrets.exists():
         raise GoogleAuthError(f"OAuth client file not found at {secrets} (setup guide, step 3).")
-
-    flow = InstalledAppFlow.from_client_secrets_file(str(secrets), SCOPES)
+    use_os_certificates()
+    os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"  # a partial grant is reported below, not raised
+    needed = SIGN_IN + [DRIVE_FILE] + ([GMAIL_READONLY] if gmail else [])
+    flow = InstalledAppFlow.from_client_secrets_file(str(secrets), needed)
     creds = flow.run_local_server(port=0, access_type="offline", prompt="consent")
+    missing = missing_scopes(creds.granted_scopes, needed)
+    if missing:
+        raise GoogleAuthError(
+            "Sign-in didn't grant " + ", ".join(missing) + ". Run it again and tick every box "
+            "on Google's permissions screen."
+        )
     token.parent.mkdir(parents=True, exist_ok=True)
     token.write_text(creds.to_json())
     try:
@@ -72,13 +101,9 @@ def load_credentials(interactive: bool = False):
     return creds
 
 
-def verify() -> dict[str, str]:
-    """Make one cheap read call to Gmail and Drive; return who we're signed in as."""
+def signed_in_as(creds) -> str:
+    """The Google account the token belongs to (one cheap Drive call)."""
     from googleapiclient.discovery import build
 
-    creds = load_credentials(interactive=False)
-    gmail = build("gmail", "v1", credentials=creds, cache_discovery=False)
     drive = build("drive", "v3", credentials=creds, cache_discovery=False)
-    profile = gmail.users().getProfile(userId="me").execute()
-    about = drive.about().get(fields="user(emailAddress)").execute()
-    return {"gmail": profile["emailAddress"], "drive": about["user"]["emailAddress"]}
+    return drive.about().get(fields="user(emailAddress)").execute()["user"]["emailAddress"]

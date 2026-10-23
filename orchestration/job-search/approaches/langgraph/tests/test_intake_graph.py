@@ -10,11 +10,13 @@ from job_search_core.adapters.fakes import (
     FakeJDFetcher,
     FakeLLM,
     FakeMail,
+    FakeSheets,
     InMemoryDocumentStore,
     InMemoryProfileSource,
     InMemoryResumeSource,
     digest_leads,
 )
+from job_search_core.adapters.google_sheets import SheetsKnownJobs, SheetsTracker, create_shadow
 from job_search_core.adapters.known_jobs import TrackerKnownJobs
 from job_search_core.adapters.sqlite_tracker import SqliteTracker
 from job_search_core.domain import KnownJob
@@ -34,6 +36,13 @@ PLUGIN_KNOWN = [
     KnownJob(id="JS-005", company="Umbrella Example", title="Program Manager, Infrastructure",
              canonical_url="https://www.linkedin.com/jobs/view/4000000005/"),
 ]  # fmt: skip
+
+# The same three jobs as the plugin's Sheet holds them: two in its Job Log, one in its Archive.
+PLUGIN_LOG = [["ID", "Company", "Job Title", "Canonical URL"]] + [
+    [k.id, k.company, k.title, k.canonical_url] for k in PLUGIN_KNOWN[:2]
+]
+PLUGIN_ARCHIVE = [["ID", "Company", "Job Title", "Archive Reason"], ["JS-005", PLUGIN_KNOWN[2].company,
+                  PLUGIN_KNOWN[2].title, "stale"]]  # fmt: skip
 
 # Search every linkedin.com sender, so the message notification comes back and must be dropped.
 BROAD_PROFILE = SYNTHETIC_PROFILE.replace("| jobalerts-noreply@linkedin.com |", "| linkedin.com |")
@@ -140,6 +149,27 @@ def test_a_gap_since_the_last_logged_email_reads_from_its_date():
     result = run(deps, today="2026-10-30")
     assert (result["window"], result["catch_up"]) == ("after:2026/10/15", True)
     assert deps.mail.queries[-1] == "from:jobalerts-noreply@linkedin.com after:2026/10/15"
+
+
+def test_on_sheets_leads_go_to_bs_shadow_and_dedup_reads_the_plugins_tracker():
+    sheets = FakeSheets()
+    sheets.add_book(
+        "a-tracker", "Job_Search_Tracker", {"Job Log": PLUGIN_LOG, "Archive": PLUGIN_ARCHIVE}
+    )
+    tracker = SheetsTracker(sheets, create_shadow(sheets))
+    deps, _ = make_deps(tracker=tracker)
+    deps.known = SheetsKnownJobs(sheets, "a-tracker", also=TrackerKnownJobs(tracker))
+    before = sheets.read("a-tracker", "Job Log")
+
+    result = run(deps)
+    assert [a["id"] for a in result["added"]] == ["LG-0001", "LG-0002"]
+    assert {s["reason"] for s in result["skipped"]} >= {
+        "already known as JS-001",
+        "already known as JS-005",
+    }
+    assert [j.company for j in tracker.list()] == ["Globex Corp", "Initech"]
+    assert sheets.read("a-tracker", "Job Log") == before  # the plugin's tracker is never written
+    assert run(deps)["added"] == []
 
 
 def test_no_email_sources_means_no_search_and_no_model_call():

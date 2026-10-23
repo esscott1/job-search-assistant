@@ -10,7 +10,7 @@ uv sync --all-packages && uv run jobs demo     # see it work with fakes, no keys
 
 ## What it does
 
-1. **Intake:** find job leads in Gmail and screen them quickly: `jobs run intake`. The model reads each alert email's job cards; code dedups them and the rubric gives each a Tier 1 score. *(Gmail into the local tracker: done; the Google Sheet: roadmap milestone 6)*
+1. **Intake:** find job leads in Gmail and screen them quickly: `jobs run intake`. The model reads each alert email's job cards; code dedups them and the rubric gives each a Tier 1 score. *(Gmail into the local tracker or B's shadow Google Sheet, deduped against the plugin's tracker: done)*
 2. **Evaluate:** fetch the full job description; the model fills an evidence table (each requirement judged against the full resume, plus title fit and work arrangement against the job-search profile), and the shared rubric computes the 1–10 score with a readable breakdown ([ADR 0003](../../docs/adr/0003-shared-rubric.md)). Also names up to three gaps.
 3. **Tailor:** for scores of 7 or more, draft a tailored resume and pause for the user's review. Re-tailor unsubmitted resumes when the full resume changes. *(tailor and review: done; re-tailoring: later)*
 4. **Track:** follow each job through submission, interviews, and outcome, and notice when postings close. *(manual commands: done; automated sweep: later)*
@@ -85,14 +85,14 @@ orchestration/job-search/
 │   │   ├── usecases.py         record each result in the tracker
 │   │   ├── ports.py            interfaces the steps depend on
 │   │   ├── prompts/            versioned prompt files
-│   │   └── adapters/           sqlite tracker, known jobs, HTTP fetcher, Anthropic, Gmail, Google auth, fakes
+│   │   └── adapters/           sqlite and Sheets trackers, known jobs, HTTP fetcher, Anthropic, Gmail, Google auth and Picker, fakes
 │   └── tests/
 ├── approaches/
 │   └── langgraph/              job_search_langgraph — evaluate and intake graphs, CLI (`jobs`), Studio entry
 ├── evals/job-fit/              synthetic persona (resume + profile), 8 labeled JDs, results/latest.json
 ├── evals/intake/               the plugin's intake case through the intake graph; results/latest.json
 ├── evals/comparison/          A (plugin) vs B (this pipeline) on the plugin's gold cases; results/RESULTS.md
-└── data/                       gitignored: your resume and profile, tracker.db, checkpoints, OAuth token
+└── data/                       gitignored: your resume and profile, tracker.db, checkpoints, google/ (OAuth client, token, picks)
 ```
 
 ## Roadmap

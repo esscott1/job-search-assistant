@@ -6,7 +6,7 @@ This guide takes you from a fresh clone to evaluating a real job posting with yo
 |---|---|---|
 | 1 | Install tools and run the demo | Everything (no keys needed) |
 | 2 | Add an Anthropic API key | Scoring and tailoring |
-| 3 | Google Cloud OAuth app | Gmail intake and the Google Sheet tracker (roadmap milestone 6) |
+| 3 | Google Cloud OAuth app | Reading your tracker, B's shadow sheet, and Gmail intake |
 | 4 | Your job-search profile and full resume | Scoring and tailoring |
 | 5 | Evaluate your first job | — |
 | 6 | Optional: tracing and Studio | Debugging, screenshots |
@@ -39,47 +39,63 @@ Create a key in the [Anthropic Console](https://console.anthropic.com/) and past
 
 `.env` is gitignored. Never commit it.
 
-## 3. Google Cloud OAuth app (Gmail and Drive, read-only)
+## 3. Google Cloud OAuth app (your tracker, and Gmail for intake)
 
-The pipeline signs in to Google as you, with **read-only** scopes (`gmail.readonly`, `drive.readonly`). It can't send mail or change files.
+The pipeline signs in to Google as you with the **`drive.file`** scope. It reaches only the files you pick in the Google Picker (your tracker, which it only reads) and the files it creates itself (its shadow spreadsheet), and nothing else in your Drive. For B's own Gmail intake it can also ask for **`gmail.readonly`**, a read-only but restricted scope.
+
+> **This step is for developers.** Today you register your own Google app. Roadmap milestone 8 ships one with the local app, so its users sign in without any of this; Gmail then stays with Claude's connector, and only `drive.file` is asked for.
 
 ### 3a. Create a project and enable the APIs
 
 1. Open the [Google Cloud console](https://console.cloud.google.com/) and create a project (for example, `job-search-pipeline`).
-2. In **APIs & Services → Library**, enable the **Gmail API** and the **Google Drive API**.
+2. In **APIs & Services → Library**, enable the **Google Drive API**, the **Google Sheets API** and the **Google Picker API**. Add the **Gmail API** if you'll run intake.
 
 ### 3b. Configure the consent screen
 
 In **Google Auth Platform** (older consoles call it **OAuth consent screen**):
 
 1. **Branding:** app name `job-search-pipeline`, your email as support and developer contact.
-2. **Audience:** user type **External** (required for a personal @gmail.com account).
-3. **Data access:** add the scopes `.../auth/gmail.readonly` and `.../auth/drive.readonly`.
+2. **Audience:** user type **External** (required for a personal @gmail.com account). Under **Test users**, add your own address.
 
-### 3c. Publish the app — don't skip this
+### 3c. Publish the app, or sign in again weekly
 
-> **This is the step that prevents weekly failures.** While an External app's publishing status is **Testing**, Google issues refresh tokens that [expire after 7 days](https://developers.google.com/identity/protocols/oauth2#expiration). The pipeline would then fail with authentication errors about once a week.
+> While an External app's publishing status is **Testing**, Google issues refresh tokens that [expire after 7 days](https://developers.google.com/identity/protocols/oauth2#expiration), so you'd run `jobs auth google --sign-in` about once a week.
 
-In **Audience**, click **Publish app** to move the status to **In production**. You do **not** need Google's verification for this. Google's verification rules [exempt apps used only by you](https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification) or a few people you know. The cost is a "Google hasn't verified this app" warning when you sign in. Click **Advanced → Go to job-search-pipeline (unsafe)**. That's expected for a personal app.
+In **Audience**, click **Publish app** to move the status to **In production**. You don't need Google's verification for an app only you use: its verification rules [exempt apps used only by you](https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification) or a few people you know. The cost is a "Google hasn't verified this app" warning when you sign in; click **Advanced → Go to job-search-pipeline (unsafe)**.
 
-### 3d. Create the OAuth client
+### 3d. Create the OAuth client and the Picker key
 
-1. **Clients → Create client**, application type **Desktop app**.
-2. Download the JSON and save it as `orchestration/job-search/data/google/credentials.json`.
+1. **Clients → Create client**, application type **Desktop app**. Leave "Use this client for an AI-powered agent" unticked. Download the JSON and save it as `orchestration/job-search/data/google/credentials.json`.
+2. **APIs & Services → Credentials → Create credentials → API key.** Restrict it to the **Google Picker API**.
+3. Note the **project number** from the project's dashboard (**Project info**; the number, not the project ID).
+4. Save both in `orchestration/job-search/data/google/picker.json`:
 
-### 3e. Sign in once
+   ```json
+   {"api_key": "AIza...", "project_number": "123456789012"}
+   ```
+
+### 3e. Sign in and pick your tracker
 
 ```bash
-uv run jobs auth google
+uv run jobs auth google            # add --gmail to also allow intake to read Gmail
 ```
 
-A browser window opens. Sign in, accept the warning from 3c, and grant both read-only permissions. The command saves a refresh token to `data/google/token.json` and verifies it with one read call each to Gmail and Drive:
+1. A browser tab opens. Sign in, accept the warning from 3c, and **tick every box** on the permissions screen. Google lets you leave one unticked; the command then stops and says which.
+2. A second tab opens the **Google Picker**. Pick your job tracker: the spreadsheet the plugin keeps, with its Job Log.
+3. The command reads the tracker (by column header, as the plugin's contract says), and creates **Job Search Tracker (pipeline shadow)** in your Drive, the only spreadsheet the pipeline writes:
 
 ```
-Signed in. Gmail: you@gmail.com  Drive: you@gmail.com
+Signed in as you@gmail.com
+Tracker: Job_Search_Tracker (412 jobs for dedup)
+Created B's shadow spreadsheet. B writes only there, never to your tracker.
+Shadow: Job Search Tracker (pipeline shadow)  https://docs.google.com/spreadsheets/d/…
 ```
 
-From then on the pipeline refreshes access silently. **`token.json` is a credential.** It's gitignored and created with owner-only permissions. You can revoke it anytime at [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
+Your choices are saved in `data/google/sheets.json`. Run it again any time: it reuses your sign-in, and `--pick` chooses the tracker again, `--sign-in` signs in again (for another account, or after the token expires).
+
+**Keep B's jobs in the shadow.** Set `JOBS_TRACKER=sheets` in `.env`. B's jobs then live in the shadow's Job Log, with the plugin's column names plus **Pipeline Status** and **Pipeline Data**, which is what B reads back; its **History** tab records every status change, and its **JDs** tab holds job descriptions. Without the setting, B keeps using `data/tracker.db`. Either way, intake skips jobs already in your tracker (its Job Log and Archive).
+
+**`token.json` is a credential.** It's gitignored and created with owner-only permissions. You can revoke it anytime at [myaccount.google.com/permissions](https://myaccount.google.com/permissions).
 
 ## 4. Your job-search profile and full resume
 
@@ -134,7 +150,7 @@ To reuse IDs from your existing Excel tracker during shadow mode, pass `--id JS-
 
 ### Log leads from your job-alert email
 
-Intake reads the senders in your profile's **Email sources** table, as the plugin's intake scan does, and logs each new job as a Tier 1 lead. It needs step 3 (Gmail sign-in). Try it with `--dry-run` first: it shows what it would log and writes nothing.
+Intake reads the senders in your profile's **Email sources** table, as the plugin's intake scan does, and logs each new job as a Tier 1 lead. It needs step 3, signed in with `--gmail`. Try it with `--dry-run` first: it shows what it would log and writes nothing.
 
 ```bash
 uv run jobs run intake --dry-run
@@ -173,9 +189,13 @@ To run evals in GitHub Actions on pull requests that change prompts, add `ANTHRO
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Google refresh token was rejected` about once a week | OAuth app still in **Testing** | Step 3c, then `jobs auth google` once more |
+| `Google refresh token was rejected` about once a week | OAuth app still in **Testing** | Step 3c, then `jobs auth google --sign-in` |
+| `Sign-in didn't grant …drive.file` | The Drive box was left unticked on Google's permissions screen | `jobs auth google --sign-in`, and tick every box |
+| `Google access to …gmail.readonly wasn't granted` | Signed in without `--gmail` | `jobs auth google --gmail` |
+| `CERTIFICATE_VERIFY_FAILED` | Antivirus or a company network inspecting TLS | The pipeline uses the system's certificates (`truststore`); if it persists, check that the inspecting certificate is installed in Windows or macOS |
 | `invalid_grant` right after setup | Signed in with a different Google account than the one you meant | Revoke at myaccount.google.com/permissions, rerun `jobs auth google` |
-| `Access blocked: app has not completed verification` with no Advanced link | Scopes changed after publishing, or a Workspace admin policy | Re-check 3b; for Workspace accounts ask the admin to trust the client |
+| `Access blocked: app is in testing` | Your address isn't a test user | Step 3b: add it under **Test users** |
+| `Access blocked: app has not completed verification` with no Advanced link | A Workspace admin policy | Ask the admin to trust the client |
 | `Full resume '…' not found` or `Job-search profile not found` | Step 4 not done, or `JOBS_PROFILE` points elsewhere | The resume must be in the profile's folder, under the name on its "Full resume" line |
 | `needs_manual_jd` for a site that works in your browser | Site blocks non-browser requests | Paste the JD with `provide-jd`; the job continues from where it paused |
 | `This job is paused waiting on you` | You ran `evaluate` on a paused job | Answer the pending step, or `jobs evaluate ID --restart` |

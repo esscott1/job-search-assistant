@@ -1,13 +1,15 @@
-"""Gmail adapter (read-only). Used by the intake graph (roadmap milestone 6).
+"""Gmail adapter (read-only). Used by B's intake graph (roadmap milestone 6).
 
-Status: implemented against the Gmail v1 API but not yet exercised end-to-end — the
-first intake task is running it against a real inbox and adding a recorded-fixture test.
+It needs `gmail.readonly`, a restricted scope, so it's for a developer's own Google project
+(`jobs auth google --gmail`). Users of the local app (milestone 8) get intake through Claude's
+Gmail connector instead.
 """
 
 from __future__ import annotations
 
 import base64
 from datetime import UTC, datetime
+from pathlib import Path
 
 from ..ports import MailMessage
 from .http_jd_fetcher import html_to_text
@@ -38,19 +40,19 @@ def _body_text(payload: dict) -> str:
 
 
 class GmailMail:
-    def __init__(self, service=None):
+    def __init__(self, service=None, google_dir: Path | None = None):
         self._service = service
+        self.google_dir = google_dir or Path("data/google")
 
     @property
     def service(self):
         if self._service is None:
             from googleapiclient.discovery import build
 
-            from .google_auth import load_credentials
+            from .google_auth import GMAIL_READONLY, load_credentials
 
-            self._service = build(
-                "gmail", "v1", credentials=load_credentials(), cache_discovery=False
-            )
+            creds = load_credentials(self.google_dir, needs=GMAIL_READONLY)
+            self._service = build("gmail", "v1", credentials=creds, cache_discovery=False)
         return self._service
 
     def search(self, query: str, max_results: int = 50) -> list[MailMessage]:

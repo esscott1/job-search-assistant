@@ -13,6 +13,12 @@ from job_search_core.adapters.files import (
     ProfileResumeSource,
 )
 from job_search_core.adapters.gmail import GmailMail
+from job_search_core.adapters.google_sheets import (
+    SheetsApi,
+    SheetsKnownJobs,
+    SheetsSettings,
+    SheetsTracker,
+)
 from job_search_core.adapters.http_jd_fetcher import HttpJDFetcher
 from job_search_core.adapters.known_jobs import TrackerKnownJobs
 from job_search_core.adapters.sqlite_tracker import SqliteTracker
@@ -55,13 +61,43 @@ def data_dir() -> Path:
     return _setting_path(os.environ.get("JOBS_DATA_DIR", "data"))
 
 
+class SettingError(RuntimeError):
+    """A setting in .env or data/ is missing or wrong."""
+
+
+def profile_path() -> Path:
+    return _setting_path(os.environ.get("JOBS_PROFILE", data_dir() / "job-search-profile.md"))
+
+
+def google_dir() -> Path:
+    return data_dir() / "google"
+
+
+def _tracker(d: Path, sheets: SheetsApi, settings: SheetsSettings) -> TrackerPort:
+    """JOBS_TRACKER=sheets puts B on its shadow spreadsheet; SQLite stays the default until
+    cut-over (roadmap milestone 6)."""
+    choice = os.environ.get("JOBS_TRACKER", "sqlite")
+    if choice == "sqlite":
+        return SqliteTracker(d / "tracker.db")
+    if choice != "sheets":
+        raise SettingError(f"JOBS_TRACKER must be sqlite or sheets, not {choice!r}")
+    if not settings.shadow_id:
+        raise SettingError(
+            "JOBS_TRACKER=sheets, but there's no shadow sheet: run `jobs auth google`"
+        )
+    return SheetsTracker(sheets, settings.shadow_id)
+
+
 def real_deps() -> Deps:
     d = data_dir()
     # The profile names the full resume, which sits in the same folder (Candidate → Full resume).
-    profile = FileProfileSource(
-        _setting_path(os.environ.get("JOBS_PROFILE", d / "job-search-profile.md"))
-    )
-    tracker = SqliteTracker(d / "tracker.db")
+    profile = FileProfileSource(profile_path())
+    sheets = SheetsApi(google_dir())  # signs in on first use, so other commands need no token
+    settings = SheetsSettings.load(google_dir())
+    tracker = _tracker(d, sheets, settings)
+    own = TrackerKnownJobs(tracker)
+    # Dedup checks B's own rows and, once it's been picked, the plugin's tracker too.
+    known = SheetsKnownJobs(sheets, settings.tracker_id, also=own) if settings.tracker_id else own
     return Deps(
         tracker=tracker,
         jd_fetcher=HttpJDFetcher(),
@@ -69,6 +105,6 @@ def real_deps() -> Deps:
         resume=ProfileResumeSource(profile),
         docs=FileDocumentStore(d / "resumes"),
         profile=profile,
-        mail=GmailMail(),  # signs in on first search, so other commands need no Google token
-        known=TrackerKnownJobs(tracker),
+        mail=GmailMail(google_dir=google_dir()),  # signs in on first search
+        known=known,
     )
