@@ -121,7 +121,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 - **Goal:** a web page that runs on the user's own computer (at `localhost`) and is one place to see and run the job search: tracker status, the actions (search for jobs, Tier 2 scoring, a tailored resume) and statistics. No user creates a Google Cloud project.
 - **Google access, split by what each scope costs:**
   - **One OAuth client, shipped with the repo.** The maintainer registers one Desktop client; users click **Sign in with Google**. It asks only for `openid`, `email` and `drive.file`. `drive.file` is non-sensitive, so publishing the app needs Google's brand check, not the security assessment that a Gmail scope needs.
-  - **The Google Picker.** The user picks their tracker Sheet and job folder once. `drive.file` then covers those, and the files the app creates (B's shadow sheet, JD files, resumes), and nothing else in their Drive.
+  - **The Google Picker.** The user approves, once, the tracker Sheet and job folder their profile names (the profile stays the only place they're named). `drive.file` then covers those, and the files the app creates (B's shadow sheet, JD files, resumes), and nothing else in their Drive.
   - **Gmail stays with Claude.** Every Gmail read scope is restricted (a yearly security assessment for a public app), so the app never asks for one. Intake runs on the user's Claude account, through Claude's Gmail connector: the plugin's scheduled intake in claude.ai, or the page's **Search for jobs** button running the plugin's intake skill through headless Claude Code.
 - **Spikes (2026-10-22):**
   - **Headless Claude Code:** `claude -p`, on the user's Claude login with no API key, loaded the plugin and used the claude.ai Gmail, Drive and Sheets connectors unattended, with only read tools on its allowlist. The intake skill, as a dry run over a week of alerts, took about 7 minutes. Its scripts need `python` on the allowlist (on Windows it tried `python3` and `py`).
@@ -135,7 +135,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
     - **Score (Tier 2)** and **Build resume:** B's graphs (decision D6).
   - **8d, publishing:** the OAuth app moves to Production after the brand check, so users see no "unverified app" warning and their sign-in doesn't expire weekly. ADR 0005: why Google access is split this way.
 - **Depends on:** 6c (the Sheets adapter) and 6d (the Tier 2 graph). The statistics code is shared with 4c; whichever comes first builds it in `core`.
-- **Done when:** a new user starts the app, signs in with Google, picks their tracker, sees its status and statistics, scores a job and builds a resume from the page, all without any Google Cloud setup of their own.
+- **Done when:** a new user starts the app, signs in with Google, approves the tracker their profile names, sees its status and statistics, scores a job and builds a resume from the page, all without any Google Cloud setup of their own.
 
 ### Later, behind a decision
 

@@ -92,7 +92,7 @@ orchestration/job-search/
 ├── evals/job-fit/              synthetic persona (resume + profile), 8 labeled JDs, results/latest.json
 ├── evals/intake/               the plugin's intake case through the intake graph; results/latest.json
 ├── evals/comparison/          A (plugin) vs B (this pipeline) on the plugin's gold cases; results/RESULTS.md
-└── data/                       gitignored: your resume and profile, tracker.db, checkpoints, google/ (OAuth client, token, picks)
+└── data/                       gitignored: your resume and profile, tracker.db, checkpoints, google/ (OAuth client, token, the shadow's ID)
 ```
 
 ## Roadmap

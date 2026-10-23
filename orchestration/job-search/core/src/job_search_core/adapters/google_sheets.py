@@ -6,8 +6,11 @@
   (`create_shadow`) and A never sees. B never writes to A's tracker.
 
 Both reach Sheets through `SheetsClient`, a narrow interface: `SheetsApi` is the real one
-(the `google` extra and a `drive.file` token), `fakes.FakeSheets` the one tests use. Which
-spreadsheets to use is kept in `data/google/sheets.json` (`tracker_id`, `shadow_id`).
+(the `google` extra and a `drive.file` token), `fakes.FakeSheets` the one tests use.
+
+The profile names A's tracker (Tracker → Sheet ID), as it does for the plugin, and nothing else
+does: `ProfileKnownJobs` reads it on every call. Only B's own shadow is recorded here, in
+`data/google/sheets.json`, since the profile doesn't know about it.
 """
 
 from __future__ import annotations
@@ -17,6 +20,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Protocol
 
+from .. import profile
 from ..domain import (
     DuplicateJobId,
     Job,
@@ -27,7 +31,7 @@ from ..domain import (
     check_transition,
     now,
 )
-from ..ports import KnownJobsPort
+from ..ports import KnownJobsPort, ProfileSourcePort
 
 JOB_LOG, ARCHIVE, HISTORY, JDS = "Job Log", "Archive", "History", "JDs"
 CELL_LIMIT = 50_000  # characters Google Sheets allows in one cell
@@ -64,6 +68,10 @@ class TrackerSheetError(RuntimeError):
     pass
 
 
+class SheetAccessError(TrackerSheetError):
+    """The token can't open this spreadsheet: with `drive.file`, it hasn't been picked yet."""
+
+
 class SheetsClient(Protocol):
     def title(self, spreadsheet_id: str) -> str: ...
     def tabs(self, spreadsheet_id: str) -> list[str]: ...
@@ -87,13 +95,17 @@ class SheetsClient(Protocol):
 
 @dataclass
 class SheetsSettings:
-    tracker_id: str = ""  # A's tracker, picked in the Google Picker
+    """What B records about its own spreadsheet. A's tracker isn't here: the profile names it."""
+
     shadow_id: str = ""  # B's shadow spreadsheet, created by B
 
     @classmethod
     def load(cls, google_dir: Path) -> SheetsSettings:
         path = google_dir / "sheets.json"
-        return cls(**json.loads(path.read_text(encoding="utf-8"))) if path.exists() else cls()
+        if not path.exists():
+            return cls()
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        return cls(shadow_id=saved.get("shadow_id", ""))  # older files also held tracker_id
 
     def save(self, google_dir: Path) -> None:
         google_dir.mkdir(parents=True, exist_ok=True)
@@ -158,6 +170,25 @@ class SheetsKnownJobs:
                     )
                 )
         return out + (self.also.known_jobs() if self.also else [])
+
+
+class ProfileKnownJobs:
+    """Known jobs from the tracker the profile names (Tracker → Sheet ID), plus `also`.
+
+    The profile is read on every call, so pointing it at another tracker takes effect at once.
+    A profile that names no tracker leaves just `also`.
+    """
+
+    def __init__(
+        self, client: SheetsClient, source: ProfileSourcePort, also: KnownJobsPort | None = None
+    ):
+        self.client, self.source, self.also = client, source, also
+
+    def known_jobs(self) -> list[KnownJob]:
+        tracker_id = profile.tracker_sheet_id(self.source.read())
+        if not tracker_id:
+            return self.also.known_jobs() if self.also else []
+        return SheetsKnownJobs(self.client, tracker_id, self.also).known_jobs()
 
 
 def create_shadow(client: SheetsClient, title: str = "Job Search Tracker (pipeline shadow)") -> str:
@@ -371,10 +402,24 @@ class SheetsApi:
             self._service = build("sheets", "v4", credentials=creds, cache_discovery=False)
         return self._service
 
+    @staticmethod
+    def _run(request, spreadsheet_id: str) -> dict:
+        from googleapiclient.errors import HttpError
+
+        try:
+            return request.execute()
+        except HttpError as exc:
+            if exc.status_code in (403, 404):
+                raise SheetAccessError(
+                    f"Can't open spreadsheet {spreadsheet_id}: the pipeline hasn't been given "
+                    "access to it. Run `jobs auth google` to approve it."
+                ) from exc
+            raise
+
     def _meta(self, spreadsheet_id: str) -> dict:
         fields = "properties.title,sheets.properties(sheetId,title)"
-        meta = self.service.spreadsheets().get(spreadsheetId=spreadsheet_id, fields=fields)
-        meta = meta.execute()
+        request = self.service.spreadsheets().get(spreadsheetId=spreadsheet_id, fields=fields)
+        meta = self._run(request, spreadsheet_id)
         for s in meta.get("sheets", []):
             props = s["properties"]
             self._sheet_ids[(spreadsheet_id, props["title"])] = props["sheetId"]
@@ -387,13 +432,10 @@ class SheetsApi:
         return [s["properties"]["title"] for s in self._meta(spreadsheet_id).get("sheets", [])]
 
     def read(self, spreadsheet_id: str, tab: str) -> list[list[str]]:
-        result = (
-            self.service.spreadsheets()
-            .values()
-            .get(spreadsheetId=spreadsheet_id, range=_a1(tab))
-            .execute()
+        request = (
+            self.service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=_a1(tab))
         )
-        return result.get("values", [])
+        return self._run(request, spreadsheet_id).get("values", [])
 
     def write_row(self, spreadsheet_id: str, tab: str, row: int, values: list) -> None:
         cells = f"{_a1(tab)}!A{row}:{_column(max(len(values), 1))}{row}"

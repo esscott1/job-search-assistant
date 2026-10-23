@@ -313,14 +313,14 @@
         <div class="card-head"><span class="num">8</span><div><h3>Local app</h3><div class="meta">Desktop UI over B · <span class="pill">planned</span></div></div></div>
         <p>One page at <code>localhost</code> for tracker status, the actions and statistics, with no Google Cloud setup for users.</p>
         <ul>
-          <li><strong>Google access, split:</strong> one shipped Desktop client asking only for <code>drive.file</code>, plus the Picker for the tracker and folder; Gmail stays with Claude's connector</li>
+          <li><strong>Google access, split:</strong> one shipped Desktop client asking only for <code>drive.file</code>, plus the Picker to approve the tracker and folder the profile names; Gmail stays with Claude's connector</li>
           <li><strong>8a</strong>: local server and page, sign-in, Picker, granted-scope check</li>
           <li><strong>8b</strong>: tracker status and statistics, with gap counts in <code>core</code> shared with 4c</li>
           <li><strong>8c</strong>: Search for jobs (the plugin through headless Claude Code), Score and Build resume (B's graphs)</li>
           <li><strong>8d</strong>: publish the Google app; ADR 0005</li>
         </ul>
         <div><div class="k">Spikes</div><p>Headless Claude Code used the claude.ai connectors unattended; <code>drive.file</code> plus the Picker read and wrote a picked tracker, and saw nothing else.</p></div>
-        <div><div class="k">Done when</div><p>A new user signs in, picks their tracker, sees status and statistics, scores a job and builds a resume, with no Cloud setup.</p></div>
+        <div><div class="k">Done when</div><p>A new user signs in, approves their tracker, sees status and statistics, scores a job and builds a resume, with no Cloud setup.</p></div>
       </article>
 
       <article class="card c later">

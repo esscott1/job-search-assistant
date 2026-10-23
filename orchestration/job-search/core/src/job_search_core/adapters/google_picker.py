@@ -33,6 +33,8 @@ function start() {
   gapi.load('picker', () => {
     const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS)
       .setMode(google.picker.DocsViewMode.LIST);
+    const only = %(only)s;
+    if (only) view.setFileIds(only);
     new google.picker.PickerBuilder()
       .addView(view)
       .setOAuthToken(%(token)s)
@@ -64,14 +66,21 @@ def _config(google_dir: Path) -> dict:
     return config
 
 
-def pick_spreadsheet(creds, google_dir: Path, prompt: str, timeout: int = 600) -> str:
-    """Open the Picker in the browser and return the ID of the spreadsheet picked."""
+def pick_spreadsheet(
+    creds, google_dir: Path, prompt: str, only: str | None = None, timeout: int = 600
+) -> str:
+    """Open the Picker in the browser and return the ID of the spreadsheet picked.
+
+    With `only`, the Picker shows just that spreadsheet, and picking anything else is refused:
+    the pick then approves access to a file chosen elsewhere (the profile), it doesn't choose.
+    """
     config = _config(google_dir)
     page = _PAGE % {
         "prompt": html.escape(prompt),
         "token": json.dumps(creds.token),
         "key": json.dumps(config["api_key"]),
         "app": json.dumps(str(config["project_number"])),
+        "only": json.dumps(only or ""),
     }
     picked: list[str] = []
     errors: list[str] = []
@@ -109,4 +118,6 @@ def pick_spreadsheet(creds, google_dir: Path, prompt: str, timeout: int = 600) -
         server.shutdown()
     if not picked[0]:
         raise GoogleAuthError("The Picker was cancelled.")
+    if only and picked[0] != only:
+        raise GoogleAuthError("A different spreadsheet was picked from the one asked for.")
     return picked[0]

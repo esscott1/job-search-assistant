@@ -3,7 +3,12 @@ tracker behind TrackerPort. No network; `jobs auth google` checks the real API (
 
 import pytest
 from job_search_core import profile, usecases
-from job_search_core.adapters.fakes import SYNTHETIC_PROFILE, FakeSheets, InMemoryKnownJobs
+from job_search_core.adapters.fakes import (
+    SYNTHETIC_PROFILE,
+    FakeSheets,
+    InMemoryKnownJobs,
+    InMemoryProfileSource,
+)
 from job_search_core.adapters.google_auth import (
     DRIVE_FILE,
     GMAIL_READONLY,
@@ -17,6 +22,7 @@ from job_search_core.adapters.google_sheets import (
     JDS,
     JOB_LOG,
     SHADOW_HEADERS,
+    ProfileKnownJobs,
     SheetsKnownJobs,
     SheetsSettings,
     SheetsTracker,
@@ -82,6 +88,24 @@ def test_known_jobs_add_bs_own_rows_and_a_tracker_may_have_no_archive_yet():
     own = InMemoryKnownJobs([KnownJob(id="LG-0001", company="Initech", title="TPM")])
     known = SheetsKnownJobs(a_tracker(archive=False), "a-tracker", also=own).known_jobs()
     assert [k.id for k in known] == ["JS-002", "JS-001", "LG-0001"]
+
+
+def test_the_profile_names_the_tracker_and_a_change_takes_effect_at_once():
+    sheets = a_tracker()
+    sheets.add_book("moved", "Job_Search_Tracker", {"Job Log": [A_LOG[0], A_LOG[1]]})
+    source = InMemoryProfileSource(SYNTHETIC_PROFILE + "\n## Tracker\n- Sheet ID: a-tracker\n")
+    own = InMemoryKnownJobs([KnownJob(id="LG-0001", company="Initech", title="TPM")])
+    known = ProfileKnownJobs(sheets, source, also=own)
+    assert [k.id for k in known.known_jobs()] == ["JS-002", "JS-001", "JS-005", "JS-004", "LG-0001"]
+
+    source.text_value = source.text_value.replace("a-tracker", "moved")
+    assert [k.id for k in known.known_jobs()] == ["JS-002", "LG-0001"]
+
+
+def test_a_profile_naming_no_tracker_leaves_bs_own_rows():
+    own = InMemoryKnownJobs([KnownJob(id="LG-0001", company="Initech", title="TPM")])
+    known = ProfileKnownJobs(FakeSheets(), InMemoryProfileSource(SYNTHETIC_PROFILE), also=own)
+    assert [k.id for k in known.known_jobs()] == ["LG-0001"]
 
 
 def test_a_tracker_missing_a_needed_column_is_reported_not_guessed():
@@ -230,10 +254,13 @@ def test_a_missing_job_is_a_key_error():
 # --- settings, scopes and the profile ---
 
 
-def test_sheets_settings_round_trip(tmp_path):
+def test_sheets_settings_keep_only_bs_shadow(tmp_path):
     assert SheetsSettings.load(tmp_path) == SheetsSettings()
-    SheetsSettings(tracker_id="a-tracker", shadow_id="b-shadow").save(tmp_path)
-    assert SheetsSettings.load(tmp_path) == SheetsSettings("a-tracker", "b-shadow")
+    SheetsSettings(shadow_id="b-shadow").save(tmp_path)
+    assert SheetsSettings.load(tmp_path) == SheetsSettings("b-shadow")
+    # An older file also held the tracker; the profile names it now, so that's ignored.
+    (tmp_path / "sheets.json").write_text('{"tracker_id": "a-tracker", "shadow_id": "b-shadow"}')
+    assert SheetsSettings.load(tmp_path) == SheetsSettings("b-shadow")
 
 
 def test_a_permission_left_unticked_is_reported():

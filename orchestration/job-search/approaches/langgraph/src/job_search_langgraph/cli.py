@@ -1,8 +1,8 @@
 """`jobs` command line: drive the evaluate graph and record what only you know (submissions).
 
 jobs demo                         run all three paths with fakes — no keys needed
-jobs auth google [--gmail] [--pick] [--sign-in]
-                                  sign in to Google, pick your tracker, create B's shadow sheet
+jobs auth google [--gmail] [--sign-in]
+                                  sign in to Google, approve your tracker, create B's shadow sheet
 jobs add --company X --title Y --url Z
 jobs list [--status resume_ready]
 jobs show JOB_ID                  job, status history, and what the graph is waiting on
@@ -137,15 +137,23 @@ def cmd_set_status(args, deps):
 
 
 def cmd_auth(args, _deps):
-    """Sign in, pick the plugin's tracker (once), read it, and create B's shadow (once)."""
+    """Sign in, approve access to the tracker the profile names, and create B's shadow (once)."""
     from job_search_core import profile
     from job_search_core.adapters import google_auth, google_picker
     from job_search_core.adapters.google_sheets import (
+        SheetAccessError,
         SheetsApi,
         SheetsKnownJobs,
         SheetsSettings,
         create_shadow,
     )
+
+    path = profile_path()
+    if not path.exists():
+        raise SettingError(f"No job-search profile at {path}: set JOBS_PROFILE (setup, step 4)")
+    tracker_id = profile.tracker_sheet_id(path.read_text(encoding="utf-8"))
+    if not tracker_id:
+        raise SettingError('Profile setting "Tracker → Sheet ID" is blank')
 
     folder = google_dir()
     needs = google_auth.GMAIL_READONLY if args.gmail else google_auth.DRIVE_FILE
@@ -160,27 +168,22 @@ def cmd_auth(args, _deps):
     gmail = " (with Gmail, for intake)" if needs == google_auth.GMAIL_READONLY else ""
     print(f"Signed in as {google_auth.signed_in_as(creds)}{gmail}")
 
-    settings = SheetsSettings.load(folder)
     sheets = SheetsApi(folder)
-    if args.pick or not settings.tracker_id:
-        settings.tracker_id = google_picker.pick_spreadsheet(
-            creds, folder, "Pick your job tracker: the spreadsheet with the plugin's Job Log."
+    try:
+        title = sheets.title(tracker_id)
+    except SheetAccessError:  # drive.file: a file is reachable once it has been picked
+        google_picker.pick_spreadsheet(
+            creds, folder, "Approve access to the job tracker your profile names.", only=tracker_id
         )
-        settings.save(folder)
-    known = SheetsKnownJobs(sheets, settings.tracker_id).known_jobs()
-    print(f"Tracker: {sheets.title(settings.tracker_id)} ({len(known)} jobs for dedup)")
-    if profile_path().exists():
-        named = profile.tracker_sheet_id(profile_path().read_text(encoding="utf-8"))
-        if named and named != settings.tracker_id:
-            print(
-                "  note: your profile's Tracker → Sheet ID is a different spreadsheet. "
-                "Run `jobs auth google --pick` to choose again."
-            )
+        title = sheets.title(tracker_id)
+    known = SheetsKnownJobs(sheets, tracker_id).known_jobs()
+    print(f"Tracker, as your profile names it: {title} ({len(known)} jobs for dedup)")
 
+    settings = SheetsSettings.load(folder)
     if not settings.shadow_id:
         settings.shadow_id = create_shadow(sheets)
-        settings.save(folder)
         print("Created B's shadow spreadsheet. B writes only there, never to your tracker.")
+    settings.save(folder)
     shadow_url = f"https://docs.google.com/spreadsheets/d/{settings.shadow_id}"
     print(f"Shadow: {sheets.title(settings.shadow_id)}  {shadow_url}")
     print("Set JOBS_TRACKER=sheets in .env to have B keep its jobs there.")
@@ -216,7 +219,6 @@ def build_parser() -> argparse.ArgumentParser:
     a = sub.add_parser("auth")
     a.add_argument("provider", choices=["google"])
     a.add_argument("--gmail", action="store_true", help="also allow reading Gmail, for intake")
-    a.add_argument("--pick", action="store_true", help="choose the tracker spreadsheet again")
     a.add_argument("--sign-in", action="store_true", help="sign in again, even with a valid token")
     a.set_defaults(fn=cmd_auth, needs_deps=False)
 

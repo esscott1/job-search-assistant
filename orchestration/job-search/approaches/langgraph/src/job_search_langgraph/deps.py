@@ -14,8 +14,8 @@ from job_search_core.adapters.files import (
 )
 from job_search_core.adapters.gmail import GmailMail
 from job_search_core.adapters.google_sheets import (
+    ProfileKnownJobs,
     SheetsApi,
-    SheetsKnownJobs,
     SheetsSettings,
     SheetsTracker,
 )
@@ -96,8 +96,8 @@ def real_deps() -> Deps:
     settings = SheetsSettings.load(google_dir())
     tracker = _tracker(d, sheets, settings)
     own = TrackerKnownJobs(tracker)
-    # Dedup checks B's own rows and, once it's been picked, the plugin's tracker too.
-    known = SheetsKnownJobs(sheets, settings.tracker_id, also=own) if settings.tracker_id else own
+    # Dedup checks B's own rows and the plugin's tracker, which the profile names.
+    known = ProfileKnownJobs(sheets, profile, also=own)
     return Deps(
         tracker=tracker,
         jd_fetcher=HttpJDFetcher(),
