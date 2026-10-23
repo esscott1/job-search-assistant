@@ -281,10 +281,10 @@
         <p>The comparison page's claims become numbers.</p>
         <ul>
           <li>Six gold Tier 2 cases (three clear-cut, three borderline) through A and B, both on <code>claude-sonnet-5-5</code>, 3 runs each</li>
-          <li>Within ±1 of gold: A in 18 of 18 runs, B in 16 of 18 (both misses on the borderline half-met case)</li>
+          <li>Within ±1 of gold: A in 18 of 18 runs; B in 16 of 18 on <code>fit-scoring/2.0</code>, and 18 of 18, all exactly on gold, on <code>2.1</code></li>
           <li>Per job: A's whole run about 446,000 tokens in 12 calls and 94 s; B's scoring call about 4,000 tokens in 1 call and 5 s</li>
         </ul>
-        <div><div class="k">Next</div><p>B's fit prompt: stop listing JD duties as requirements, then rerun the comparison.</p></div>
+        <div><div class="k">Next</div><p>The same "qualifications, not duties" rule for A's rubric text, with A's scoring evals rerun.</p></div>
       </article>
 
       <article class="card b">

@@ -93,6 +93,25 @@ def test_rescore_that_still_mismatches_raises():
         )
 
 
+def test_no_gaps_on_a_job_that_falls_short_gets_one_more_try():
+    gapless = WEAK_FIT.model_copy(update={"top_gaps": []})
+    llm = _counting_llm([gapless, WEAK_FIT])
+    assessment = steps.assess_fit(JD, "resume", SYNTHETIC_PROFILE, llm)
+    assert llm.calls == ["structured", "structured"]
+    assert assessment.top_gaps == WEAK_FIT.top_gaps
+
+
+def test_no_gaps_twice_is_kept_and_a_full_match_needs_none():
+    gapless = WEAK_FIT.model_copy(update={"top_gaps": []})
+    llm = _counting_llm([gapless, gapless])
+    assert steps.assess_fit(JD, "resume", SYNTHETIC_PROFILE, llm).top_gaps == []
+    assert llm.calls == ["structured", "structured"]
+
+    every_strong = FakeLLM()  # STRONG_FIT: every requirement strong, no gaps
+    steps.assess_fit(JD, "resume", SYNTHETIC_PROFILE, every_strong)
+    assert every_strong.calls == ["structured"]
+
+
 def test_prompt_names_every_rubric_category():
     """A category added to the rubric fails this until the prompt explains it."""
     _, body = prompts.load("fit_scoring")

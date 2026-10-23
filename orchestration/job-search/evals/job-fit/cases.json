@@ -29,8 +29,8 @@
   },
   {
     "id": "salesforce-architect",
-    "note": "Architecture level matches; the platform requirement is a hard gap.",
-    "expected_score": [3, 6],
+    "note": "Architecture level matches; the platform requirement is a hard gap. Band moved from 3-6 to 2-6 for fit-scoring/2.1: a 3 came from counting the JD's opening duty ('Design multi-cloud Salesforce solutions') as a required item with partial credit. With duties left out, the score is 2. A check of the plugin's rubric skill on this JD (3 runs) scored 3, 2, 3: 3 when it counted that duty, 2 when it didn't.",
+    "expected_score": [2, 6],
     "gap_keywords_any": ["Salesforce", "CTA", "Apex"],
     "jd": "Salesforce Technical Architect. Design multi-cloud Salesforce solutions (Sales, Service, Experience Cloud) for enterprise clients. Requirements: 8+ years of Salesforce implementation experience; Salesforce Application Architect and System Architect certifications required, CTA preferred; deep knowledge of Apex, Lightning Web Components and Salesforce data modeling; experience with MuleSoft integration."
   },
