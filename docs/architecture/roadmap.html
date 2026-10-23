@@ -292,9 +292,9 @@
         <ul>
           <li>✓ Foundations: job IDs, Studio, the shared dedup key in <code>core</code></li>
           <li>✓ An intake graph: Gmail, the model reads each email's job cards, canonical-URL dedup, Tier 1 score</li>
-          <li>✓ Sheets: reads A's tracker for dedup; <code>SheetsTracker</code> on B's own shadow spreadsheet; <code>drive.file</code> sign-in with the Picker; ADR 0002 updated</li>
-          <li>A Tier 2 graph that mirrors A's finished rows in shadow mode</li>
-          <li>Scheduling and the agreement report</li>
+          <li>✓ Sheets: reads A's tracker for dedup; <code>SheetsTracker</code> on B's own shadow spreadsheet; <code>drive.file</code> sign-in with the Picker; the profile is the only place the tracker is named; ADR 0002 updated</li>
+          <li><strong>Next, 6d:</strong> a Tier 2 graph that mirrors A's finished rows in shadow mode, after decision D8 (reading A's JD files under <code>drive.file</code>)</li>
+          <li>6e: scheduling (D7), the agreement report and the shadow week</li>
           <li>Google access through the developer's own OAuth client; milestone 8 replaces it for users</li>
         </ul>
         <div><div class="k">Done when</div><p>B runs in shadow mode for a week next to A, with an agreement report.</p></div>
@@ -314,12 +314,13 @@
         <p>One page at <code>localhost</code> for tracker status, the actions and statistics, with no Google Cloud setup for users.</p>
         <ul>
           <li><strong>Google access, split:</strong> one shipped Desktop client asking only for <code>drive.file</code>, plus the Picker to approve the tracker and folder the profile names; Gmail stays with Claude's connector</li>
-          <li><strong>8a</strong>: local server and page, sign-in, Picker, granted-scope check</li>
+          <li><strong>8a</strong>: local server and page, sign-in, granted-scope check; onboarding picks the profile in the Picker, so no <code>.env</code></li>
           <li><strong>8b</strong>: tracker status and statistics, with gap counts in <code>core</code> shared with 4c</li>
-          <li><strong>8c</strong>: Search for jobs (the plugin through headless Claude Code), Score and Build resume (B's graphs)</li>
+          <li><strong>8c</strong>: Search for jobs (the plugin through headless Claude Code, model pinned), Score and Build resume (B's graphs)</li>
           <li><strong>8d</strong>: publish the Google app; ADR 0005</li>
         </ul>
         <div><div class="k">Spikes</div><p>Headless Claude Code used the claude.ai connectors unattended; <code>drive.file</code> plus the Picker read and wrote a picked tracker, and saw nothing else.</p></div>
+        <div><div class="k">Needs</div><p>6d, and decision D8: how the app reads the job files the plugin saves in Drive.</p></div>
         <div><div class="k">Done when</div><p>A new user signs in, approves their tracker, sees status and statistics, scores a job and builds a resume, with no Cloud setup.</p></div>
       </article>
 
@@ -328,6 +329,7 @@
         <ul>
           <li>A hosted MCP server: Drive and Sheets under <code>drive.file</code>, Gmail left on Anthropic's connector</li>
           <li>B's status sweep (closed postings, recruiter replies) and re-tailoring when the resume changes</li>
+          <li>The "qualifications, not duties" rule in A's rubric text, with A's scoring evals rerun</li>
         </ul>
       </article>
     </div>
@@ -345,6 +347,9 @@
           <tr><td>D4</td><td>Whether to host an MCP server</td><td>Later</td><td>Not until 4c shows it's worth it</td></tr>
           <tr><td>D5</td><td>How users give the app Google access without their own Cloud project</td><td>8</td><td>✓ Decided: one shipped Desktop client with <code>drive.file</code> and the Picker; Gmail through Claude's connector</td></tr>
           <tr><td>D6</td><td>What runs the app's Score and Build resume buttons: B on an Anthropic API key, or the plugin through headless Claude Code</td><td>8c</td><td>B, far lighter per job in milestone 5; the plugin for users without a key</td></tr>
+          <tr><td>D7</td><td>How B runs during the shadow week: manual commands or a scheduler</td><td>6e</td><td>Open</td></tr>
+          <tr><td>D8</td><td>How B and the app read the job files the plugin saves in Drive, which <code>drive.file</code> may not reach</td><td>6d</td><td>Spike first: does picking the job folder grant access to its files? If not, read the Drive-synced folder on disk</td></tr>
+          <tr><td>D9</td><td>Whether the app's Desktop OAuth client file is committed or fetched at first run</td><td>8a</td><td>Open</td></tr>
         </tbody>
       </table>
     </div>
