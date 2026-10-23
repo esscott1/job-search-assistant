@@ -74,24 +74,26 @@ In **Audience**, click **Publish app** to move the status to **In production**. 
    {"api_key": "AIza...", "project_number": "123456789012"}
    ```
 
-### 3e. Sign in and pick your tracker
+### 3e. Sign in and approve your tracker
+
+Do step 4 first: the pipeline finds your tracker the way the plugin does, from your profile's **Tracker → Sheet ID**, and keeps no copy of it.
 
 ```bash
 uv run jobs auth google            # add --gmail to also allow intake to read Gmail
 ```
 
 1. A browser tab opens. Sign in, accept the warning from 3c, and **tick every box** on the permissions screen. Google lets you leave one unticked; the command then stops and says which.
-2. A second tab opens the **Google Picker**. Pick your job tracker: the spreadsheet the plugin keeps, with its Job Log.
+2. The first time, a second tab opens the **Google Picker**, showing only the tracker your profile names. Select it: that's how `drive.file` grants access to a file, and picking any other spreadsheet is refused.
 3. The command reads the tracker (by column header, as the plugin's contract says), and creates **Job Search Tracker (pipeline shadow)** in your Drive, the only spreadsheet the pipeline writes:
 
 ```
 Signed in as you@gmail.com
-Tracker: Job_Search_Tracker (412 jobs for dedup)
+Tracker, as your profile names it: Job_Search_Tracker (412 jobs for dedup)
 Created B's shadow spreadsheet. B writes only there, never to your tracker.
 Shadow: Job Search Tracker (pipeline shadow)  https://docs.google.com/spreadsheets/d/…
 ```
 
-Your choices are saved in `data/google/sheets.json`. Run it again any time: it reuses your sign-in, and `--pick` chooses the tracker again, `--sign-in` signs in again (for another account, or after the token expires).
+Run it again any time: it reuses your sign-in, and `--sign-in` signs in again (for another account, or after the token expires). If your profile later names a different tracker, the pipeline says it needs approval; run `jobs auth google` once more. The shadow's ID is kept in `data/google/sheets.json`, since your profile doesn't know about it.
 
 **Keep B's jobs in the shadow.** Set `JOBS_TRACKER=sheets` in `.env`. B's jobs then live in the shadow's Job Log, with the plugin's column names plus **Pipeline Status** and **Pipeline Data**, which is what B reads back; its **History** tab records every status change, and its **JDs** tab holds job descriptions. Without the setting, B keeps using `data/tracker.db`. Either way, intake skips jobs already in your tracker (its Job Log and Archive).
 
@@ -190,6 +192,8 @@ To run evals in GitHub Actions on pull requests that change prompts, add `ANTHRO
 | Symptom | Cause | Fix |
 |---|---|---|
 | `Google refresh token was rejected` about once a week | OAuth app still in **Testing** | Step 3c, then `jobs auth google --sign-in` |
+| `Can't open spreadsheet …: the pipeline hasn't been given access` | Your profile names a tracker you haven't approved yet (new, or moved) | `jobs auth google`, and select it in the Picker |
+| `Profile setting "Tracker → Sheet ID" is blank` | The profile has no tracker yet, or `JOBS_PROFILE` points at another file | Finish the plugin's setup ("set up my job search"), or fix `JOBS_PROFILE` |
 | `Sign-in didn't grant …drive.file` | The Drive box was left unticked on Google's permissions screen | `jobs auth google --sign-in`, and tick every box |
 | `Google access to …gmail.readonly wasn't granted` | Signed in without `--gmail` | `jobs auth google --gmail` |
 | `CERTIFICATE_VERIFY_FAILED` | Antivirus or a company network inspecting TLS | The pipeline uses the system's certificates (`truststore`); if it persists, check that the inspecting certificate is installed in Windows or macOS |

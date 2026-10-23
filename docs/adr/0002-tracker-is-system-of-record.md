@@ -30,5 +30,6 @@ Roadmap decision D2 is settled: the tracker behind `TrackerPort` can be a Google
 
 - **`SheetsTracker`** implements `TrackerPort` on a spreadsheet B creates for itself, its shadow. Its Job Log uses the plugin's column names for what B fills in, so the two can be compared column by column, plus **Pipeline Status** (B's `Status`) and **Pipeline Data** (the `Job` as JSON, which B reads back). Status changes still go only through `transition()`, which checks `domain.TRANSITIONS` and adds a row to a **History** tab. JD text lives in a **JDs** tab, split across cells under the 50,000-character cell limit.
 - **The plugin's tracker is read, never written.** B reads its Job Log and Archive by column header for intake's dedup. The plugin's **Status** column remains the user's own.
-- **Access is `drive.file`:** the user picks the plugin's tracker once in the Google Picker, and B creates its shadow, so B can reach those two spreadsheets and nothing else in the user's Drive.
+- **The profile names the plugin's tracker** (Tracker → Sheet ID), for B as for the plugin; B keeps no copy of it, and records only its own shadow's ID.
+- **Access is `drive.file`:** the user approves the tracker the profile names once, in the Google Picker, and B creates its shadow, so B can reach those two spreadsheets and nothing else in the user's Drive.
 - **SQLite stays** for tests, the offline demo, and as the default until cut-over; `JOBS_TRACKER=sheets` selects the Sheet. Nothing writes to both.
