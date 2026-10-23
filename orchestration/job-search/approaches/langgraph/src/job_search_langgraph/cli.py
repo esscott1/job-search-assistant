@@ -1,7 +1,8 @@
 """`jobs` command line: drive the evaluate graph and record what only you know (submissions).
 
 jobs demo                         run all three paths with fakes — no keys needed
-jobs auth google                  one-time Google sign-in, then verify Gmail + Drive
+jobs auth google [--gmail] [--pick] [--sign-in]
+                                  sign in to Google, pick your tracker, create B's shadow sheet
 jobs add --company X --title Y --url Z
 jobs list [--status resume_ready]
 jobs show JOB_ID                  job, status history, and what the graph is waiting on
@@ -24,11 +25,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 from job_search_core import usecases
 from job_search_core.adapters.google_auth import GoogleAuthError
+from job_search_core.adapters.google_sheets import TrackerSheetError
 from job_search_core.domain import DuplicateJobId, IllegalTransition, Job, Status
 from job_search_core.profile import ProfileError
 from langgraph.types import Command
 
-from .deps import Deps, data_dir, real_deps
+from .deps import Deps, SettingError, data_dir, google_dir, profile_path, real_deps
 from .evaluate_graph import build_evaluate_graph, fresh_input, pending_interrupt
 from .intake_graph import build_intake_graph
 
@@ -134,12 +136,54 @@ def cmd_set_status(args, deps):
     print(deps.tracker.transition(args.job_id, Status(args.status), "user", args.note).status.value)
 
 
-def cmd_auth(args, deps):
-    from job_search_core.adapters import google_auth
+def cmd_auth(args, _deps):
+    """Sign in, pick the plugin's tracker (once), read it, and create B's shadow (once)."""
+    from job_search_core import profile
+    from job_search_core.adapters import google_auth, google_picker
+    from job_search_core.adapters.google_sheets import (
+        SheetsApi,
+        SheetsKnownJobs,
+        SheetsSettings,
+        create_shadow,
+    )
 
-    google_auth.load_credentials(interactive=True)
-    who = google_auth.verify()
-    print(f"Signed in. Gmail: {who['gmail']}  Drive: {who['drive']}")
+    folder = google_dir()
+    needs = google_auth.GMAIL_READONLY if args.gmail else google_auth.DRIVE_FILE
+    creds = None
+    if not args.sign_in:
+        try:
+            creds = google_auth.load_credentials(folder, needs=needs)
+        except GoogleAuthError:
+            pass  # no token yet, or it lacks a scope: sign in below
+    if creds is None:
+        creds = google_auth.sign_in(folder, gmail=args.gmail)
+    gmail = " (with Gmail, for intake)" if needs == google_auth.GMAIL_READONLY else ""
+    print(f"Signed in as {google_auth.signed_in_as(creds)}{gmail}")
+
+    settings = SheetsSettings.load(folder)
+    sheets = SheetsApi(folder)
+    if args.pick or not settings.tracker_id:
+        settings.tracker_id = google_picker.pick_spreadsheet(
+            creds, folder, "Pick your job tracker: the spreadsheet with the plugin's Job Log."
+        )
+        settings.save(folder)
+    known = SheetsKnownJobs(sheets, settings.tracker_id).known_jobs()
+    print(f"Tracker: {sheets.title(settings.tracker_id)} ({len(known)} jobs for dedup)")
+    if profile_path().exists():
+        named = profile.tracker_sheet_id(profile_path().read_text(encoding="utf-8"))
+        if named and named != settings.tracker_id:
+            print(
+                "  note: your profile's Tracker → Sheet ID is a different spreadsheet. "
+                "Run `jobs auth google --pick` to choose again."
+            )
+
+    if not settings.shadow_id:
+        settings.shadow_id = create_shadow(sheets)
+        settings.save(folder)
+        print("Created B's shadow spreadsheet. B writes only there, never to your tracker.")
+    shadow_url = f"https://docs.google.com/spreadsheets/d/{settings.shadow_id}"
+    print(f"Shadow: {sheets.title(settings.shadow_id)}  {shadow_url}")
+    print("Set JOBS_TRACKER=sheets in .env to have B keep its jobs there.")
 
 
 def cmd_run_intake(args, deps):
@@ -171,6 +215,9 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("demo").set_defaults(fn=cmd_demo, needs_deps=False)
     a = sub.add_parser("auth")
     a.add_argument("provider", choices=["google"])
+    a.add_argument("--gmail", action="store_true", help="also allow reading Gmail, for intake")
+    a.add_argument("--pick", action="store_true", help="choose the tracker spreadsheet again")
+    a.add_argument("--sign-in", action="store_true", help="sign in again, even with a valid token")
     a.set_defaults(fn=cmd_auth, needs_deps=False)
 
     a = sub.add_parser("add")
@@ -228,14 +275,19 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
+    from googleapiclient.errors import HttpError
+
     args = build_parser().parse_args(argv)
-    deps = real_deps() if getattr(args, "needs_deps", True) else None
     try:
+        deps = real_deps() if getattr(args, "needs_deps", True) else None
         args.fn(args, deps)
     except (
         IllegalTransition,
         DuplicateJobId,
         GoogleAuthError,
+        TrackerSheetError,
+        SettingError,
+        HttpError,
         ProfileError,
         usecases.NotEvaluable,
         KeyError,

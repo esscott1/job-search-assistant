@@ -165,6 +165,71 @@ class InMemoryKnownJobs:
         return list(self.jobs)
 
 
+class FakeSheets:
+    """In-memory spreadsheets behind the `google_sheets.SheetsClient` interface.
+
+    Like the real API, `read` returns displayed text (numbers as strings, checkboxes as
+    `TRUE`/`FALSE`) with trailing empty cells and rows left out.
+    """
+
+    def __init__(self):
+        self.books: dict[str, dict[str, list[list]]] = {}
+        self.titles: dict[str, str] = {}
+
+    def add_book(self, spreadsheet_id: str, title: str, tabs: dict[str, list[list]]) -> None:
+        self.books[spreadsheet_id] = {name: [list(r) for r in rows] for name, rows in tabs.items()}
+        self.titles[spreadsheet_id] = title
+
+    def _tab(self, spreadsheet_id: str, tab: str) -> list[list]:
+        if tab not in self.books[spreadsheet_id]:
+            raise KeyError(f"no tab {tab!r}")
+        return self.books[spreadsheet_id][tab]
+
+    @staticmethod
+    def _shown(value) -> str:
+        if isinstance(value, bool):
+            return "TRUE" if value else "FALSE"
+        return "" if value is None else str(value)
+
+    def title(self, spreadsheet_id: str) -> str:
+        return self.titles[spreadsheet_id]
+
+    def tabs(self, spreadsheet_id: str) -> list[str]:
+        return list(self.books[spreadsheet_id])
+
+    def read(self, spreadsheet_id: str, tab: str) -> list[list[str]]:
+        rows = [[self._shown(v) for v in row] for row in self._tab(spreadsheet_id, tab)]
+        for row in rows:
+            while row and row[-1] == "":
+                row.pop()
+        while rows and not rows[-1]:
+            rows.pop()
+        return rows
+
+    def write_row(self, spreadsheet_id: str, tab: str, row: int, values: list) -> None:
+        rows = self._tab(spreadsheet_id, tab)
+        while len(rows) < row:
+            rows.append([])
+        cells = rows[row - 1]
+        cells.extend([""] * (len(values) - len(cells)))
+        cells[: len(values)] = values
+
+    def insert_rows(self, spreadsheet_id: str, tab: str, at: int, count: int = 1) -> None:
+        rows = self._tab(spreadsheet_id, tab)
+        rows[at - 1 : at - 1] = [[] for _ in range(count)]
+
+    def append_rows(self, spreadsheet_id: str, tab: str, rows: list[list]) -> None:
+        existing = self._tab(spreadsheet_id, tab)
+        while existing and not any(self._shown(v) for v in existing[-1]):
+            existing.pop()
+        existing.extend(list(r) for r in rows)
+
+    def create(self, title: str, tabs: dict[str, list[str]]) -> str:
+        spreadsheet_id = f"fake-sheet-{len(self.books) + 1}"
+        self.add_book(spreadsheet_id, title, {name: [header] for name, header in tabs.items()})
+        return spreadsheet_id
+
+
 def digest_leads(email_text: str) -> EmailLeads:
     """A stand-in for the model on LinkedIn-style digests: each card is a title, a company, a
     location, an optional pay line and a "View job:" link. Every card is kept, judged a strong

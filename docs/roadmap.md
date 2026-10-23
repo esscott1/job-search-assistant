@@ -106,7 +106,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - B's shadow is a separate spreadsheet it creates, so it only ever needs the `drive.file` scope.
   - In shadow mode B's Tier 2 mirrors A: it scores the rows A finished, from A's saved JD.
   - Intake reads each email with one structured model call; code does the rest.
-- **Progress:** the foundations (job IDs, Studio, the shared dedup key) and the intake graph (`jobs run intake`, 3 of 3 live runs passing the plugin's intake case) are done. Next: reading A's Sheet and writing the shadow, then Tier 2 from the Sheet, then scheduling and the agreement report.
+- **Progress:** the foundations (job IDs, Studio, the shared dedup key), the intake graph (`jobs run intake`, 3 of 3 live runs passing the plugin's intake case) and the Sheets adapters are done. `jobs auth google` signs in with `drive.file` and the Google Picker (milestone 8's sign-in), B reads A's tracker for dedup, and `SheetsTracker` keeps B's jobs in its own shadow spreadsheet (ADR 0002, updated). Next: Tier 2 from the Sheet, then scheduling and the agreement report.
 
 ### 7. Packaging for readers · docs
 
@@ -147,7 +147,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | # | Decision | Needed by | Current lean |
 |---|---|---|---|
 | D1 | An Anthropic API key for B's live evals (billed per token, separate from a Claude plan) | 3 | ✅ Decided: a local `.env` key; not a GitHub secret |
-| D2 | B's tracker: SQLite (ADR 0002 today) or the Google Sheet through `SheetsTracker` | 6 | The Sheet, with SQLite kept for tests and the offline demo |
+| D2 | B's tracker: SQLite (ADR 0002 today) or the Google Sheet through `SheetsTracker` | 6 | ✅ Decided: the Sheet (B's own shadow spreadsheet), with SQLite kept for tests, the offline demo and as the default until cut-over ([ADR 0002](adr/0002-tracker-is-system-of-record.md)) |
 | D3 | Whether the Claude desktop app starts plugin-declared MCP servers and sends Roots | 4b | Settled by the 4a probe; Claude Code is the target either way |
 | D4 | Whether to host an MCP server | Later | Not until 4c shows it's worth it |
 | D5 | How users give the app Google access without their own Cloud project | 8 | ✅ Decided: one shipped Desktop client with `drive.file` and the Picker; Gmail through Claude's connector |
@@ -162,6 +162,6 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
 | 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt follow-up open |
-| 6. B to parity | In progress: foundations and intake done; Sheets next |
+| 6. B to parity | In progress: foundations, intake and Sheets done; Tier 2 from the Sheet next |
 | 7. Packaging | First pass can start; final after 6 |
 | 8. Local app | Planned; spikes done; starts after 6c and 6d |

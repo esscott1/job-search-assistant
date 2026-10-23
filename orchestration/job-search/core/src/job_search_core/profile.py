@@ -76,6 +76,12 @@ def never_scan(markdown: str) -> list[str]:
     return [m.strip() for m in re.findall(r"(?m)^- (.+)$", body) if m.strip()]
 
 
+def tracker_sheet_id(markdown: str) -> str:
+    """Tracker → Sheet ID: the plugin's tracker spreadsheet, or "" when the profile has none."""
+    match = re.search(r"(?m)^- Sheet ID:[ \t]*(\S*)", _section(markdown, "Tracker"))
+    return match.group(1) if match else ""
+
+
 def never_interested(markdown: str) -> list[str]:
     """The comma-separated terms on Target roles → Never interested."""
     match = re.search(r"(?m)^- Never interested:[ \t]*(.*)$", _section(markdown, "Target roles"))
