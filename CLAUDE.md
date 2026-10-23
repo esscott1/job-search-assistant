@@ -11,6 +11,12 @@ A public Claude plugin marketplace that anyone can install, plus a code-defined 
 
 Treat everything here as public. Code quality, commit messages and PR descriptions are part of the product.
 
+**The roadmap is the north star.** [`docs/roadmap.md`](docs/roadmap.md) holds the project's intent and plan:
+- it says what the repo is building toward (one job search solved three ways and measured: the plugin, the LangGraph pipeline and a local MCP server);
+- it lists the milestones and their status, the principles that hold across them, and the open decisions.
+
+Read it before planning or starting work, and check that the work fits a milestone or decision there. When a milestone's status or scope changes, or a decision is made, update `docs/roadmap.md` and its picture, [`docs/architecture/roadmap.html`](docs/architecture/roadmap.html), in the same PR.
+
 **Keep everything generic.** Skills, docs, commit messages, PR descriptions and PR comments describe the plugins for any user. Never name or describe a particular person's use of them: their name, inbox, tracker contents, installs, schedules, results or outages. Anything user-specific (names, file and folder IDs, locations, email senders) belongs in that user's own configuration, such as the job-search profile, never in a skill. The only personal names in the repo are authorship credits (`LICENSE`, `author` in `plugin.json`, the marketplace `owner`).
 
 ## Git workflow
