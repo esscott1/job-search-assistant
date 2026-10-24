@@ -68,8 +68,14 @@ class SyncedJobFiles:
 
     def saved_jd(self, job_id: str) -> str | None:
         """`<ID>_JD.md` in any company folder (IDs are unique), or None if it hasn't synced."""
-        folder = self.profile.path.parent
-        found = sorted(folder.glob(f"*/{glob.escape(job_id)}_JD.md"))
+        return self._read(f"{glob.escape(job_id)}_JD.md")
+
+    def fit_report(self, job_id: str, run: int) -> str | None:
+        """`<ID>_fit_r<n>_<date>.md` in any company folder, or None if it hasn't synced."""
+        return self._read(f"{glob.escape(job_id)}_fit_r{run}_*.md")
+
+    def _read(self, name: str) -> str | None:
+        found = sorted(self.profile.path.parent.glob(f"*/{name}"))
         return found[0].read_text(encoding="utf-8") if found else None
 
 

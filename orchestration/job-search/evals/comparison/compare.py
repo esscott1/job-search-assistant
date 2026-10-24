@@ -6,15 +6,15 @@ Reads results/a.json, results/b.json and the gold evidence tables; writes result
 and results/RESULTS.md. Rerunning it on the same inputs gives the same output.
 
 Requirements from two evidence tables are matched one-to-one by a deterministic text similarity
-(below), not by a model, so the measurement adds no judgment of its own. Every comparison lists
-what it left unmatched and any match that wasn't word-for-word, so a reader can check it.
+(`job_search_core.agreement`, shared with the shadow week's agreement report), not by a model,
+so the measurement adds no judgment of its own. Every comparison lists what it left unmatched
+and any match that wasn't word-for-word, so a reader can check it.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import re
 import statistics
 import sys
 from collections import Counter
@@ -22,84 +22,16 @@ from pathlib import Path
 
 import inputs
 from job_search_core import rubric
+from job_search_core.agreement import (  # noqa: F401 (re-exported for the tests)
+    MATCH_THRESHOLD,
+    STOPWORDS,
+    compare_tables,
+    match,
+    similarity,
+    words,
+)
 
-# Words that say nothing about which requirement it is ("5+ years of experience with ...").
-STOPWORDS = {
-    "a", "an", "and", "as", "at", "by", "for", "from", "in", "of", "on", "or", "the", "to",
-    "with", "within", "experience", "experienced", "ability", "proven", "demonstrated",
-    "strong", "knowledge", "working", "including", "plus", "year", "years", "skill", "skills",
-    "certification", "certified", "certificate", "management", "manage", "managing", "managed",
-}  # fmt: skip
-# Calibrated on the gold tables: paraphrases of one requirement score 0.5 or more; different
-# requirements that share only a generic word ("vendor management", "change management")
-# score below it, which test_no_two_gold_requirements_are_confusable checks.
-MATCH_THRESHOLD = 0.5
 TOKEN_KINDS = ("input", "cache_write", "cache_read", "output")
-
-
-def words(text: str) -> set[str]:
-    out = set()
-    for w in re.sub(r"[^a-z0-9+]+", " ", text.lower()).split():
-        if w in STOPWORDS:
-            continue
-        out.add(w[:-1] if len(w) > 3 and w.endswith("s") else w)
-    return out
-
-
-def similarity(a: str, b: str) -> float:
-    """Dice coefficient of the two texts' significant words."""
-    wa, wb = words(a), words(b)
-    if not wa or not wb:
-        return 0.0
-    return 2 * len(wa & wb) / (len(wa) + len(wb))
-
-
-def match(reqs_a: list[dict], reqs_b: list[dict]) -> list[tuple[int, int, float]]:
-    """One-to-one matches, best first, each at or above MATCH_THRESHOLD."""
-    scored = sorted(
-        (
-            (similarity(ra["text"], rb["text"]), i, j)
-            for i, ra in enumerate(reqs_a)
-            for j, rb in enumerate(reqs_b)
-        ),
-        reverse=True,
-    )
-    used_a, used_b, pairs = set(), set(), []
-    for sim, i, j in scored:
-        if sim < MATCH_THRESHOLD:
-            break
-        if i not in used_a and j not in used_b:
-            used_a.add(i)
-            used_b.add(j)
-            pairs.append((i, j, round(sim, 2)))
-    return pairs
-
-
-def compare_tables(a: dict, b: dict) -> dict:
-    """How far two evidence tables agree: requirement overlap, then the calls on what matched."""
-    ra, rb = a["requirements"], b["requirements"]
-    pairs = match(ra, rb)
-    n = len(pairs)
-    return {
-        "overlap": n / max(len(ra), len(rb), 1),
-        "evidence_agree": sum(ra[i]["evidence"] == rb[j]["evidence"] for i, j, _ in pairs) / n
-        if n
-        else 0.0,
-        "type_agree": sum(ra[i]["type"] == rb[j]["type"] for i, j, _ in pairs) / n if n else 0.0,
-        "title_agree": a["title_seniority"] == b["title_seniority"],
-        "arrangement_agree": a["work_arrangement"] == b["work_arrangement"],
-        "unmatched_first": [
-            r["text"] for k, r in enumerate(ra) if k not in {i for i, _, _ in pairs}
-        ],
-        "unmatched_second": [
-            r["text"] for k, r in enumerate(rb) if k not in {j for _, j, _ in pairs}
-        ],
-        "inexact_matches": [
-            {"first": ra[i]["text"], "second": rb[j]["text"], "similarity": s}
-            for i, j, s in pairs
-            if s < 1
-        ],
-    }
 
 
 def mean(values) -> float | None:

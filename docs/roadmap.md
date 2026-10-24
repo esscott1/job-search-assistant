@@ -132,7 +132,16 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - **6d, Tier 2 from the Sheet, in two parts:**
     - **Shadow mode: done.** `jobs run tier2 [--dry-run] [--limit N]` reads A's Job Log (never writing it) and picks each job A scored against the full JD (`T2` or `T2-manual`) whose latest run, the `r<n>` in its Fit Report cell, B hasn't mirrored yet. It reads A's saved `<ID>_JD.md` from the Drive-synced job-search folder on disk, the folder holding the profile `JOBS_PROFILE` points to (decision D8), and scores it with `assess_fit` and the rubric. B's shadow records the result under A's ID, with the run it mirrors, so a rescore by A is mirrored again with the same requirement list. Run live against a real tracker, which B only reads: a dry run listed the jobs due and the ones with no saved JD, one scored job matched A's score, and the next dry run no longer listed it.
     - **Cut-over mode: later, before milestone 9.** The **Run Tier 2** checkbox is the entry point, B fetches the JD itself, and the plugin's rules apply (results first, then Tier 2 Date, untick last; a rescore when `<ID>_JD.md` exists). This is the Tier 2 graph that 9c extends and the app's **Score (Tier 2)** button runs. It will be built and tested on fakes; switching it on in place of the plugin's Tier 2 is a later decision.
-- **Next, 6e: the shadow week.** The agreement report (`jobs report agreement`), scheduling (D7), then a week of `jobs run intake` and `jobs run tier2` next to A. It comes before milestone 9 builds on B's graphs.
+  - **6e, the shadow week.** It comes before milestone 9 builds on B's graphs.
+    - **The agreement report: done.** `jobs report agreement [--since DATE] [--markdown PATH]` reads A's Job Log, B's shadow and A's fit reports, with no model call:
+      - **intake:** A's and B's job-alert leads from the week, paired by intake's own dedup rule (canonical URL, or company and title): found by both, A only, B only;
+      - **Tier 1:** score agreement on the pairs, while both are still Tier 1;
+      - **Tier 2:** score agreement on the jobs B mirrored, and the evidence tables compared with milestone 5's requirement matching, now in `core/agreement.py`.
+
+      The Markdown it writes holds counts and rates only. Run live, read-only: it read a real fit report's evidence table and compared it with B's.
+    - **The week's start, `JOBS_SHADOW_SINCE`.** During the week, A's rows found that week don't count as known to B's intake. B logs those leads itself whether it runs before or after A, so the report can pair them. Older rows still count as known.
+    - **Scheduling: manual (D7).** `jobs run intake` and `jobs run tier2` once a day, then the report at the end.
+    - **Next:** one dry run of B's intake against the real inbox, then the week itself. Testing-mode Google tokens last 7 days, so expect to sign in again once.
 
 ### 7. Packaging for readers · docs
 
@@ -222,7 +231,7 @@ A placeholder goal, recorded now so earlier milestones don't close it off, and t
 | D4 | Whether to host an MCP server | Later | Not until 4c shows it's worth it |
 | D5 | How users give the app Google access without their own Cloud project | 8 | ✅ Decided: one shipped Desktop client with `drive.file` and the Picker; Gmail through Claude's connector |
 | D6 | What runs the app's Score and Build resume buttons: B on the user's Anthropic API key, or the plugin through headless Claude Code on their Claude plan | 8c | B's graphs, which milestone 5 measured as far lighter per job. For users without a key, an `LLMPort` adapter that makes B's structured calls through headless Claude Code would keep the graphs and avoid the plugin path; measure it in 9d |
-| D7 | How B runs during the shadow week: manual commands (`jobs run intake`, `jobs run tier2`) or a scheduler (Windows Task Scheduler, cron) | 6e | Open |
+| D7 | How B runs during the shadow week: manual commands (`jobs run intake`, `jobs run tier2`) or a scheduler (Windows Task Scheduler, cron) | 6e | ✅ Decided: manual, once a day. A failed sign-in or run shows at once, and a week doesn't justify building a scheduler |
 | D8 | How B reads the job files the plugin saves in Drive (`<ID>_JD.md`, fit reports): `drive.file` reaches only picked or app-created files | 6d | ✅ Decided (2026-10-23 spike): picking the job folder grants the folder, not the files in it, so B reads them from the Drive-synced folder on disk, the folder holding the profile `JOBS_PROFILE` points to. No broader scope |
 | D9 | Whether the app's Desktop OAuth client file is committed to the repo (Google treats a Desktop client's secret as not confidential) or fetched at first run | 8a | Open |
 | D10 | How the app reads the plugin's job files for users who don't sync Drive to disk: the Picker can't grant them (D8), and `drive.readonly` is restricted | 8 | Open. Options: require Drive for desktop, as B does; or the plugin also writes each JD into the tracker Sheet the user already picks (a JDs tab, as B's shadow keeps), which changes the plugin's contract |
@@ -239,7 +248,7 @@ A placeholder goal, recorded now so earlier milestones don't close it off, and t
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
 | 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt fixed (18/18 on gold); the same rule for A's rubric is a follow-up |
-| 6. B to parity | In progress: 6a foundations, 6b intake, 6c Sheets and 6d's shadow mode done; 6e (agreement report, D7, the shadow week) next; 6d's cut-over mode before 9 |
+| 6. B to parity | In progress: 6a foundations, 6b intake, 6c Sheets and 6d's shadow mode done; 6e: the agreement report done and D7 decided (manual), the shadow week next; 6d's cut-over mode before 9 |
 | 7. Packaging | First pass can start; final after 6 |
 | 8. Local app | Planned; spikes done; starts after 6d (6c done); needs D10, and 9b for Search for jobs; run API added to 8a |
 | 9. Agent nodes | Planned; follows the shadow week (6e) and 6d's cut-over mode; decision D11 |

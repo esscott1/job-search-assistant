@@ -177,6 +177,29 @@ uv run jobs run tier2
 - **What it writes:** B's score, gaps and breakdown in its shadow spreadsheet, under the plugin's ID. It never writes your tracker or touches the Run Tier 2 checkbox.
 - **What it skips:** a job whose JD file isn't in the synced folder is listed and picked up on a later run, as is a job whose model call failed.
 
+### Run the shadow week
+
+The shadow week runs B next to the plugin for a week, then measures how far they agree. B only reads your tracker; everything it finds and scores goes to its shadow spreadsheet.
+
+1. **Before the week:** sign in with Gmail (`uv run jobs auth google --gmail`) and run `uv run jobs run intake --dry-run` once, to check B reads your job-alert email as you expect. While your Google app is in Testing mode, a sign-in lasts 7 days, so expect to sign in again once during the week.
+2. **Start it:** in `.env`, set `JOBS_TRACKER=sheets` and `JOBS_SHADOW_SINCE` to the first day, for example `JOBS_SHADOW_SINCE=2026-11-02`. From that day, the leads the plugin logs don't count as known to B's intake, so B logs each of the week's leads itself, whether it runs before or after the plugin. Older rows still count, so B doesn't log last month's jobs again.
+3. **Each day,** after the plugin's scheduled runs:
+
+   ```bash
+   uv run jobs run intake
+   uv run jobs run tier2
+   ```
+
+4. **At any time, and at the end:**
+
+   ```bash
+   uv run jobs report agreement                                  # from JOBS_SHADOW_SINCE
+   uv run jobs report agreement --markdown evals/shadow/RESULTS.md
+   ```
+
+   The report compares the week's job-alert leads (found by both, by the plugin only, by B only), the Tier 1 scores on the leads both found, and the Tier 2 scores and evidence tables on the jobs B mirrored. The Markdown file holds counts and rates only, so it can be committed. The job IDs behind each number are printed for you and never written to it.
+5. **After the week,** clear `JOBS_SHADOW_SINCE`.
+
 ## 6. Optional: tracing, Studio, and evals
 
 **LangSmith tracing.** Uncomment the `LANGSMITH_*` lines in `.env` and add a key from [smith.langchain.com](https://smith.langchain.com). Note that the LLM calls go through the Anthropic SDK directly (core doesn't depend on LangChain), so you'll see graph and node spans. Per-call LLM traces are a roadmap item.
