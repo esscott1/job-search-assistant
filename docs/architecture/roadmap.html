@@ -306,8 +306,9 @@
           <li>✓ D8 spike: picking a folder under <code>drive.file</code> grants the folder, not the files in it, so B reads A's JD files from the Drive-synced folder on disk</li>
           <li>✓ 6d, shadow mode: <code>jobs run tier2</code> scores each job A finished Tier 2 on, from A's saved JD, and records it in B's shadow with the run it mirrors</li>
           <li>✓ 6e, the agreement report: intake leads by both, A only and B only; Tier 1 and Tier 2 score agreement; evidence tables compared; counts and rates only</li>
-          <li><strong>Next, 6e:</strong> the shadow week, run by hand once a day (D7), before milestone 9</li>
-          <li>6d, cut-over mode: the Run Tier 2 checkbox as entry point and B fetching the JD itself; the graph 9c extends</li>
+          <li>✓ B's intake dry run against a real inbox; B's company-name dedup loosened to match A's</li>
+          <li><strong>Next, 6d, cut-over mode:</strong> the Run Tier 2 checkbox as entry point and B fetching the JD itself; the graph 9c extends</li>
+          <li><strong>Deferred, 6e:</strong> the shadow week, run by hand once a day (D7), once A's skills are updated and running again after the architecture milestones</li>
           <li>Google access through the developer's own OAuth client; milestone 8 replaces it for users</li>
         </ul>
         <div><div class="k">Done when</div><p>B runs in shadow mode for a week next to A, with an agreement report.</p></div>
@@ -347,7 +348,7 @@
           <li><strong>9d</strong>: evals measured like milestone 5; ADR 0006</li>
         </ul>
         <div><div class="k">Rules</div><p>The agent never writes the tracker; read-only tools by default; one node is one checkpoint, so agent nodes must be safe to re-run; scoring stays a structured call.</p></div>
-        <div><div class="k">Needs</div><p>The shadow week (6e), and 6d's cut-over mode, the Tier 2 graph 9c extends.</p></div>
+        <div><div class="k">Needs</div><p>6d's cut-over mode, the Tier 2 graph 9c extends.</p></div>
         <div><div class="k">Done when</div><p>The intake node passes the plugin's intake case 3 of 3; the JD node finds most of its eval set and hands the rest to the paste step; agent failures end in <code>NeedsHuman</code>.</p></div>
       </article>
 
@@ -368,6 +369,7 @@
           <li>A hosted MCP server: Drive and Sheets under <code>drive.file</code>, Gmail left on Anthropic's connector</li>
           <li>B's status sweep (closed postings, recruiter replies) and re-tailoring when the resume changes</li>
           <li>The "qualifications, not duties" rule in A's rubric text, with A's scoring evals rerun</li>
+          <li>Location screening at intake: leads outside the profile's location get through in A and B; fix the intake skill, <code>core</code>'s rules and the evals with the plugin update, before the shadow week</li>
         </ul>
       </article>
     </div>
