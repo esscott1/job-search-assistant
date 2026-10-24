@@ -2,6 +2,8 @@
 
 The job-search workflow as a code-defined pipeline, and a worked example of how to structure an agentic workflow: business logic in one framework-free package, orchestration in replaceable approaches, evals in CI, and a migration path from the version already in production.
 
+Stated precisely, it is **LangGraph orchestration of headless Claude agents, with deterministic control flow**: code owns the route, state, checkpoints, human review and the tracker, and the model works inside steps. Agent steps reuse Anthropic's agent loop rather than implementing one; today every step is code or a single structured call, and agent steps are roadmap milestone 9 ([what B is](../../docs/roadmap.md#what-b-is-stated-precisely)).
+
 **Setup:** [docs/setup/job-search-langgraph.md](../../docs/setup/job-search-langgraph.md) · **Why it's built this way:** [ADR 0001](../../docs/adr/0001-orchestration-approach.md), [ADR 0002](../../docs/adr/0002-tracker-is-system-of-record.md)
 
 ```bash
@@ -105,6 +107,9 @@ The repository's north star is [`docs/roadmap.md`](../../docs/roadmap.md), which
 | Scoring through the shared rubric | ✅ | 2, 3 |
 | Measured comparison with the plugin | ✅ | 5 |
 | Intake graph (Gmail), the Google Sheet as tracker, Tier 2 started from the Sheet, **shadow mode** next to the plugin | in progress | 6 |
+| Agent nodes: headless Claude for intake and JD lookup, inside the graph | planned | 9 |
+| Local app: one page over the graphs through a run API | planned | 8 |
+| Hosted service on a subscription | strawman | stretch |
 | Status sweep (closed postings, recruiter replies), re-tailoring when the full resume changes | later | — |
 | `.docx` resume rendering, per-call LLM tracing | later | — |
 
