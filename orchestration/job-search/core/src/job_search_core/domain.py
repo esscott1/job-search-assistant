@@ -250,6 +250,9 @@ class PluginJob(BaseModel):
     score: int | None = None  # the plugin's Fit Score
     scoring_tier: str = ""  # the plugin's Score Tier, as written
     fit_run: int | None = None
+    found_on: date | None = None  # Date Found
+    tier2_date: date | None = None  # Tier 2 Date: the plugin's last Tier 2 attempt
+    gmail_message_id: str = ""  # blank for a lead from a career site
 
 
 class StatusChange(BaseModel):

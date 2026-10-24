@@ -183,13 +183,19 @@ class InMemoryPluginJobs:
 
 
 class InMemoryJobFiles:
-    """Saved JDs by job ID; a job with none hasn't been saved (or synced) yet."""
+    """Saved JDs by job ID and fit reports by (job ID, run); a missing one isn't saved yet."""
 
-    def __init__(self, jds: dict[str, str] | None = None):
+    def __init__(
+        self, jds: dict[str, str] | None = None, reports: dict[tuple[str, int], str] | None = None
+    ):
         self.jds = jds or {}
+        self.reports = reports or {}
 
     def saved_jd(self, job_id: str) -> str | None:
         return self.jds.get(job_id)
+
+    def fit_report(self, job_id: str, run: int) -> str | None:
+        return self.reports.get((job_id, run))
 
 
 class FakeSheets:

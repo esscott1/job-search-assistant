@@ -305,7 +305,8 @@
           <li>✓ Sheets: reads A's tracker for dedup; <code>SheetsTracker</code> on B's own shadow spreadsheet; <code>drive.file</code> sign-in with the Picker; the profile is the only place the tracker is named; ADR 0002 updated</li>
           <li>✓ D8 spike: picking a folder under <code>drive.file</code> grants the folder, not the files in it, so B reads A's JD files from the Drive-synced folder on disk</li>
           <li>✓ 6d, shadow mode: <code>jobs run tier2</code> scores each job A finished Tier 2 on, from A's saved JD, and records it in B's shadow with the run it mirrors</li>
-          <li><strong>Next, 6e:</strong> the agreement report, scheduling (D7) and the shadow week, before milestone 9</li>
+          <li>✓ 6e, the agreement report: intake leads by both, A only and B only; Tier 1 and Tier 2 score agreement; evidence tables compared; counts and rates only</li>
+          <li><strong>Next, 6e:</strong> the shadow week, run by hand once a day (D7), before milestone 9</li>
           <li>6d, cut-over mode: the Run Tier 2 checkbox as entry point and B fetching the JD itself; the graph 9c extends</li>
           <li>Google access through the developer's own OAuth client; milestone 8 replaces it for users</li>
         </ul>
@@ -384,7 +385,7 @@
           <tr><td>D4</td><td>Whether to host an MCP server</td><td>Later</td><td>Not until 4c shows it's worth it</td></tr>
           <tr><td>D5</td><td>How users give the app Google access without their own Cloud project</td><td>8</td><td>✓ Decided: one shipped Desktop client with <code>drive.file</code> and the Picker; Gmail through Claude's connector</td></tr>
           <tr><td>D6</td><td>What runs the app's Score and Build resume buttons: B on an Anthropic API key, or the plugin through headless Claude Code</td><td>8c</td><td>B's graphs, far lighter per job in milestone 5; for users without a key, B's structured calls through headless Claude Code (measure in 9d)</td></tr>
-          <tr><td>D7</td><td>How B runs during the shadow week: manual commands or a scheduler</td><td>6e</td><td>Open</td></tr>
+          <tr><td>D7</td><td>How B runs during the shadow week: manual commands or a scheduler</td><td>6e</td><td>✓ Decided: manual, once a day</td></tr>
           <tr><td>D8</td><td>How B reads the job files the plugin saves in Drive, which <code>drive.file</code> may not reach</td><td>6d</td><td>✓ Decided: a picked folder grants the folder, not its files, so B reads the Drive-synced folder on disk</td></tr>
           <tr><td>D9</td><td>Whether the app's Desktop OAuth client file is committed or fetched at first run</td><td>8a</td><td>Open</td></tr>
           <tr><td>D10</td><td>How the app reads the plugin's job files for users who don't sync Drive to disk</td><td>8</td><td>Open: require Drive for desktop, or the plugin also writes each JD into the tracker Sheet</td></tr>

@@ -104,3 +104,7 @@ class JobFilesPort(Protocol):
     def saved_jd(self, job_id: str) -> str | None:
         """The JD the plugin saved for this job (`<ID>_JD.md`), or None if there isn't one."""
         ...
+
+    def fit_report(self, job_id: str, run: int) -> str | None:
+        """The plugin's fit report for this run (`<ID>_fit_r<n>_<date>.md`), or None."""
+        ...

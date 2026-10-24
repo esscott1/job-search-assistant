@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import asdict, dataclass
+from datetime import date
 from pathlib import Path
 from typing import Protocol
 
@@ -134,15 +135,34 @@ def _require(header: list[str], needed: list[str], tab: str) -> None:
             raise TrackerSheetError(f'{tab} is missing the "{name}" column')
 
 
+def _date(text: str) -> date | None:
+    """A `YYYY-MM-DD` cell as a date, or None when it's blank or not a date."""
+    try:
+        return date.fromisoformat(text.strip()[:10])
+    except ValueError:
+        return None
+
+
 class SheetsKnownJobs:
     """Every job in A's tracker that intake must not log again, plus `also` (B's own rows).
 
     Archive rows whose Archive Reason is `reset` are left out: the user asked to start fresh,
     so those jobs may be logged again.
+
+    With `found_before` (the shadow week's start), A's rows found on or after that date are left
+    out too, so B logs the week's leads itself whether it runs before or after A, and the
+    agreement report can pair them with A's.
     """
 
-    def __init__(self, client: SheetsClient, tracker_id: str, also: KnownJobsPort | None = None):
+    def __init__(
+        self,
+        client: SheetsClient,
+        tracker_id: str,
+        also: KnownJobsPort | None = None,
+        found_before: date | None = None,
+    ):
         self.client, self.tracker_id, self.also = client, tracker_id, also
+        self.found_before = found_before
 
     def known_jobs(self) -> list[KnownJob]:
         tabs = self.client.tabs(self.tracker_id)
@@ -164,6 +184,9 @@ class SheetsKnownJobs:
                     continue
                 if tab == ARCHIVE and r.get("Archive Reason", "").strip().lower() == "reset":
                     continue
+                found = _date(r.get("Date Found", ""))
+                if self.found_before and found and found >= self.found_before:
+                    continue
                 out.append(
                     KnownJob(
                         id=r["ID"].strip(),
@@ -179,19 +202,24 @@ class ProfileKnownJobs:
     """Known jobs from the tracker the profile names (Tracker → Sheet ID), plus `also`.
 
     The profile is read on every call, so pointing it at another tracker takes effect at once.
-    A profile that names no tracker leaves just `also`.
+    A profile that names no tracker leaves just `also`. `found_before`: see SheetsKnownJobs.
     """
 
     def __init__(
-        self, client: SheetsClient, source: ProfileSourcePort, also: KnownJobsPort | None = None
+        self,
+        client: SheetsClient,
+        source: ProfileSourcePort,
+        also: KnownJobsPort | None = None,
+        found_before: date | None = None,
     ):
         self.client, self.source, self.also = client, source, also
+        self.found_before = found_before
 
     def known_jobs(self) -> list[KnownJob]:
         tracker_id = profile.tracker_sheet_id(self.source.read())
         if not tracker_id:
             return self.also.known_jobs() if self.also else []
-        return SheetsKnownJobs(self.client, tracker_id, self.also).known_jobs()
+        return SheetsKnownJobs(self.client, tracker_id, self.also, self.found_before).known_jobs()
 
 
 _FIT_RUN = re.compile(r"^r(\d+)\b")  # the Fit Report cell shows "r<n>: <score>"
@@ -227,6 +255,9 @@ class SheetsPluginJobs:
                     score=int(score) if score.isdigit() else None,
                     scoring_tier=r["Score Tier"].strip(),
                     fit_run=int(run.group(1)) if run else None,
+                    found_on=_date(r.get("Date Found", "")),
+                    tier2_date=_date(r.get("Tier 2 Date", "")),
+                    gmail_message_id=r.get("Gmail Message ID", "").strip(),
                 )
             )
         return out

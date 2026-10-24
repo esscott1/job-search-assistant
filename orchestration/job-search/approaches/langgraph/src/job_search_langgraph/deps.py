@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 from job_search_core.adapters.anthropic_llm import AnthropicLLM
@@ -79,6 +80,19 @@ def google_dir() -> Path:
     return data_dir() / "google"
 
 
+def shadow_since() -> date | None:
+    """JOBS_SHADOW_SINCE: the first day of the shadow week (`YYYY-MM-DD`), or None outside one."""
+    value = os.environ.get("JOBS_SHADOW_SINCE", "").strip()
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        raise SettingError(
+            f"JOBS_SHADOW_SINCE must be a date (YYYY-MM-DD), not {value!r}"
+        ) from None
+
+
 def _tracker(d: Path, sheets: SheetsApi, settings: SheetsSettings) -> TrackerPort:
     """JOBS_TRACKER=sheets puts B on its shadow spreadsheet; SQLite stays the default until
     cut-over (roadmap milestone 6)."""
@@ -102,8 +116,9 @@ def real_deps() -> Deps:
     settings = SheetsSettings.load(google_dir())
     tracker = _tracker(d, sheets, settings)
     own = TrackerKnownJobs(tracker)
-    # Dedup checks B's own rows and the plugin's tracker, which the profile names.
-    known = ProfileKnownJobs(sheets, profile, also=own)
+    # Dedup checks B's own rows and the plugin's tracker, which the profile names. During the
+    # shadow week, the plugin's rows from the week don't count, so B logs those leads itself.
+    known = ProfileKnownJobs(sheets, profile, also=own, found_before=shadow_since())
     return Deps(
         tracker=tracker,
         jd_fetcher=HttpJDFetcher(),

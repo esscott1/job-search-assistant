@@ -14,6 +14,8 @@ jobs set-status JOB_ID STATUS [--note ...]
 jobs run intake [--dry-run]       read the profile's job-alert email and log new leads (Tier 1)
 jobs run tier2 [--dry-run] [--limit N]
                                   shadow mode: score the jobs the plugin finished Tier 2 on
+jobs report agreement [--since DATE] [--markdown PATH]
+                                  the shadow week: how far B agrees with the plugin
 """
 
 from __future__ import annotations
@@ -22,17 +24,26 @@ import argparse
 import json
 import sqlite3
 import sys
+from datetime import date
 from pathlib import Path
 
 from dotenv import load_dotenv
-from job_search_core import usecases
+from job_search_core import agreement, usecases
 from job_search_core.adapters.google_auth import GoogleAuthError
 from job_search_core.adapters.google_sheets import TrackerSheetError
 from job_search_core.domain import DuplicateJobId, IllegalTransition, Job, Status
 from job_search_core.profile import ProfileError
 from langgraph.types import Command
 
-from .deps import Deps, SettingError, data_dir, google_dir, profile_path, real_deps
+from .deps import (
+    Deps,
+    SettingError,
+    data_dir,
+    google_dir,
+    profile_path,
+    real_deps,
+    shadow_since,
+)
 from .evaluate_graph import build_evaluate_graph, fresh_input, pending_interrupt
 from .intake_graph import build_intake_graph
 from .tier2_graph import build_tier2_graph
@@ -233,6 +244,27 @@ def cmd_run_tier2(args, deps):
             print(f"  {w['id']:10} {w['reason']}")
 
 
+def cmd_report_agreement(args, deps):
+    since = args.since or shadow_since()
+    if since is None:
+        raise SettingError("Give --since YYYY-MM-DD, or set JOBS_SHADOW_SINCE in .env")
+    report = agreement.shadow_report(
+        deps.plugin_jobs.jobs(), deps.tracker.list(), deps.job_files.fit_report, since
+    )
+    text = agreement.render(report, date.today())
+    print(text)
+    details = report["details"]
+    print("Details (job IDs, for you; not in the Markdown):")
+    for name, items in details.items():
+        if items:
+            more = f" … and {len(items) - 20} more" if len(items) > 20 else ""
+            print(f"  {name} ({len(items)}): {', '.join(str(i) for i in items[:20])}{more}")
+    if args.markdown:
+        Path(args.markdown).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.markdown).write_text(text, encoding="utf-8")
+        print(f"Wrote {args.markdown}")
+
+
 def cmd_demo(args, _deps):
     from .demo import run_demo
 
@@ -306,6 +338,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     a.add_argument("--limit", type=int, help="score at most N jobs this run")
     a.set_defaults(fn=cmd_run_tier2)
+
+    report = sub.add_parser("report", help="measure B against the plugin")
+    kinds = report.add_subparsers(dest="kind", required=True)
+    a = kinds.add_parser("agreement")
+    a.add_argument(
+        "--since",
+        type=date.fromisoformat,
+        help="first day to count (YYYY-MM-DD); default JOBS_SHADOW_SINCE",
+    )
+    a.add_argument("--markdown", help="also write the counts-only report to this file")
+    a.set_defaults(fn=cmd_report_agreement)
     return p
 
 
