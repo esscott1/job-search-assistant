@@ -22,7 +22,7 @@ Read it before planning or starting work, and check that the work fits a milesto
 ## Git workflow
 
 - **Never commit to `main`.** Make every change on a feature branch (`feat/…`, `fix/…`, `docs/…`, `restructure/…`) and open a pull request. The maintainer reviews and merges; Claude does not merge.
-- Keep each PR to one concern. The description says what changed, why, what was verified, and what wasn't.
+- A PR's description says what changed, why, what was verified, and what wasn't.
 - **No prices or costs anywhere in the repo's record.** Commit messages, PR descriptions, PR comments, and committed files such as eval baselines never state a price, a dollar cost or a usage total: not for evals, API calls, or anything else. Evals run on the maintainer's Claude subscription, so the dollar figures the eval runner prints are API-equivalent estimates, not money spent, and they mislead a reader. Report what was measured instead: scores, pass rates, runs per case, and duration. Prices that are part of test data (a salary range in a synthetic job posting, a budget on the synthetic resume) are fine.
 - **"Clean up"** means: for each remote branch other than `main`:
   1. Confirm its PR is **merged**.
