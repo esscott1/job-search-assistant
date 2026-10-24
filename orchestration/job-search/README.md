@@ -13,7 +13,7 @@ uv sync --all-packages && uv run jobs demo     # see it work with fakes, no keys
 ## What it does
 
 1. **Intake:** find job leads in Gmail and screen them quickly: `jobs run intake`. The model reads each alert email's job cards; code dedups them and the rubric gives each a Tier 1 score. *(Gmail into the local tracker or B's shadow Google Sheet, deduped against the plugin's tracker: done)*
-2. **Evaluate:** fetch the full job description; the model fills an evidence table (each requirement judged against the full resume, plus title fit and work arrangement against the job-search profile), and the shared rubric computes the 1–10 score with a readable breakdown ([ADR 0003](../../docs/adr/0003-shared-rubric.md)). Also names up to three gaps.
+2. **Evaluate:** fetch the full job description; the model fills an evidence table (each requirement judged against the full resume, plus title fit and work arrangement against the job-search profile), and the shared rubric computes the 1–10 score with a readable breakdown ([ADR 0003](../../docs/adr/0003-shared-rubric.md)). Also names up to three gaps. *(one job at a time: `jobs evaluate`; in shadow mode, every job the plugin finished Tier 2 on, from the JD it saved: `jobs run tier2`)*
 3. **Tailor:** for scores of 7 or more, draft a tailored resume and pause for the user's review. Re-tailor unsubmitted resumes when the full resume changes. *(tailor and review: done; re-tailoring: later)*
 4. **Track:** follow each job through submission, interviews, and outcome, and notice when postings close. *(manual commands: done; automated sweep: later)*
 

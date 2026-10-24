@@ -7,7 +7,16 @@ from collections.abc import Callable
 
 from pydantic import BaseModel
 
-from ..domain import EmailLeads, FitAssessment, Job, KnownJob, LeadCard, NeedsHuman, Requirement
+from ..domain import (
+    EmailLeads,
+    FitAssessment,
+    Job,
+    KnownJob,
+    LeadCard,
+    NeedsHuman,
+    PluginJob,
+    Requirement,
+)
 from ..ports import MailMessage
 
 # A close match: every requirement met, remote, the right level. The rubric scores it 10.
@@ -163,6 +172,24 @@ class InMemoryKnownJobs:
 
     def known_jobs(self) -> list[KnownJob]:
         return list(self.jobs)
+
+
+class InMemoryPluginJobs:
+    def __init__(self, jobs: list[PluginJob] | None = None):
+        self.rows = jobs or []
+
+    def jobs(self) -> list[PluginJob]:
+        return list(self.rows)
+
+
+class InMemoryJobFiles:
+    """Saved JDs by job ID; a job with none hasn't been saved (or synced) yet."""
+
+    def __init__(self, jds: dict[str, str] | None = None):
+        self.jds = jds or {}
+
+    def saved_jd(self, job_id: str) -> str | None:
+        return self.jds.get(job_id)
 
 
 class FakeSheets:

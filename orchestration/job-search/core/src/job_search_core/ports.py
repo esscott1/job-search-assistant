@@ -11,7 +11,7 @@ from typing import Protocol, TypeVar
 
 from pydantic import BaseModel
 
-from .domain import Job, KnownJob, NeedsHuman, Status, StatusChange, StatusSource
+from .domain import Job, KnownJob, NeedsHuman, PluginJob, Status, StatusChange, StatusSource
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -91,4 +91,16 @@ class KnownJobsPort(Protocol):
     def known_jobs(self) -> list[KnownJob]:
         """Every job intake must not log again: the tracker's rows and, where the tracker has one,
         its archive (except rows a reset archived, which may come back as new leads)."""
+        ...
+
+
+class PluginJobsPort(Protocol):
+    def jobs(self) -> list[PluginJob]:
+        """The rows of the plugin's Job Log, read-only: what Tier 2 shadow mode mirrors."""
+        ...
+
+
+class JobFilesPort(Protocol):
+    def saved_jd(self, job_id: str) -> str | None:
+        """The JD the plugin saved for this job (`<ID>_JD.md`), or None if there isn't one."""
         ...

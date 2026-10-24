@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from datetime import date, timedelta
 
-from .domain import PRE_SUBMISSION, FitResult, Job, KnownJob, Status
+from .domain import PRE_SUBMISSION, EvidenceTable, FitResult, Job, KnownJob, PluginJob, Status
 
 FIT_THRESHOLD = 7
 """Jobs scoring at or above this get a tailored resume.
@@ -46,6 +46,35 @@ def is_resume_stale(job: Job, current_resume_hash: str) -> bool:
 
 def looks_like_real_jd(text: str | None) -> bool:
     return bool(text) and len(text.strip()) >= MIN_JD_CHARS
+
+
+# --- Tier 2 in shadow mode: B mirrors the plugin's finished runs (roadmap milestone 6) ------
+
+SHADOW_TIER2_TIERS = frozenset({"T2", "T2-manual"})
+"""The plugin's Score Tiers that mean it scored the full JD, which it saves as `<ID>_JD.md`."""
+
+
+def shadow_tier2_due(row: PluginJob, mirrored_run: int | None) -> bool:
+    """True when the plugin has finished a Tier 2 run on this job that B hasn't mirrored yet.
+
+    Each run the plugin finishes with a score writes a new fit report, so its run number changes
+    even when the user rescores twice in a day. Rows it couldn't score (pending manual, no JD,
+    closed) have nothing to mirror.
+    """
+    return (
+        row.scoring_tier in SHADOW_TIER2_TIERS
+        and row.fit_run is not None
+        and row.fit_run != mirrored_run
+    )
+
+
+def rescore_basis(job: Job, jd_text: str) -> EvidenceTable | None:
+    """The evidence table a rescore keeps the requirement list from: the last Tier 2 run's, if
+    it read this same JD. A replaced JD is read fresh, as the plugin does when the user trashes
+    `<ID>_JD.md` to force a new fetch."""
+    if job.fit and job.fit.evidence and job.fit.evidence.mode == "tier2" and job.jd_text == jd_text:
+        return job.fit.evidence
+    return None
 
 
 # --- Intake: the plugin's job-lead-intake-scan and job-tracker rules ----------------------

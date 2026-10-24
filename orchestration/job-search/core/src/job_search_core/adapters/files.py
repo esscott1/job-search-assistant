@@ -1,7 +1,9 @@
-"""File-based adapters: job-search profile, full resume and tailored-resume store."""
+"""File-based adapters: job-search profile, full resume, the plugin's saved JDs, tailored-resume
+store."""
 
 from __future__ import annotations
 
+import glob
 import hashlib
 from pathlib import Path
 
@@ -49,6 +51,26 @@ class ProfileResumeSource:
 
     def content_hash(self) -> str:
         return hashlib.sha256(self.read().encode("utf-8")).hexdigest()[:16]
+
+
+class SyncedJobFiles:
+    """The job files the plugin saves in Drive, read from the copy Drive for desktop syncs to disk.
+
+    The plugin keeps a folder per company in its job-search folder, the folder that holds the
+    profile (job-tracker, **Job files in Drive**). B can't read those files through Drive: they
+    were created by the plugin, and `drive.file` doesn't reach them even in a folder picked in
+    the Picker (roadmap decision D8). The plugin writes them as plain Markdown, so they sync as
+    ordinary `.md` files.
+    """
+
+    def __init__(self, profile: FileProfileSource):
+        self.profile = profile
+
+    def saved_jd(self, job_id: str) -> str | None:
+        """`<ID>_JD.md` in any company folder (IDs are unique), or None if it hasn't synced."""
+        folder = self.profile.path.parent
+        found = sorted(folder.glob(f"*/{glob.escape(job_id)}_JD.md"))
+        return found[0].read_text(encoding="utf-8") if found else None
 
 
 class FileDocumentStore:
