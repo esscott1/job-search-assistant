@@ -9,8 +9,22 @@ The same problem (find job leads, score fit against a full resume, show the gaps
 | | Approach | Who decides the next step | Status |
 |---|---|---|---|
 | **A** | Claude skills plugin (`skills/job-search-assistant/`) | The model, following SKILL.md steps | Released, 0.4.x |
-| **B** | LangGraph pipeline (`orchestration/job-search/approaches/langgraph/`) | Code: a state graph that calls the model only to read, judge and write | Scores like A on the gold cases; intake and the Google Sheet done; reaching parity (milestone 6) |
+| **B** | LangGraph pipeline (`orchestration/job-search/approaches/langgraph/`) | Code decides the route: a state graph. The model reads, judges and writes inside a step, and, in an agent node (milestone 9), a headless Claude agent decides how to do that one step | Scores like A on the gold cases; intake and the Google Sheet done; reaching parity (milestone 6) |
 | **C** | Local MCP server (`job-search-local` plugin) | The model picks a tool; code computes the answer | Proposed |
+
+### What B is, stated precisely
+
+**B is LangGraph orchestration of headless Claude agents, with deterministic control flow.**
+
+- **The graph owns control.** Code decides which step runs next (`core.policy`), holds the run's state and checkpoints, pauses for a person with `interrupt()`, and records every result in the tracker through `core.usecases`.
+- **A node is one of three kinds:**
+  - a **code step** (fetch a page, dedup a URL, compute the score with the rubric);
+  - a **single structured model call**, for judgment that code can check (the evidence table, a tailored resume);
+  - an **agent node**, only where the path to the answer can't be known in advance (reading a week of job-alert email, hunting for a job description across sites). The agent is headless Claude, bounded by a tool allowlist, a pinned model, a turn and time limit, and a result that must validate against a schema.
+- **B doesn't implement an agent loop of its own.** Agent nodes reuse Anthropic's (headless Claude Code, or the Claude Agent SDK) and the plugin's own skills, so A and B share one copy of each procedure. What B builds is the harness around them: routing, state, human review, guardrails, the system of record and evals.
+- **Today** B's nodes are code steps and structured calls; agent nodes arrive in milestone 9.
+
+Why this shape: cost and behaviour stay predictable where they can be (the score is computed in code, and milestone 5 measured one call per job against the plugin's twelve), agency is used only where it earns its place, and the local app (milestone 8) gets one stable backend interface, graphs, instead of driving skills or agents directly.
 
 ## Principles that hold across every milestone
 
@@ -19,10 +33,12 @@ The same problem (find job leads, score fit against a full resume, show the gaps
 - **Measure, don't assert.** Claims about token use, accuracy or reliability come with eval results committed to the repo.
 - **Each approach stays usable on its own.** A never depends on B or C being installed or running.
 - **Public repo hygiene.** Synthetic data only; nothing personal in code, docs, fixtures or results.
+- **Agency only where it earns it.** Judgment that code can check stays a structured call. A step becomes an agent node only when the path to its answer can't be known in advance, and an eval shows it beats the code or manual version.
+- **Front ends talk to graphs.** The local app (and any later hosted service) calls the graphs through one API. It never runs a skill or an agent directly, so every action gets the same routing, checkpoints, review steps and tracker rules.
 
 ## Milestones
 
-The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it is complete. Milestone 4 runs in parallel from the start. 6 and 7 follow 5, and 8, the local app, follows 6.
+The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it is complete. Milestone 4 runs in parallel from the start. 6 and 7 follow 5. 9, agent nodes, follows 6d; 8, the local app, follows 6 and needs 9b for its **Search for jobs** button. A hosted service is a stretch goal after 8, recorded as a strawman.
 
 ### 1. Foundations ✅ done
 
@@ -137,21 +153,62 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - **Found on the way:** Google's consent screen lets people untick the Drive permission, so the app checks what was granted; and Python has to use the operating system's certificate store (`truststore`) on machines that intercept TLS.
 - **Deliverables:**
   - **8a, the app shell:** a small local server (FastAPI) and one page, as a new front end under `approaches/` (its README states its maturity). Sign-in with the shipped client, a check of the granted scopes, `truststore`. Tokens stay in `data/`.
+    - **The run API, the page's only backend.** The page calls the graphs through a small HTTP API and never starts a skill, an agent or `claude -p` itself:
+      - `POST /runs` starts a graph (`intake`, `tier2`, `evaluate`) for a job or a date range and returns a run ID (the LangGraph thread);
+      - `GET /runs/{id}` gives the status and current node, and `GET /runs/{id}/events` streams progress (server-sent events), so a several-minute agent node shows what it's doing;
+      - `GET /interrupts` lists the steps waiting on the user (paste a JD, review a resume), and `POST /interrupts/{run_id}` resumes one with the user's answer;
+      - `GET /jobs` and `GET /stats` read the tracker and the statistics.
+    - Run state lives in LangGraph's checkpoints, job state in the tracker (ADR 0002). The API's OpenAPI schema is committed and the page is written against it, so a later hosted service (the stretch goal) can keep the same contract. Whether this is our own FastAPI layer or LangGraph's server API is decision D12.
     - **Onboarding without `.env`:** the user picks their `job-search-profile.md` in the Picker once, and the app reads it from Drive by that file ID. Today's pipeline needs `JOBS_PROFILE` pointing at a Drive-synced copy, because `drive.file` can't search Drive; the app removes that step. The profile then names the tracker, and the Picker approves it (as `jobs auth google` does now).
   - **8b, tracker and statistics:** the Job Log and Archive through 6c's Sheets adapter; counts by status, score band and Tier 2 backlog; gap statistics computed in `core`, as the same function 4c's `gap_summary` exposes, so the page and the MCP server can't disagree.
-  - **8c, actions:** each button starts a background job and shows its progress.
-    - **Search for jobs:** the plugin's intake skill through headless Claude Code, with a fixed tool allowlist that includes `python` for the skill's scripts, and a pinned `--model` (it otherwise runs on the account's default). Needs Claude Code installed and signed in.
-    - **Score (Tier 2)** and **Build resume:** B's graphs (decision D6).
+  - **8c, actions:** each button starts a graph run through the run API and shows its progress.
+    - **Search for jobs:** the intake graph with its agent node (9b), which runs the plugin's intake skill through headless Claude Code on the user's Claude login. Needs Claude Code installed and signed in.
+    - **Score (Tier 2):** the Tier 2 graph (6d); when a JD can't be fetched, the JD agent node (9c) tries before the page asks the user to paste it.
+    - **Build resume:** the evaluate graph's tailor step; the review pause shows on the page as a card to approve or reject (decision D6).
   - **8d, publishing:** the OAuth app moves to Production after the brand check, so users see no "unverified app" warning and their sign-in doesn't expire weekly. ADR 0005: why Google access is split this way.
 - **B's own Gmail intake (6b)** stays for developers with their own Google project and for the shadow week; app users get intake through Claude instead.
-- **Depends on:** 6c (the Sheets adapter), 6d (the Tier 2 graph) and decision D10 (how the app reads the plugin's job files). The statistics code is shared with 4c; whichever comes first builds it in `core`.
+- **Depends on:** 6c (the Sheets adapter), 6d (the Tier 2 graph), 9b (the intake agent node, for **Search for jobs**) and decision D10 (how the app reads the plugin's job files). The statistics code is shared with 4c; whichever comes first builds it in `core`.
 - **Done when:** a new user starts the app, signs in with Google, approves the tracker their profile names, sees its status and statistics, scores a job and builds a resume from the page, all without any Google Cloud setup of their own.
+
+### 9. Agent nodes · headless Claude inside B
+
+- **Goal:** where the path to an answer can't be known in advance, a node runs a headless Claude agent, and the graph keeps control of everything around it. This is what makes B an orchestration of agents rather than only a workflow; see [What B is](#what-b-is-stated-precisely).
+- **Deliverables:**
+  - **9a, the agent port.** An `AgentPort` in `core/ports.py`: `run(task, skill, allowed_tools, model, max_turns, timeout, output_schema) → AgentResult`, where the result holds the validated output, the transcript's path under `data/`, and what was measured (turns, tokens, duration). `core` stays framework-free; the port is plain Python.
+    - Adapters: `claude_code_headless` (`claude -p` with a JSON result, the fixed allowlist and a pinned `--model`, on the user's Claude login, as the 2026-10-22 spike ran it) and a fake for tests. A Claude Agent SDK adapter on an API key is decision D11.
+    - The result contract: the agent ends with JSON that must validate against `output_schema`. An invalid result gets one retry, then the node returns `NeedsHuman`.
+  - **9b, intake as an agent node.** The intake graph's first step runs the plugin's `job-lead-intake-scan` skill in a dry-run mode that returns candidate rows instead of writing them. Code does the rest, as today: canonical-URL dedup in `core`, the Tier 1 score, rows recorded through `core.usecases`. App users get intake through Claude's Gmail connector (decision D5) without B asking for a Gmail scope; 6b's Gmail adapter stays for developers.
+  - **9c, JD lookup as an agent node.** When `fetch_jd` can't reach a JD, an agent node searches company and ATS sites (never LinkedIn directly, as the plugin's rule) before the graph pauses for the user to paste it: `fetch_jd → find_jd (agent) → manual_jd (interrupt)`.
+  - **9d, evals and ADR.** Agent nodes are measured like milestone 5: the intake node against the plugin's intake case, the JD node against a set of postings that the plugin marked `T2-pending-manual`; success rate, turns, tokens and duration, 3 runs each. ADR 0006: why agent nodes, why headless Claude, and the rules below.
+- **Rules every agent node follows:**
+  - **The agent never writes the tracker.** It returns a result; the node records it through `core.usecases`, so status changes still go through `tracker.transition()`.
+  - **Read-only by default.** Its allowlist has no tool that sends, deletes or writes outside `data/`; email and web pages are untrusted input.
+  - **One node is one checkpoint.** LangGraph checkpoints before and after the node, not inside the agent's run, so a failure re-runs the whole agent. Agent nodes must therefore be safe to re-run.
+  - **Scoring stays a structured call.** `assess_fit` is not an agent: its path is known, and milestone 5 measured the difference.
+- **Depends on:** 6d (the Tier 2 graph that 9c extends) and the 2026-10-22 headless spike.
+- **Done when:** the intake graph with its agent node passes the plugin's intake case in 3 of 3 runs; the JD node finds the JD for most of its eval set and routes the rest to the paste step; graph tests on the fake show an agent failure ending in `NeedsHuman`, never a crash or a tracker write.
 
 ### Later, behind a decision
 
 - **A hosted MCP server.** Drive and Sheets under the `drive.file` scope, with Gmail left on Anthropic's connector, so the server works in claude.ai scheduled runs. This only makes sense if C proves useful; it brings OAuth custody, Google verification and hosting.
 - **B's remaining milestones:** a status sweep (closed postings, recruiter replies) and re-tailoring when the full resume changes.
 - **The same requirements rule for A** (milestone 5's follow-up): two sentences in `job-fit-rubric`, a plugin release, and A's scoring evals rerun.
+
+### Stretch: a hosted service · strawman
+
+A placeholder goal, recorded now so earlier milestones don't close it off, and to be fleshed out after milestone 8. Nothing here is scheduled; whether to build it at all is decision D13.
+
+- **Goal:** the local app's page and run API, hosted for the public on a subscription basis.
+- **What carries over:** the run API contract (8a), the graphs, `core`, the evals, and the split of Google access by scope.
+- **What has to change, as questions to settle:**
+  - **Model access and who pays for it.** Headless Claude Code on a user's own Claude login is a local, personal pattern; a hosted service runs agent nodes on the operator's own API account (the Claude Agent SDK in a sandbox per user, or Anthropic's hosted agents), behind `AgentPort` (D11). The subscription has to cover per-token use, so each user gets a quota and every run is metered. Milestone 9d's tokens per run are the input for sizing it.
+  - **Gmail.** A hosted service can't use a user's Claude connector. Options: the restricted Gmail scope with its yearly security assessment; users forward job alerts to an inbound address of their own; or intake stays in the user's Claude (the plugin) and the service reads only the tracker.
+  - **Google Drive and Sheets.** A Web OAuth client instead of the Desktop one, Google's verification for a public app, and `drive.file` still as the only Drive scope.
+  - **Tenancy and data.** Separate data per user (tracker, checkpoints on Postgres instead of SQLite, job files, transcripts), sign-in, export and deletion, a privacy policy and retention rules: resumes are personal data.
+  - **Safety.** Prompt-injection hardening, because job emails and postings are untrusted and the service acts for many users; per-user rate limits.
+  - **Running it.** Hosting, a queue for agent runs that take minutes, tracing per call, billing and plans.
+  - **Terms.** Anthropic's commercial terms and usage policies for a public product, and Google's API user-data policy.
+- **Gate:** D13 is decided after 8 ships, with 9d's measurements in hand.
 
 ## Open decisions
 
@@ -162,11 +219,14 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | D3 | Whether the Claude desktop app starts plugin-declared MCP servers and sends Roots | 4b | Settled by the 4a probe; Claude Code is the target either way |
 | D4 | Whether to host an MCP server | Later | Not until 4c shows it's worth it |
 | D5 | How users give the app Google access without their own Cloud project | 8 | ✅ Decided: one shipped Desktop client with `drive.file` and the Picker; Gmail through Claude's connector |
-| D6 | What runs the app's Score and Build resume buttons: B on the user's Anthropic API key, or the plugin through headless Claude Code on their Claude plan | 8c | B, which milestone 5 measured as far lighter per job; the plugin path for users without a key |
+| D6 | What runs the app's Score and Build resume buttons: B on the user's Anthropic API key, or the plugin through headless Claude Code on their Claude plan | 8c | B's graphs, which milestone 5 measured as far lighter per job. For users without a key, an `LLMPort` adapter that makes B's structured calls through headless Claude Code would keep the graphs and avoid the plugin path; measure it in 9d |
 | D7 | How B runs during the shadow week: manual commands (`jobs run intake`, `jobs run tier2`) or a scheduler (Windows Task Scheduler, cron) | 6e | Open |
 | D8 | How B reads the job files the plugin saves in Drive (`<ID>_JD.md`, fit reports): `drive.file` reaches only picked or app-created files | 6d | ✅ Decided (2026-10-23 spike): picking the job folder grants the folder, not the files in it, so B reads them from the Drive-synced folder on disk, the folder holding the profile `JOBS_PROFILE` points to. No broader scope |
 | D9 | Whether the app's Desktop OAuth client file is committed to the repo (Google treats a Desktop client's secret as not confidential) or fetched at first run | 8a | Open |
 | D10 | How the app reads the plugin's job files for users who don't sync Drive to disk: the Picker can't grant them (D8), and `drive.readonly` is restricted | 8 | Open. Options: require Drive for desktop, as B does; or the plugin also writes each JD into the tracker Sheet the user already picks (a JDs tab, as B's shadow keeps), which changes the plugin's contract |
+| D11 | What runs B's agent nodes: headless Claude Code on the user's Claude login, or the Claude Agent SDK on an API key | 9a | Headless Claude Code for the local app (the spike works, and users need no key); the Agent SDK for a hosted service. Both behind `AgentPort` |
+| D12 | The local app's run API: our own thin FastAPI layer over the graphs, or LangGraph's server API | 8a | Our own layer: the schema stays ours and portable, and `core` and the graphs don't change either way |
+| D13 | Whether to build the hosted service (the stretch goal) | After 8 | Strawman only; decide after 8 ships, with 9d's tokens per run and the Gmail question answered |
 
 ## Status
 
@@ -179,4 +239,6 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
 | 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt fixed (18/18 on gold); the same rule for A's rubric is a follow-up |
 | 6. B to parity | In progress: 6a foundations, 6b intake and 6c Sheets done; D8 decided; 6d (Tier 2 from the Sheet) next |
 | 7. Packaging | First pass can start; final after 6 |
-| 8. Local app | Planned; spikes done; starts after 6d (6c done); needs D10 |
+| 8. Local app | Planned; spikes done; starts after 6d (6c done); needs D10, and 9b for Search for jobs; run API added to 8a |
+| 9. Agent nodes | Planned; follows 6d; decision D11 |
+| Stretch: hosted service | Strawman; decision D13 after 8 |

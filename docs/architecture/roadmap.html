@@ -122,6 +122,8 @@
       <div><strong>Same inputs, same tests</strong><span>Every approach runs against the same synthetic persona, job descriptions and gold scores.</span></div>
       <div><strong>Measure, don't assert</strong><span>Claims about token use, accuracy or reliability come with eval results in the repo.</span></div>
       <div><strong>Each stands alone</strong><span>The plugin never depends on the pipeline or the server being installed or running.</span></div>
+      <div><strong>Agency only where it earns it</strong><span>Judgment code can check stays a structured call; a step becomes an agent only when its path can't be known in advance, and an eval says so.</span></div>
+      <div><strong>Front ends talk to graphs</strong><span>The app calls the graphs through one run API, never a skill or an agent directly.</span></div>
     </div>
   </section>
 
@@ -129,15 +131,15 @@
     <h2>What depends on what</h2>
     <figure>
       <div class="scroll">
-        <svg viewBox="0 0 1160 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin (done), and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison (done). Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. Milestone 6 leads to milestone 8, the local app, a desktop UI over the pipeline. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
+        <svg viewBox="0 0 1320 420" role="img" aria-label="Dependency map across four tracks. Foundations (done) leads to milestone 2, one rubric in the shared core (done), which leads to milestone 3, LangGraph scoring like the plugin (done), and to a rubric copy in the plugin. Milestones 2 and 3, plus the plugin's Tier 2 evals, lead to milestone 5, the measured comparison (done). Milestone 5 leads to milestone 6, LangGraph to parity, and to milestone 7, packaging. Milestone 6 leads to milestone 9, agent nodes (headless Claude inside the graph), and on to milestone 8, the local app, a desktop UI over the pipeline through a run API. A hosted service on a subscription is a dashed stretch goal after 8. The local MCP server track (4a probe, then 4b and 4c the server) runs in parallel from the foundations and feeds packaging; a hosted server is a later decision. The critical path is 1, 2, 3, 5.">
           <defs>
             <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-muted"/></marker>
             <marker id="af" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-fg"/></marker>
           </defs>
 
           <!-- lane bands -->
-          <rect x="10" y="40" width="1140" height="80" rx="8" class="band"/>
-          <rect x="10" y="230" width="1140" height="80" rx="8" class="band"/>
+          <rect x="10" y="40" width="1300" height="80" rx="8" class="band"/>
+          <rect x="10" y="230" width="1300" height="80" rx="8" class="band"/>
           <text x="24" y="76" class="t-lane la">A · plugin</text>
           <text x="24" y="94" class="t-lane-sub">Claude skills</text>
           <text x="24" y="171" class="t-lane ls">Shared</text>
@@ -182,8 +184,14 @@
           <text x="765" y="266" text-anchor="middle" class="t-node">6 B to parity</text>
           <text x="765" y="283" text-anchor="middle" class="t-node-sub">intake · Sheets</text>
           <rect x="847" y="244" width="130" height="52" rx="7" class="n-b"/>
-          <text x="912" y="266" text-anchor="middle" class="t-node">8 Local app</text>
-          <text x="912" y="283" text-anchor="middle" class="t-node-sub">UI · Google sign-in</text>
+          <text x="912" y="266" text-anchor="middle" class="t-node">9 Agent nodes</text>
+          <text x="912" y="283" text-anchor="middle" class="t-node-sub">headless Claude</text>
+          <rect x="1000" y="244" width="130" height="52" rx="7" class="n-b"/>
+          <text x="1065" y="266" text-anchor="middle" class="t-node">8 Local app</text>
+          <text x="1065" y="283" text-anchor="middle" class="t-node-sub">UI · run API</text>
+          <rect x="1170" y="244" width="130" height="52" rx="7" class="n-later"/>
+          <text x="1235" y="266" text-anchor="middle" class="t-node">Stretch: hosted app</text>
+          <text x="1235" y="283" text-anchor="middle" class="t-node-sub">strawman</text>
 
           <!-- C lane -->
           <rect x="302" y="339" width="116" height="52" rx="7" class="n-c"/>
@@ -211,13 +219,15 @@
           <polyline points="790,244 790,222 1030,222 1030,205" class="e" marker-end="url(#am)"/>
           <text x="910" y="216" text-anchor="middle" class="t-edge">final</text>
           <line x1="823" y1="270" x2="843" y2="270" class="e" marker-end="url(#am)"/>
+          <line x1="977" y1="270" x2="996" y2="270" class="e" marker-end="url(#am)"/>
+          <line x1="1130" y1="270" x2="1166" y2="270" class="e-later" marker-end="url(#am)"/>
 
           <!-- C track -->
           <polyline points="218,300 218,365 298,365" class="e" marker-end="url(#am)"/>
           <text x="226" y="330" class="t-edge">parallel</text>
           <line x1="418" y1="365" x2="433" y2="365" class="e" marker-end="url(#am)"/>
           <polyline points="650,339 650,320 1145,320 1145,175 1134,175" class="e" marker-end="url(#am)"/>
-          <text x="1139" y="262" text-anchor="end" class="t-edge">demo</text>
+          <text x="1135" y="314" text-anchor="end" class="t-edge">demo</text>
           <line x1="688" y1="378" x2="996" y2="378" class="e-later" marker-end="url(#am)"/>
           <text x="842" y="372" text-anchor="middle" class="t-edge">if it earns it</text>
         </svg>
@@ -227,7 +237,7 @@
         <span><i class="ln"></i>Depends on</span>
         <span><i class="ln later"></i>Behind a decision</span>
       </div>
-      <figcaption>Read left to right. The bold path, 1 → 2 → 3 → 5, turned the comparison into numbers, and it's complete. Next are 6 (B to parity) and, in parallel, the MCP track, which can start any time. 8, the local app, builds on 6.</figcaption>
+      <figcaption>Read left to right. The bold path, 1 → 2 → 3 → 5, turned the comparison into numbers, and it's complete. Next are 6 (B to parity) and, in parallel, the MCP track, which can start any time. 9 puts headless Claude agents inside B's graph; 8, the local app, builds on 6 and 9 and talks only to the graphs. The hosted service is a strawman behind a decision.</figcaption>
     </figure>
   </section>
 
@@ -315,14 +325,38 @@
         <p>One page at <code>localhost</code> for tracker status, the actions and statistics, with no Google Cloud setup for users.</p>
         <ul>
           <li><strong>Google access, split:</strong> one shipped Desktop client asking only for <code>drive.file</code>, plus the Picker to approve the tracker the profile names; Gmail stays with Claude's connector</li>
-          <li><strong>8a</strong>: local server and page, sign-in, granted-scope check; onboarding picks the profile in the Picker, so no <code>.env</code></li>
+          <li><strong>8a</strong>: local server and page, sign-in, granted-scope check; onboarding picks the profile in the Picker, so no <code>.env</code>; a <strong>run API</strong> (start a run, stream its progress, list and resume interrupts, read jobs and stats) is the page's only backend (D12)</li>
           <li><strong>8b</strong>: tracker status and statistics, with gap counts in <code>core</code> shared with 4c</li>
-          <li><strong>8c</strong>: Search for jobs (the plugin through headless Claude Code, model pinned), Score and Build resume (B's graphs)</li>
+          <li><strong>8c</strong>: every button starts a graph: Search for jobs (intake, with 9b's agent node), Score (Tier 2, with 9c's JD agent), Build resume (tailor, with the review as a card)</li>
           <li><strong>8d</strong>: publish the Google app; ADR 0005</li>
         </ul>
         <div><div class="k">Spikes</div><p>Headless Claude Code used the claude.ai connectors unattended; <code>drive.file</code> plus the Picker read and wrote a picked tracker, and saw nothing else. A picked folder grants the folder, not the files in it.</p></div>
-        <div><div class="k">Needs</div><p>6d, and decision D10: how the app reads the job files the plugin saves in Drive, for users who don't sync Drive to disk.</p></div>
+        <div><div class="k">Needs</div><p>6d, 9b for Search for jobs, and decision D10: how the app reads the job files the plugin saves in Drive, for users who don't sync Drive to disk.</p></div>
         <div><div class="k">Done when</div><p>A new user signs in, approves their tracker, sees status and statistics, scores a job and builds a resume, with no Cloud setup.</p></div>
+      </article>
+
+      <article class="card b">
+        <div class="card-head"><span class="num">9</span><div><h3>Agent nodes</h3><div class="meta">Headless Claude inside B · <span class="pill">planned</span></div></div></div>
+        <p>B becomes LangGraph orchestration of headless Claude agents, with deterministic control flow: the graph owns the route, state, review and tracker; an agent only does one step whose path can't be known in advance.</p>
+        <ul>
+          <li><strong>9a</strong>: <code>AgentPort</code> in <code>core</code>; a headless Claude Code adapter (allowlist, pinned model, turn and time limits, schema-checked JSON result) and a fake (D11)</li>
+          <li><strong>9b</strong>: intake as an agent node running the plugin's intake skill in dry-run; code dedups, scores Tier 1 and records</li>
+          <li><strong>9c</strong>: JD lookup as an agent node before the paste step</li>
+          <li><strong>9d</strong>: evals measured like milestone 5; ADR 0006</li>
+        </ul>
+        <div><div class="k">Rules</div><p>The agent never writes the tracker; read-only tools by default; one node is one checkpoint, so agent nodes must be safe to re-run; scoring stays a structured call.</p></div>
+        <div><div class="k">Done when</div><p>The intake node passes the plugin's intake case 3 of 3; the JD node finds most of its eval set and hands the rest to the paste step; agent failures end in <code>NeedsHuman</code>.</p></div>
+      </article>
+
+      <article class="card b later">
+        <div class="card-head"><span class="num">⋯</span><div><h3>Stretch: hosted service</h3><div class="meta">Strawman · decision D13 after 8</div></div></div>
+        <p>The local app's page and run API, hosted for the public on a subscription basis. To be fleshed out later.</p>
+        <ul>
+          <li>Agent nodes on the operator's API account (Agent SDK, sandboxed per user), metered with per-user quotas sized from 9d</li>
+          <li>Gmail: restricted scope and its security assessment, forwarded alerts, or intake left in the user's Claude</li>
+          <li>Per-user data (Postgres checkpoints), sign-in, export and deletion, privacy and retention, prompt-injection hardening</li>
+          <li>Hosting, a run queue, tracing, billing; Anthropic and Google terms for a public product</li>
+        </ul>
       </article>
 
       <article class="card c later">
@@ -347,11 +381,14 @@
           <tr><td>D3</td><td>Whether the Claude desktop app starts plugin servers and sends Roots</td><td>4b</td><td>Settled by the 4a probe; Claude Code is the target either way</td></tr>
           <tr><td>D4</td><td>Whether to host an MCP server</td><td>Later</td><td>Not until 4c shows it's worth it</td></tr>
           <tr><td>D5</td><td>How users give the app Google access without their own Cloud project</td><td>8</td><td>✓ Decided: one shipped Desktop client with <code>drive.file</code> and the Picker; Gmail through Claude's connector</td></tr>
-          <tr><td>D6</td><td>What runs the app's Score and Build resume buttons: B on an Anthropic API key, or the plugin through headless Claude Code</td><td>8c</td><td>B, far lighter per job in milestone 5; the plugin for users without a key</td></tr>
+          <tr><td>D6</td><td>What runs the app's Score and Build resume buttons: B on an Anthropic API key, or the plugin through headless Claude Code</td><td>8c</td><td>B's graphs, far lighter per job in milestone 5; for users without a key, B's structured calls through headless Claude Code (measure in 9d)</td></tr>
           <tr><td>D7</td><td>How B runs during the shadow week: manual commands or a scheduler</td><td>6e</td><td>Open</td></tr>
           <tr><td>D8</td><td>How B reads the job files the plugin saves in Drive, which <code>drive.file</code> may not reach</td><td>6d</td><td>✓ Decided: a picked folder grants the folder, not its files, so B reads the Drive-synced folder on disk</td></tr>
           <tr><td>D9</td><td>Whether the app's Desktop OAuth client file is committed or fetched at first run</td><td>8a</td><td>Open</td></tr>
           <tr><td>D10</td><td>How the app reads the plugin's job files for users who don't sync Drive to disk</td><td>8</td><td>Open: require Drive for desktop, or the plugin also writes each JD into the tracker Sheet</td></tr>
+          <tr><td>D11</td><td>What runs B's agent nodes: headless Claude Code on the user's Claude login, or the Claude Agent SDK on an API key</td><td>9a</td><td>Headless for the local app; the Agent SDK for a hosted service; both behind <code>AgentPort</code></td></tr>
+          <tr><td>D12</td><td>The app's run API: our own thin FastAPI layer, or LangGraph's server API</td><td>8a</td><td>Our own layer, so the schema stays ours and portable</td></tr>
+          <tr><td>D13</td><td>Whether to build the hosted service</td><td>After 8</td><td>Strawman; decide with 9d's tokens per run and the Gmail question answered</td></tr>
         </tbody>
       </table>
     </div>

@@ -40,6 +40,16 @@ Skills are one way to run a workflow. [`orchestration/`](orchestration/job-searc
 
 The skills version can keep running while the orchestrated version runs alongside it in shadow mode. Each part is cut over once its evals match ([ADR 0001](docs/adr/0001-orchestration-approach.md)).
 
+### What the pipeline is, stated precisely
+
+**LangGraph orchestration of headless Claude agents, with deterministic control flow.** Code decides which step runs next, holds the state and checkpoints, pauses for a person to paste a job description or review a resume, and records every result in the tracker. Each step is a code step, a single structured model call, or, only where the path can't be known in advance, a headless Claude agent with a tool allowlist, a pinned model and a result that must validate against a schema.
+
+To be exact about what is built here and what is reused:
+
+- **Built here:** the harness around the model. Routing rules in a framework-free `core`, checkpointed and resumable runs, human-in-the-loop steps, structured-output validation, a model adapter behind an interface, guardrails, the tracker as system of record, and evals in CI, including a measured comparison with the skills plugin.
+- **Reused:** the agent loop. Agent steps run Anthropic's (headless Claude Code or the Claude Agent SDK) and the plugin's own skills. The pipeline doesn't implement an agent loop of its own.
+- **Today:** the steps are code and structured calls; agent steps are [roadmap milestone 9](docs/roadmap.md#9-agent-nodes--headless-claude-inside-b). The fit score is never agentic: the model fills an evidence table and code computes the score.
+
 ## Conventions
 
 Every SKILL.md here follows a common shape, documented in [`docs/skill-template.md`](docs/skill-template.md), so skills stay easy to compare across categories as the list grows.
