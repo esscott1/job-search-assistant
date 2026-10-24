@@ -160,7 +160,7 @@ uv run jobs run intake
 ```
 
 - **What it reads:** the last 7 days of mail from each Email sources sender. If the newest email already logged is older than that, it reads from that email's date instead, at most 30 days back. It never reads the senders under **Never scan**, nor LinkedIn's message and notification senders.
-- **What it does with each email:** the model lists the email's jobs and judges each one's title fit and work arrangement against your profile. Code then cleans each link to its canonical form and skips anything already known (the same link, or the same company and title). It also skips anything on your **Never interested** list or clearly off-target. The rubric's Tier 1 score is computed for the rest, and each one becomes a new row, oldest email first.
+- **What it does with each email:** the model lists the email's jobs and judges each one's title fit and work arrangement against your profile. Code then cleans each link to its canonical form and skips anything already known (the same link, or the same company and title, where a company name with words added, such as "Acme" and "Acme Partners", counts as the same company). It also skips anything on your **Never interested** list or clearly off-target. The rubric's Tier 1 score is computed for the rest, and each one becomes a new row, oldest email first.
 - **Running it again** adds nothing new: everything it logged is already known.
 
 ### Score the plugin's Tier 2 jobs in shadow mode
