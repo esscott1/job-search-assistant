@@ -136,7 +136,7 @@ def find_duplicate(
             if job.canonical_url == canonical_url:
                 return job
     for job in known:
-        if _company(job.company) == _company(company) and _same_title(job.title, title):
+        if _same_company(job.company, company) and _same_title(job.title, title):
             return job
     return None
 
@@ -145,8 +145,18 @@ def _words(text: str) -> str:
     return " ".join(re.sub(r"[^a-z0-9+#]+", " ", text.lower()).split())
 
 
-def _company(name: str) -> str:
-    return " ".join(w for w in _words(name).split() if w not in _COMPANY_SUFFIXES)
+def _company(name: str) -> list[str]:
+    return [w for w in _words(name).split() if w not in _COMPANY_SUFFIXES]
+
+
+def _same_company(a: str, b: str) -> bool:
+    """The same name, or one name is the other with words added ("Sia" and "Sia Partners"): an
+    alert email and a career site often shorten or lengthen the same employer's name."""
+    x, y = _company(a), _company(b)
+    if not x or not y:
+        return x == y
+    shorter, longer = sorted((x, y), key=len)
+    return longer[: len(shorter)] == shorter
 
 
 def _same_title(a: str, b: str) -> bool:

@@ -101,6 +101,21 @@ def test_the_same_company_and_title_is_a_duplicate_without_a_link():
     assert policy.find_duplicate("", "Other Co", "IT Vendor Manager", KNOWN) is None
 
 
+def test_a_company_name_with_words_added_is_the_same_company():
+    known = [
+        KnownJob(id="JS-010", company="Initech Partners", title="Senior AI Architect"),
+        KnownJob(id="JS-011", company="Vandelay", title="Director, Data Office"),
+    ]
+    assert policy.find_duplicate("", "Initech", "Senior AI Architect", known).id == "JS-010"
+    assert policy.find_duplicate("", "Vandelay ACC", "Director, Data Office", known).id == "JS-011"
+    # Whole words from the start only, and the titles must still match.
+    assert policy.find_duplicate("", "Initechs", "Senior AI Architect", known) is None
+    assert policy.find_duplicate("", "Partners", "Senior AI Architect", known) is None
+    assert policy.find_duplicate("", "Initech", "AI Delivery Lead", known) is None
+    # A blank company never matches a named one.
+    assert policy.find_duplicate("", "", "Senior AI Architect", known) is None
+
+
 def test_never_interested_matches_whole_words_only():
     assert policy.is_never_interested("Retail Store Manager", ["sales", "retail"])
     assert not policy.is_never_interested("Salesforce Program Manager", ["sales"])
