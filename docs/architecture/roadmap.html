@@ -304,8 +304,9 @@
           <li>✓ An intake graph: Gmail, the model reads each email's job cards, canonical-URL dedup, Tier 1 score</li>
           <li>✓ Sheets: reads A's tracker for dedup; <code>SheetsTracker</code> on B's own shadow spreadsheet; <code>drive.file</code> sign-in with the Picker; the profile is the only place the tracker is named; ADR 0002 updated</li>
           <li>✓ D8 spike: picking a folder under <code>drive.file</code> grants the folder, not the files in it, so B reads A's JD files from the Drive-synced folder on disk</li>
-          <li><strong>Next, 6d:</strong> a Tier 2 graph that mirrors A's finished rows in shadow mode, from A's saved JDs</li>
-          <li>6e: scheduling (D7), the agreement report and the shadow week</li>
+          <li>✓ 6d, shadow mode: <code>jobs run tier2</code> scores each job A finished Tier 2 on, from A's saved JD, and records it in B's shadow with the run it mirrors</li>
+          <li><strong>Next, 6e:</strong> the agreement report, scheduling (D7) and the shadow week, before milestone 9</li>
+          <li>6d, cut-over mode: the Run Tier 2 checkbox as entry point and B fetching the JD itself; the graph 9c extends</li>
           <li>Google access through the developer's own OAuth client; milestone 8 replaces it for users</li>
         </ul>
         <div><div class="k">Done when</div><p>B runs in shadow mode for a week next to A, with an agreement report.</p></div>
@@ -345,6 +346,7 @@
           <li><strong>9d</strong>: evals measured like milestone 5; ADR 0006</li>
         </ul>
         <div><div class="k">Rules</div><p>The agent never writes the tracker; read-only tools by default; one node is one checkpoint, so agent nodes must be safe to re-run; scoring stays a structured call.</p></div>
+        <div><div class="k">Needs</div><p>The shadow week (6e), and 6d's cut-over mode, the Tier 2 graph 9c extends.</p></div>
         <div><div class="k">Done when</div><p>The intake node passes the plugin's intake case 3 of 3; the JD node finds most of its eval set and hands the rest to the paste step; agent failures end in <code>NeedsHuman</code>.</p></div>
       </article>
 

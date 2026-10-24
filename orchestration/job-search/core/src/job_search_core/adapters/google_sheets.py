@@ -2,6 +2,7 @@
 
 - `SheetsKnownJobs` reads A's tracker (the plugin's Job Log and Archive), read-only, for
   intake's dedup. Columns are found by header, as the job-tracker contract requires.
+- `SheetsPluginJobs` reads A's Job Log, read-only, for Tier 2 shadow mode.
 - `SheetsTracker` implements `TrackerPort` on B's shadow spreadsheet, which B creates
   (`create_shadow`) and A never sees. B never writes to A's tracker.
 
@@ -16,6 +17,7 @@ does: `ProfileKnownJobs` reads it on every call. Only B's own shadow is recorded
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Protocol
@@ -25,6 +27,7 @@ from ..domain import (
     DuplicateJobId,
     Job,
     KnownJob,
+    PluginJob,
     Status,
     StatusChange,
     StatusSource,
@@ -189,6 +192,57 @@ class ProfileKnownJobs:
         if not tracker_id:
             return self.also.known_jobs() if self.also else []
         return SheetsKnownJobs(self.client, tracker_id, self.also).known_jobs()
+
+
+_FIT_RUN = re.compile(r"^r(\d+)\b")  # the Fit Report cell shows "r<n>: <score>"
+
+
+class SheetsPluginJobs:
+    """The plugin's Job Log, read-only, for Tier 2 shadow mode. Columns are found by header."""
+
+    def __init__(self, client: SheetsClient, tracker_id: str):
+        self.client, self.tracker_id = client, tracker_id
+
+    def jobs(self) -> list[PluginJob]:
+        if JOB_LOG not in self.client.tabs(self.tracker_id):
+            raise TrackerSheetError('Tracker has no "Job Log" tab')
+        rows = self.client.read(self.tracker_id, JOB_LOG)
+        header = [h.strip() for h in rows[0]] if rows else []
+        _require(header, ["ID", "Company", "Job Title", "Score Tier", "Fit Report"], JOB_LOG)
+        out = []
+        for _, r in records(rows):
+            if not r["ID"].strip():
+                continue
+            score = r.get("Fit Score (1-10)", "").strip()
+            run = _FIT_RUN.match(r["Fit Report"].strip())
+            out.append(
+                PluginJob(
+                    id=r["ID"].strip(),
+                    company=r["Company"],
+                    title=r["Job Title"],
+                    source=r.get("Source", ""),
+                    location=r.get("Type / Location", ""),
+                    pay_range=r.get("Pay Range", ""),
+                    canonical_url=r.get("Canonical URL", "").strip(),
+                    score=int(score) if score.isdigit() else None,
+                    scoring_tier=r["Score Tier"].strip(),
+                    fit_run=int(run.group(1)) if run else None,
+                )
+            )
+        return out
+
+
+class ProfilePluginJobs:
+    """The Job Log of the tracker the profile names (Tracker → Sheet ID), read on every call."""
+
+    def __init__(self, client: SheetsClient, source: ProfileSourcePort):
+        self.client, self.source = client, source
+
+    def jobs(self) -> list[PluginJob]:
+        tracker_id = profile.tracker_sheet_id(self.source.read())
+        if not tracker_id:
+            raise TrackerSheetError('Profile setting "Tracker → Sheet ID" is blank')
+        return SheetsPluginJobs(self.client, tracker_id).jobs()
 
 
 def create_shadow(client: SheetsClient, title: str = "Job Search Tracker (pipeline shadow)") -> str:

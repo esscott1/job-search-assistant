@@ -222,6 +222,7 @@ class Job(BaseModel):
     found_on: date | None = None
     gmail_message_id: str | None = None
     email_received: date | None = None
+    plugin_run: int | None = None  # shadow mode: the plugin's fit-report run this score mirrors
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
 
@@ -230,6 +231,25 @@ class Job(BaseModel):
     def _read_legacy_tier(cls, value: object) -> object:
         """Rows saved before the tracker's tier names were adopted still load."""
         return _LEGACY_TIERS.get(value, value) if isinstance(value, str) else value
+
+
+class PluginJob(BaseModel):
+    """A row of the plugin's Job Log, as shadow mode reads it. B never writes the plugin's tracker.
+
+    `fit_run` is n in the Fit Report cell (`r<n>: <score>`): every Tier 2 run the plugin finishes
+    with a score writes a new fit report, so it says which run the row's score came from.
+    """
+
+    id: str
+    company: str
+    title: str
+    source: str = ""
+    location: str = ""
+    pay_range: str = ""
+    canonical_url: str = ""
+    score: int | None = None  # the plugin's Fit Score
+    scoring_tier: str = ""  # the plugin's Score Tier, as written
+    fit_run: int | None = None
 
 
 class StatusChange(BaseModel):

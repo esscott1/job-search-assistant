@@ -163,6 +163,20 @@ uv run jobs run intake
 - **What it does with each email:** the model lists the email's jobs and judges each one's title fit and work arrangement against your profile. Code then cleans each link to its canonical form and skips anything already known (the same link, or the same company and title). It also skips anything on your **Never interested** list or clearly off-target. The rubric's Tier 1 score is computed for the rest, and each one becomes a new row, oldest email first.
 - **Running it again** adds nothing new: everything it logged is already known.
 
+### Score the plugin's Tier 2 jobs in shadow mode
+
+In shadow mode, B scores each job the plugin has already scored against its full job description, from the JD file the plugin saved, so the two scores can be compared. It needs step 3 (B only reads your tracker), `JOBS_PROFILE` pointing at the profile in your Drive-synced job-search folder (step 4), and Google Drive for desktop syncing that folder: B reads the plugin's `<ID>_JD.md` files from disk, because the `drive.file` permission can't reach files the plugin created. Set `JOBS_TRACKER=sheets` so the results go to B's shadow spreadsheet.
+
+```bash
+uv run jobs run tier2 --dry-run          # the jobs it would score; no model call
+uv run jobs run tier2 --limit 5          # score at most five this run
+uv run jobs run tier2
+```
+
+- **What it picks:** rows whose Score Tier is `T2` or `T2-manual` and whose latest fit-report run (`r<n>` in the Fit Report cell) B hasn't scored yet. When the plugin rescores a job, B scores it again, keeping the requirement list from its last run on that same JD.
+- **What it writes:** B's score, gaps and breakdown in its shadow spreadsheet, under the plugin's ID. It never writes your tracker or touches the Run Tier 2 checkbox.
+- **What it skips:** a job whose JD file isn't in the synced folder is listed and picked up on a later run, as is a job whose model call failed.
+
 ## 6. Optional: tracing, Studio, and evals
 
 **LangSmith tracing.** Uncomment the `LANGSMITH_*` lines in `.env` and add a key from [smith.langchain.com](https://smith.langchain.com). Note that the LLM calls go through the Anthropic SDK directly (core doesn't depend on LangChain), so you'll see graph and node spans. Per-call LLM traces are a roadmap item.

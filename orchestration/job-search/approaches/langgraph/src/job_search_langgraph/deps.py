@@ -11,10 +11,12 @@ from job_search_core.adapters.files import (
     FileDocumentStore,
     FileProfileSource,
     ProfileResumeSource,
+    SyncedJobFiles,
 )
 from job_search_core.adapters.gmail import GmailMail
 from job_search_core.adapters.google_sheets import (
     ProfileKnownJobs,
+    ProfilePluginJobs,
     SheetsApi,
     SheetsSettings,
     SheetsTracker,
@@ -25,9 +27,11 @@ from job_search_core.adapters.sqlite_tracker import SqliteTracker
 from job_search_core.ports import (
     DocumentStorePort,
     JDFetcherPort,
+    JobFilesPort,
     KnownJobsPort,
     LLMPort,
     MailPort,
+    PluginJobsPort,
     ProfileSourcePort,
     ResumeSourcePort,
     TrackerPort,
@@ -44,6 +48,8 @@ class Deps:
     profile: ProfileSourcePort
     mail: MailPort | None = None  # intake only
     known: KnownJobsPort | None = None  # intake only: what dedup checks against
+    plugin_jobs: PluginJobsPort | None = None  # Tier 2 shadow only: the plugin's Job Log
+    job_files: JobFilesPort | None = None  # Tier 2 shadow only: the JDs the plugin saved
 
 
 # orchestration/job-search: relative paths in the settings below are taken from here, not from
@@ -107,4 +113,7 @@ def real_deps() -> Deps:
         profile=profile,
         mail=GmailMail(google_dir=google_dir()),  # signs in on first search
         known=known,
+        plugin_jobs=ProfilePluginJobs(sheets, profile),
+        # The plugin's job files, from the Drive-synced folder that holds the profile (D8).
+        job_files=SyncedJobFiles(profile),
     )

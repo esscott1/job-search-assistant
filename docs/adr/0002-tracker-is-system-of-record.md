@@ -29,7 +29,8 @@ Version A's tracker (the Claude skills) moved from the Excel workbook to a nativ
 Roadmap decision D2 is settled: the tracker behind `TrackerPort` can be a Google Sheet.
 
 - **`SheetsTracker`** implements `TrackerPort` on a spreadsheet B creates for itself, its shadow. Its Job Log uses the plugin's column names for what B fills in, so the two can be compared column by column, plus **Pipeline Status** (B's `Status`) and **Pipeline Data** (the `Job` as JSON, which B reads back). Status changes still go only through `transition()`, which checks `domain.TRANSITIONS` and adds a row to a **History** tab. JD text lives in a **JDs** tab, split across cells under the 50,000-character cell limit.
-- **The plugin's tracker is read, never written.** B reads its Job Log and Archive by column header for intake's dedup. The plugin's **Status** column remains the user's own.
+- **The plugin's tracker is read, never written.** B reads its Job Log and Archive by column header for intake's dedup, and its Job Log for Tier 2 shadow mode. The plugin's **Status** column remains the user's own.
+- **Tier 2 in shadow mode** puts the plugin's jobs in B's shadow under the plugin's own IDs, each with the plugin run its score mirrors (`Job.plugin_run`), so the agreement report pairs rows by ID. The JD comes from the file the plugin saved, read from the Drive-synced folder on disk, because `drive.file` doesn't reach files the plugin created (roadmap decision D8).
 - **The profile names the plugin's tracker** (Tracker → Sheet ID), for B as for the plugin; B keeps no copy of it, and records only its own shadow's ID.
 - **Access is `drive.file`:** the user approves the tracker the profile names once, in the Google Picker, and B creates its shadow, so B can reach those two spreadsheets and nothing else in the user's Drive.
 - **SQLite stays** for tests, the offline demo, and as the default until cut-over; `JOBS_TRACKER=sheets` selects the Sheet. Nothing writes to both.

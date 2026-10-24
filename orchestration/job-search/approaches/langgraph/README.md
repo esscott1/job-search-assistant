@@ -7,8 +7,10 @@ Orchestrates the job-search workflow as LangGraph state graphs over `job_search_
 | File | Role |
 |---|---|
 | `evaluate_graph.py` | fetch JD → score → (tailor → review) or below-threshold; human steps via `interrupt()` |
+| `intake_graph.py` | job-alert email → one model call per email → dedup and Tier 1 score in code → new rows |
+| `tier2_graph.py` | shadow mode: the plugin's finished Tier 2 jobs → one model call per job on the JD the plugin saved → rubric score in B's shadow |
 | `deps.py` | Picks the adapter for each port; the only place real versus fake is decided |
-| `cli.py` | The `jobs` command: evaluate, provide-jd, review, submit, list, show, auth |
+| `cli.py` | The `jobs` command: evaluate, provide-jd, review, submit, list, show, auth, run intake, run tier2 |
 | `demo.py` | `jobs demo`: all three paths with fakes |
 | `studio.py` + `langgraph.json` | Entry point for LangGraph Studio (`langgraph dev`) |
 

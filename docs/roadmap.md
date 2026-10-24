@@ -38,7 +38,7 @@ Why this shape: cost and behaviour stay predictable where they can be (the score
 
 ## Milestones
 
-The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it is complete. Milestone 4 runs in parallel from the start. 6 and 7 follow 5. 9, agent nodes, follows 6d; 8, the local app, follows 6 and needs 9b for its **Search for jobs** button. A hosted service is a stretch goal after 8, recorded as a strawman.
+The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it is complete. Milestone 4 runs in parallel from the start. 6 and 7 follow 5. 9, agent nodes, follows 6's shadow week and 6d's cut-over mode; 8, the local app, follows 6 and needs 9b for its **Search for jobs** button. A hosted service is a stretch goal after 8, recorded as a strawman.
 
 ### 1. Foundations ✅ done
 
@@ -129,8 +129,10 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - **6c, Sheets:** `jobs auth google` signs in with `drive.file` and the Google Picker (milestone 8's sign-in). B reads A's tracker for dedup and keeps its own jobs in a shadow spreadsheet through `SheetsTracker` (ADR 0002, updated). The tracker is named only by the profile's **Tracker → Sheet ID**, as for the plugin: the Picker approves access to that file, and B keeps no copy of its ID. Done.
   - B's fit prompt fixed (`fit-scoring/2.1`, milestone 5).
 - **D8 spike (2026-10-23):** under `drive.file`, picking a folder in the Picker grants access to the folder alone. Before and after the pick, B could not open or list the files inside it, at the top level or in a company subfolder, whether `.md` or Google Doc. The plugin saves job files as unconverted Markdown, so Drive for desktop syncs them to disk as ordinary `.md` files.
-- **Next, 6d: Tier 2 from the Sheet.** B reads A's saved `<ID>_JD.md` from the Drive-synced job-search folder on disk, the folder that holds the profile `JOBS_PROFILE` points to (decision D8).
-- **Then 6e:** `jobs run tier2`, the agreement report, scheduling (D7) and the shadow week.
+  - **6d, Tier 2 from the Sheet, in two parts:**
+    - **Shadow mode: done.** `jobs run tier2 [--dry-run] [--limit N]` reads A's Job Log (never writing it) and picks each job A scored against the full JD (`T2` or `T2-manual`) whose latest run, the `r<n>` in its Fit Report cell, B hasn't mirrored yet. It reads A's saved `<ID>_JD.md` from the Drive-synced job-search folder on disk, the folder holding the profile `JOBS_PROFILE` points to (decision D8), and scores it with `assess_fit` and the rubric. B's shadow records the result under A's ID, with the run it mirrors, so a rescore by A is mirrored again with the same requirement list. Run live against a real tracker, which B only reads: a dry run listed the jobs due and the ones with no saved JD, one scored job matched A's score, and the next dry run no longer listed it.
+    - **Cut-over mode: later, before milestone 9.** The **Run Tier 2** checkbox is the entry point, B fetches the JD itself, and the plugin's rules apply (results first, then Tier 2 Date, untick last; a rescore when `<ID>_JD.md` exists). This is the Tier 2 graph that 9c extends and the app's **Score (Tier 2)** button runs. It will be built and tested on fakes; switching it on in place of the plugin's Tier 2 is a later decision.
+- **Next, 6e: the shadow week.** The agreement report (`jobs report agreement`), scheduling (D7), then a week of `jobs run intake` and `jobs run tier2` next to A. It comes before milestone 9 builds on B's graphs.
 
 ### 7. Packaging for readers · docs
 
@@ -163,7 +165,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - **8b, tracker and statistics:** the Job Log and Archive through 6c's Sheets adapter; counts by status, score band and Tier 2 backlog; gap statistics computed in `core`, as the same function 4c's `gap_summary` exposes, so the page and the MCP server can't disagree.
   - **8c, actions:** each button starts a graph run through the run API and shows its progress.
     - **Search for jobs:** the intake graph with its agent node (9b), which runs the plugin's intake skill through headless Claude Code on the user's Claude login. Needs Claude Code installed and signed in.
-    - **Score (Tier 2):** the Tier 2 graph (6d); when a JD can't be fetched, the JD agent node (9c) tries before the page asks the user to paste it.
+    - **Score (Tier 2):** the Tier 2 graph in cut-over mode (6d); when a JD can't be fetched, the JD agent node (9c) tries before the page asks the user to paste it.
     - **Build resume:** the evaluate graph's tailor step; the review pause shows on the page as a card to approve or reject (decision D6).
   - **8d, publishing:** the OAuth app moves to Production after the brand check, so users see no "unverified app" warning and their sign-in doesn't expire weekly. ADR 0005: why Google access is split this way.
 - **B's own Gmail intake (6b)** stays for developers with their own Google project and for the shadow week; app users get intake through Claude instead.
@@ -185,7 +187,7 @@ The critical path to a measured comparison was **1 → 2 → 3 → 5**, and it i
   - **Read-only by default.** Its allowlist has no tool that sends, deletes or writes outside `data/`; email and web pages are untrusted input.
   - **One node is one checkpoint.** LangGraph checkpoints before and after the node, not inside the agent's run, so a failure re-runs the whole agent. Agent nodes must therefore be safe to re-run.
   - **Scoring stays a structured call.** `assess_fit` is not an agent: its path is known, and milestone 5 measured the difference.
-- **Depends on:** 6d (the Tier 2 graph that 9c extends) and the 2026-10-22 headless spike.
+- **Depends on:** 6d's cut-over mode (the Tier 2 graph that 9c extends), 6e's shadow week, and the 2026-10-22 headless spike.
 - **Done when:** the intake graph with its agent node passes the plugin's intake case in 3 of 3 runs; the JD node finds the JD for most of its eval set and routes the rest to the paste step; graph tests on the fake show an agent failure ending in `NeedsHuman`, never a crash or a tracker write.
 
 ### Later, behind a decision
@@ -237,8 +239,8 @@ A placeholder goal, recorded now so earlier milestones don't close it off, and t
 | 3. B scores like A | ✅ Done (ADR 0003 update; baseline 8/8 in `evals/job-fit/results/latest.json`) |
 | 4. Local MCP server | Proposed; can start any time |
 | 5. Measured comparison | ✅ Done, with borderline cases ([results](../orchestration/job-search/evals/comparison/results/RESULTS.md)); B's fit prompt fixed (18/18 on gold); the same rule for A's rubric is a follow-up |
-| 6. B to parity | In progress: 6a foundations, 6b intake and 6c Sheets done; D8 decided; 6d (Tier 2 from the Sheet) next |
+| 6. B to parity | In progress: 6a foundations, 6b intake, 6c Sheets and 6d's shadow mode done; 6e (agreement report, D7, the shadow week) next; 6d's cut-over mode before 9 |
 | 7. Packaging | First pass can start; final after 6 |
 | 8. Local app | Planned; spikes done; starts after 6d (6c done); needs D10, and 9b for Search for jobs; run API added to 8a |
-| 9. Agent nodes | Planned; follows 6d; decision D11 |
+| 9. Agent nodes | Planned; follows the shadow week (6e) and 6d's cut-over mode; decision D11 |
 | Stretch: hosted service | Strawman; decision D13 after 8 |

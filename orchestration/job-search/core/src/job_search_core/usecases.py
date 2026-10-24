@@ -9,7 +9,7 @@ from collections.abc import Callable
 from datetime import date
 
 from . import policy
-from .domain import DuplicateJobId, FitResult, Job, LeadCard, ScoringTier, Status
+from .domain import DuplicateJobId, FitResult, Job, LeadCard, PluginJob, ScoringTier, Status
 from .ports import DocumentStorePort, MailMessage, TrackerPort
 
 
@@ -89,13 +89,51 @@ def record_jd(tracker: TrackerPort, job_id: str, jd_text: str) -> Job:
     return tracker.save(job)
 
 
+def record_shadow_job(tracker: TrackerPort, row: PluginJob, jd_text: str) -> Job:
+    """Shadow mode: the plugin's job in B's tracker, under the plugin's ID, with the JD it saved.
+
+    Added the first time it's mirrored; after that only the JD changes, and only if the plugin's
+    saved JD did.
+    """
+    try:
+        job = tracker.get(row.id)
+    except KeyError:
+        return tracker.add(
+            Job(
+                id=row.id,
+                company=row.company,
+                title=row.title,
+                url=row.canonical_url or None,
+                source=row.source or None,
+                location=row.location or None,
+                pay_range=row.pay_range or None,
+                canonical_url=row.canonical_url,
+                jd_text=jd_text,
+            )
+        )
+    if job.jd_text != jd_text:
+        job.jd_text = jd_text
+        job = tracker.save(job)
+    return job
+
+
 def record_score(
-    tracker: TrackerPort, job_id: str, fit: FitResult, tier: ScoringTier = "T2"
+    tracker: TrackerPort,
+    job_id: str,
+    fit: FitResult,
+    tier: ScoringTier = "T2",
+    plugin_run: int | None = None,
 ) -> Job:
-    """Record a rubric score. `tier` says where the JD came from: T2 fetched, T2-manual pasted."""
+    """Record a rubric score. `tier` says where the JD came from: T2 fetched, T2-manual pasted.
+
+    In shadow mode, `plugin_run` is the plugin's run this score mirrors. It's saved with the
+    score, so a run that stops before this point is retried rather than counted as mirrored.
+    """
     job = tracker.get(job_id)
     job.fit = fit
     job.scoring_tier = tier
+    if plugin_run is not None:
+        job.plugin_run = plugin_run
     tracker.save(job)
     if job.status != Status.SCORED:  # idempotent on re-run after a crash
         job = tracker.transition(job_id, Status.SCORED, "pipeline", f"fit {fit.score}/10")

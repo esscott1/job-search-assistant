@@ -12,6 +12,8 @@ jobs review JOB_ID --approve | --reject [--note ...]
 jobs submit JOB_ID [--note ...]
 jobs set-status JOB_ID STATUS [--note ...]
 jobs run intake [--dry-run]       read the profile's job-alert email and log new leads (Tier 1)
+jobs run tier2 [--dry-run] [--limit N]
+                                  shadow mode: score the jobs the plugin finished Tier 2 on
 """
 
 from __future__ import annotations
@@ -33,6 +35,7 @@ from langgraph.types import Command
 from .deps import Deps, SettingError, data_dir, google_dir, profile_path, real_deps
 from .evaluate_graph import build_evaluate_graph, fresh_input, pending_interrupt
 from .intake_graph import build_intake_graph
+from .tier2_graph import build_tier2_graph
 
 
 def _graph(deps: Deps):
@@ -205,6 +208,31 @@ def cmd_run_intake(args, deps):
         print(f"  {s['company']} — {s['title']}: {s['reason']}")
 
 
+def cmd_run_tier2(args, deps):
+    result = build_tier2_graph(deps).invoke({"dry_run": args.dry_run, "limit": args.limit})
+    if args.dry_run:
+        print(f"Would score {len(result['due'])}:")
+        for d in result["due"]:
+            row = d["row"]
+            print(f"  {row['id']:10} {row['company']} — {row['title']}  (plugin r{row['fit_run']})")
+    else:
+        print(f"Scored {len(result['scored'])}:")
+        for s in result["scored"]:
+            kind = "rescore" if s["rescore"] else "first read"
+            print(
+                f"  {s['id']:10} {s['company']} — {s['title']}  B {s['score']}, "
+                f"plugin {s['plugin_score']} (r{s['run']}, {kind})"
+            )
+        if result["failed"]:
+            print(f"Failed {len(result['failed'])} (tried again next run):")
+            for f in result["failed"]:
+                print(f"  {f['id']:10} {f['error']}")
+    if result["waiting"]:
+        print(f"Not scored this run {len(result['waiting'])}:")
+        for w in result["waiting"]:
+            print(f"  {w['id']:10} {w['reason']}")
+
+
 def cmd_demo(args, _deps):
     from .demo import run_demo
 
@@ -272,6 +300,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run", action="store_true", help="show what would be logged; write nothing"
     )
     a.set_defaults(fn=cmd_run_intake)
+    a = stages.add_parser("tier2")
+    a.add_argument(
+        "--dry-run", action="store_true", help="show what would be scored; call no model"
+    )
+    a.add_argument("--limit", type=int, help="score at most N jobs this run")
+    a.set_defaults(fn=cmd_run_tier2)
     return p
 
 
